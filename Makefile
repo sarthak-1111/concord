@@ -34,3 +34,9 @@ eval-agents:  # adds visual inspection + generator-critic loop (LLM, ~minutes pe
 
 analyze:  # make analyze S=dataset/samples/s0010
 	uv run python -W ignore -m concord.analysis $(S)
+
+api:  # web API on localhost:8000
+	uv run uvicorn backend.app.main:app --port 8000
+
+ui:  # web UI on localhost:3000 (start `make api` first)
+	cd web && (test -d node_modules || npm ci) && npm run dev

@@ -1,121 +1,167 @@
-import uuid
+"""Concord web API. Extends CrystaLenz's run-and-stream server (POST /api/runs, then WS /api/runs/{id}/stream) with
+sample listing, per-sample result views and plot files. Run it with `make api` (binds to localhost).
+
+  GET  /api/samples                  samples in dataset/samples (metadata only, never ground truth)
+  GET  /api/samples/{id}             result view: checks, evidence, plots, critic log, report (404 until analysed)
+  GET  /api/samples/{id}/export      ?format=json (full analysis + agent run) or ?format=md (report)
+  POST /api/runs                     {sample, mode: "fast" | "full"} → {run_id}
+  WS   /api/runs/{run_id}/stream     progress events, then {type: "result", payload: view}, then {type: "done"}
+  GET  /files/{id}/...               plot images
+"""
+import asyncio
 import json
-import base64
-from typing import Any, AsyncGenerator, Dict, Optional
+import uuid
+from pathlib import Path
 
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
-from starlette.responses import JSONResponse
-from starlette.routing import Route, WebSocketRoute
-from starlette.websockets import WebSocket, WebSocketDisconnect
+from starlette.responses import JSONResponse, Response
+from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
+from starlette.websockets import WebSocket, WebSocketDisconnect
 
-from google.adk.runners import InMemoryRunner, RunConfig
-from google.genai.types import Content, Part
+from concord.agents.evidence import bundle
+from concord.agents.pipeline import report_markdown, run_sample_async
+from concord.analysis import analyze, load_inputs, to_json
+from concord.config import ROOT
+from concord.vision.check import plots
 
-try:
-    from src.agent import root_agent
-except ModuleNotFoundError:
-    import os as _os, sys as _sys
-    _repo_root = _os.path.abspath(_os.path.join(_os.path.dirname(__file__), "..", ".."))
-    if _repo_root not in _sys.path:
-        _sys.path.insert(0, _repo_root)
-    from src.agent import root_agent
-
-# In-memory store for demo; replace with DB if needed
-RUN_INPUTS: Dict[str, Dict[str, Any]] = {}
+SAMPLES = ROOT / "dataset" / "samples"
+RUNS = ROOT / "results" / "runs"
+ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+RUN_REQUESTS: dict[str, dict] = {}
+RUNS.mkdir(parents=True, exist_ok=True)
 
 
-def _make_json_safe(value: Any) -> Any:
-    if isinstance(value, dict):
-        return {k: _make_json_safe(v) for k, v in value.items()}
-    if isinstance(value, list):
-        return [_make_json_safe(v) for v in value]
-    if isinstance(value, tuple):
-        return [_make_json_safe(v) for v in value]
-    if isinstance(value, set):
-        return [_make_json_safe(v) for v in value]
-    if isinstance(value, bytes):
-        return base64.b64encode(value).decode("ascii")
-    # Fallback: if not JSON serializable, stringify
-    try:
-        json.dumps(value)
-        return value
-    except Exception:
-        return str(value)
+def _folder(sid: str) -> Path | None:
+    folder = (SAMPLES / sid).resolve()
+    return folder if folder.parent == SAMPLES.resolve() and folder.is_dir() else None
 
 
-async def run_agent_stream(user_input: str, options: Optional[Dict[str, Any]] = None, *, session_id: str) -> AsyncGenerator[Dict[str, Any], None]:
-    yield {"type": "status", "payload": "starting"}
-    try:
-        from pathlib import Path
-        import os
-        project_root = str(Path(__file__).resolve().parents[2])
-        prev_cwd = os.getcwd()
-        os.chdir(project_root)
-        try:
-            runner = InMemoryRunner(agent=root_agent, app_name="CrystaLens")
-            # Ensure the session exists before running (async method preferred)
-            await runner.session_service.create_session(app_name="CrystaLens", user_id="web", session_id=session_id)
-            message = Content(role="user", parts=[Part(text=user_input)])
-            async for event in runner.run_async(user_id="web", session_id=session_id, new_message=message, run_config=RunConfig()):
-                try:
-                    payload_raw = event.model_dump(by_alias=True)
-                except Exception:
-                    payload_raw = str(event)
-                payload = _make_json_safe(payload_raw)
-                yield {"type": "event", "payload": payload}
-        finally:
-            os.chdir(prev_cwd)
-        yield {"type": "done"}
-    except Exception as exc:  # pragma: no cover
-        yield {"type": "error", "payload": str(exc)}
+def _agents(sid: str) -> dict | None:
+    p = RUNS / sid / "agents.json"
+    return json.loads(p.read_text()) if p.exists() else None
 
 
-async def create_run(request: Request):
+def _plots(sid: str, a: dict, mtime: float) -> dict[str, str]:
+    """Plot URLs; re-rendered when the analysis is newer than the last rendering."""
+    index = RUNS / sid / "plots.json"
+    if index.exists() and index.stat().st_mtime >= mtime:
+        names = json.loads(index.read_text())
+    else:
+        names = {k: Path(v).name for k, v in plots(a, RUNS / sid).items()}
+        index.write_text(json.dumps(names))
+    return {k: f"/files/{sid}/{n}?v={int(index.stat().st_mtime)}" for k, n in names.items()}
+
+
+def view(sid: str) -> dict | None:
+    cached = RUNS / f"{sid}.json"
+    if not cached.exists():
+        return None
+    a, mtime = json.loads(cached.read_text()), cached.stat().st_mtime
+    ag = _agents(sid)
+    v = a.get("virtual_xafs")
+    return {
+        "sample_id": sid, "composition": a["inputs"]["composition"], "techniques": a["inputs"]["techniques"],
+        "assumed": a["inputs"].get("assumed", []), "phase": a["phase"], "checks": a["checks"], "errors": a["errors"],
+        "timings_s": a["timings_s"], "evidence": ag["evidence"] if ag else bundle(a), "plots": _plots(sid, a, mtime),
+        "virtual_xafs": v and {k: v.get(k) for k in ("label", "absorber", "edge", "candidates", "members", "theta_K_range",
+                                                      "recommendation", "vs_measured", "per_candidate")},
+        "agents": ag and {**{k: ag.get(k) for k in ("model", "log", "rounds", "confirmed", "unsupported_numbers", "wall_s", "llm")},
+                          "stale": (RUNS / sid / "agents.json").stat().st_mtime < mtime},  # analysis re-run after the agents
+        "vision": ag and {t: {"accepted": x["accepted"], "verdict": x["visual"]["verdict"], "inspector": x["visual"]["inspector"],
+                              "issues": x["visual"]["issues"], "numerical": x["numerical"]}
+                          for t, x in (ag.get("vision") or {}).items() if "visual" in x},
+        "report_md": ag["report_md"] if ag else report_markdown({"analysis": a}),
+    }
+
+
+async def samples(request: Request) -> JSONResponse:
+    split_file = SAMPLES.parent / "splits.json"
+    splits = json.loads(split_file.read_text()) if split_file.exists() else {}
+    split_of = {s: name for name, ids in splits.items() for s in ids}
+    rows = []
+    for d in sorted(p for p in SAMPLES.iterdir() if p.is_dir()) if SAMPLES.exists() else []:
+        meta = load_inputs(d)
+        rows.append({"id": d.name, "composition": meta["composition"], "techniques": meta["techniques"], "split": split_of.get(d.name),
+                     "analysed": (RUNS / f"{d.name}.json").exists(), "agents": (RUNS / d.name / "agents.json").exists()})
+    return JSONResponse(rows)
+
+
+async def sample(request: Request) -> JSONResponse:
+    sid = request.path_params["sid"]
+    if not _folder(sid):
+        return JSONResponse({"error": f"no sample {sid}"}, status_code=404)
+    v = await asyncio.to_thread(view, sid)
+    return JSONResponse(v) if v else JSONResponse({"error": "not analysed yet"}, status_code=404)
+
+
+async def export(request: Request) -> Response:
+    sid, fmt = request.path_params["sid"], request.query_params.get("format", "json")
+    cached = RUNS / f"{sid}.json"
+    if not _folder(sid) or not cached.exists() or fmt not in ("json", "md"):
+        return JSONResponse({"error": "nothing to export"}, status_code=404)
+    head = {"Content-Disposition": f'attachment; filename="concord_{sid}.{fmt}"'}
+    if fmt == "md":
+        return Response((await asyncio.to_thread(view, sid))["report_md"], media_type="text/markdown", headers=head)
+    body = {"analysis": json.loads(cached.read_text()), "agents": _agents(sid)}
+    return Response(json.dumps(body, indent=1), media_type="application/json", headers=head)
+
+
+async def create_run(request: Request) -> JSONResponse:
     data = await request.json()
-    user_input = data.get("input", "")
-    options = data.get("options")
+    sid, mode = data.get("sample", ""), data.get("mode", "fast")
+    if not _folder(sid) or mode not in ("fast", "full"):
+        return JSONResponse({"error": "need an existing sample and mode fast or full"}, status_code=400)
     run_id = str(uuid.uuid4())
-    RUN_INPUTS[run_id] = {"input": user_input, "options": options}
+    RUN_REQUESTS[run_id] = {"sample": sid, "mode": mode}
     return JSONResponse({"run_id": run_id})
 
 
-async def stream_run(websocket: WebSocket) -> None:
-    await websocket.accept()
-    run_id = websocket.path_params.get("run_id")
-    if not run_id or run_id not in RUN_INPUTS:
-        await websocket.send_json({"type": "error", "payload": f"Unknown run_id {run_id}"})
-        await websocket.close()
+async def stream_run(ws: WebSocket) -> None:
+    if ws.headers.get("origin") not in ORIGINS:  # CORS does not cover WebSockets; runs cost LLM time
+        await ws.close(code=1008)
         return
+    await ws.accept()
+    req = RUN_REQUESTS.pop(ws.path_params["run_id"], None)
 
-    req = RUN_INPUTS[run_id]
+    async def send(kind: str, payload=None) -> None:
+        await ws.send_json({"type": kind, "payload": payload})
+
+    async def on_event(event) -> None:
+        text = " ".join(p.text for p in (event.content.parts if event.content else []) if p.text)
+        if text:
+            await send("event", {"author": event.author, "content": {"parts": [{"text": text[:4000]}]}})
+
     try:
-        async for event in run_agent_stream(req.get("input", ""), req.get("options"), session_id=run_id):
-            await websocket.send_json(event)
+        if req is None:
+            await send("error", "unknown run id")
+            return
+        sid, cached = req["sample"], RUNS / f"{req['sample']}.json"
+        if req["mode"] == "fast" or not cached.exists():
+            await send("status", "running the tools and checks: XRD, PDF, EXAFS, XANES, virtual XAFS, C1–C7")
+            res = await asyncio.to_thread(analyze, SAMPLES / sid)
+            cached.write_text(json.dumps(to_json(res)))
+        if req["mode"] == "full":
+            await send("status", "visual inspection and generator–critic loop (gpt-oss)")
+            await run_sample_async(SAMPLES / sid, RUNS / sid, on_event=on_event, precomputed=cached)
+        await send("result", await asyncio.to_thread(view, sid))
+        await send("done")
     except WebSocketDisconnect:
         pass
+    except Exception as exc:  # reported to the page; LLM errors carry no endpoint address
+        await send("error", f"{type(exc).__name__}: {exc}")
     finally:
-        await websocket.close()
+        await ws.close()
 
 
-routes = [
+app = Starlette(routes=[
+    Route("/api/samples", samples),
+    Route("/api/samples/{sid}", sample),
+    Route("/api/samples/{sid}/export", export),
     Route("/api/runs", create_run, methods=["POST"]),
     WebSocketRoute("/api/runs/{run_id}/stream", stream_run),
-]
-
-app = Starlette(routes=routes)
-
-# Serve generated artifacts (HTML/PNG) from xrd_outputs
-from pathlib import Path as _Path
-_outputs_dir = str(_Path(__file__).resolve().parents[2] / "xrd_outputs")
-app.mount("/xrd_outputs", StaticFiles(directory=_outputs_dir), name="xrd_outputs")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    Mount("/files", StaticFiles(directory=RUNS), name="files"),
+])
+app.add_middleware(CORSMiddleware, allow_origins=ORIGINS, allow_methods=["GET", "POST"], allow_headers=["Content-Type"])

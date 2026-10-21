@@ -4,6 +4,9 @@ import { useState } from "react";
 export type EventPayload = any;
 
 export default function EventCard({ event }: { event: { type: string; payload?: EventPayload } }) {
+  const [showFullText, setShowFullText] = useState(false);
+  const [showFullCall, setShowFullCall] = useState(false);
+  const [showFullResp, setShowFullResp] = useState(false);
   const p = event?.payload ?? {};
   const author = (p as any)?.author ?? (p as any)?.actions?.author ?? "";
   const content = (p as any)?.content ?? {};
@@ -20,10 +23,7 @@ export default function EventCard({ event }: { event: { type: string; payload?: 
   const hasContent = !!(text || functionCallDisplay || functionResponseDisplay);
   if (!hasContent && !author) return null;
 
-  const isFinal = author === "final_analizer_agent" || author === "crystalens_root_agent";
-  const [showFullText, setShowFullText] = useState(false);
-  const [showFullCall, setShowFullCall] = useState(false);
-  const [showFullResp, setShowFullResp] = useState(false);
+  const isFinal = author === "reporter";
 
   const MAX_TEXT = 700;
   const MAX_JSON = 800;
@@ -40,7 +40,7 @@ export default function EventCard({ event }: { event: { type: string; payload?: 
   const respToRender = respOverflow && !showFullResp ? respJson.slice(0, MAX_JSON) + "…" : respJson;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm animate-fade-in-up">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-end">
         {author ? (
           <span className="inline-flex items-center rounded-full bg-[#d68e2f] px-2.5 py-1 text-xs font-medium text-white">

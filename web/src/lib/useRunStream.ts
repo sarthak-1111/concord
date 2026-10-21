@@ -12,6 +12,7 @@ export function useRunStream(runId?: string) {
 
   useEffect(() => {
     if (!runId) return;
+    setEvents([]);
     const url = `${process.env.NEXT_PUBLIC_API_WS}/api/runs/${runId}/stream`;
     const ws = new WebSocket(url);
     wsRef.current = ws;
