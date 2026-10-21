@@ -84,21 +84,46 @@ class LLMClient:
             t0 = time.time()
             try:
                 with self._slots:
-                    r = self.http.post(f"{self.base_url}/api/chat", json=body, timeout=self.timeout_s[level],
-                                       headers={"Authorization": f"Bearer {self._api_key}"})
-                if r.status_code == 429 or r.status_code >= 500:
-                    raise _Retryable(f"HTTP {r.status_code}")
-                if r.status_code >= 400:
-                    raise LLMError(f"LLM endpoint returned HTTP {r.status_code}: {r.text[:200]}")
-                return r.json(), time.time() - t0
+                    r = self.http.post(f"{self.base_url}/api/chat", json=body, timeout=(15, self.timeout_s[level]),
+                                       headers={"Authorization": f"Bearer {self._api_key}"}, stream=bool(body.get("stream")))
+                    if r.status_code == 429 or r.status_code >= 500:
+                        raise _Retryable(f"HTTP {r.status_code}")
+                    if r.status_code >= 400:
+                        raise LLMError(f"LLM endpoint returned HTTP {r.status_code}: {r.text[:200]}")
+                    data = self._collect(r, t0, self.timeout_s[level]) if body.get("stream") else r.json()
+                return data, time.time() - t0
             except (requests.ConnectionError, requests.Timeout, _Retryable) as exc:
                 last = exc
-                self._trace().log("llm_retry", role=role, attempt=attempt + 1, error=type(exc).__name__)
+                # HTTP status only: connection errors embed the endpoint URL, which counts as a secret here
+                self._trace().log("llm_retry", role=role, attempt=attempt + 1, error=str(exc) if isinstance(exc, _Retryable) else type(exc).__name__)
                 if attempt < self.max_retries:
                     time.sleep(self.backoff_s * 2 ** attempt)
         raise EndpointDown(f"LLM endpoint {self.host} not responding after {self.max_retries + 1} attempts "
                            f"({type(last).__name__}: {str(last)[:120]}). The URL can change between sessions: "
                            f"check LLM_BASE_URL in .env.")
+
+    @staticmethod
+    def _collect(r, t0: float, limit: float) -> dict:
+        """Merge a streamed /api/chat reply (NDJSON chunks) into the non-streamed shape. Streaming keeps bytes moving
+        through proxies that cut idle requests (Cloudflare tunnels close after 100 s without data)."""
+        msg = {"role": "assistant", "content": "", "thinking": ""}
+        last: dict = {}
+        for line in r.iter_lines():
+            if time.time() - t0 > limit:
+                raise requests.Timeout(f"no complete reply within {limit} s")
+            if not line:
+                continue
+            last = json.loads(line)
+            if "error" in last:
+                raise _Retryable(f"stream error: {str(last['error'])[:80]}")
+            m = last.get("message", {})
+            msg["content"] += m.get("content") or ""
+            msg["thinking"] += m.get("thinking") or ""
+            if m.get("tool_calls"):
+                msg.setdefault("tool_calls", []).extend(m["tool_calls"])
+        if not last.get("done"):
+            raise _Retryable("stream ended before done")
+        return {**last, "message": msg}
 
     # -- capability probe ------------------------------------------------------------------
     def capabilities(self) -> dict:
@@ -146,7 +171,7 @@ class LLMClient:
         caps = self.capabilities()
         json_schema = schema.model_json_schema() if isinstance(schema, type) else schema
         msgs = list(messages)
-        body: dict = {"model": self.model, "think": level, "stream": False}
+        body: dict = {"model": self.model, "think": level, "stream": True}
         if tools:
             if caps["tools"]:
                 body["tools"] = tools

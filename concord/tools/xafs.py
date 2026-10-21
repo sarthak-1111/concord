@@ -129,9 +129,9 @@ def shell_fit(k: np.ndarray, chi: np.ndarray, paths: list, s02: float, kmin: flo
                      f"dr{i}": param(0.0, vary=True, min=-0.3, max=0.3),
                      f"ss{i}": param(0.005, vary=True, min=0.0005, max=0.05)})
         fit_paths[el] = feffpath(p.filename, degen=1.0, s02=f"s02*n{i}", e0="de0", deltar=f"dr{i}", sigma2=f"ss{i}")
-    for j, p in enumerate(extra or []):
-        pars.update({f"nx{j}": param(0.5, vary=True, min=0.0, max=12.0), f"drx{j}": param(0.0, vary=True, min=-0.3, max=0.3),
-                     f"ssx{j}": param(0.005, vary=True, min=0.001, max=0.03)})
+    for j, p in enumerate(extra or []):  # a test shell stays a plausible bond: ±0.15 Å, σ² of a stiff bond at most 0.01 Å²
+        pars.update({f"nx{j}": param(0.5, vary=True, min=0.0, max=12.0), f"drx{j}": param(0.0, vary=True, min=-0.15, max=0.15),
+                     f"ssx{j}": param(0.004, vary=True, min=0.001, max=0.01)})
         fit_paths[f"extra{j}"] = feffpath(p.filename, degen=1.0, s02=f"s02*nx{j}", e0="de0", deltar=f"drx{j}", sigma2=f"ssx{j}")
     background = [p for p in paths if p.reff <= nearest + outer and not (p.nleg == 2 and p.reff <= nearest + shell_tol)]
     if background:
@@ -159,7 +159,10 @@ def shell_fit(k: np.ndarray, chi: np.ndarray, paths: list, s02: float, kmin: flo
         rows.append({"neighbor": p.geom[1][0], "N": n, "N_err": dn, "R_A": float(p.reff + dr), "R_err": ddr, "sigma2": ss,
                      "sigma2_err": dss, "reff_A": float(p.reff), "N_model": 0.0, "extra": True})
     de0 = val("de0")
-    return {"shells": rows, "e0_shift": de0[0], "e0_err": de0[1], "s02": s02, "rfactor": float(out.rfactor),
+    d = out.datasets[0]
+    curves = {"r": np.asarray(d.data.r), "chir_mag_data": np.asarray(d.data.chir_mag), "chir_mag_model": np.asarray(d.model.chir_mag),
+              "k": np.asarray(d.data.k), "chi_data": np.asarray(d.data.chi), "chi_model": np.asarray(d.model.chi)}
+    return {"shells": rows, "e0_shift": de0[0], "e0_err": de0[1], "s02": s02, "rfactor": float(out.rfactor), "curves": curves,
             "chi2_reduced": float(out.chi2_reduced), "n_idp": float(out.n_independent), "n_varys": int(out.nvarys),
             "background": {"n_paths": len(background), **({k_: val(k_)[0] for k_ in ("d_out", "alpha_out", "ss_out")} if background else {})},
             "window": {"kmin": kmin, "kmax": kmax, "rmin": rmin, "rmax": rmax, "kweight": kweight}}
@@ -174,11 +177,13 @@ def probe_path(absorber: str, edge: str, neighbor: str = "O", r: float = 2.0):
 
 
 def simulate_chi(paths: list, s02: float, temperature: float, theta_d: float, density: float, e0_shift: float = 0.0,
-                 k: np.ndarray | None = None, sigma2_extra: float = 0.0) -> tuple[np.ndarray, np.ndarray]:
-    """χ(k) from FEFF paths with correlated-Debye σ² per path; density in atoms/Å³."""
+                 k: np.ndarray | None = None, sigma2_extra: float = 0.0, theta_pairs: dict | None = None) -> tuple[np.ndarray, np.ndarray]:
+    """χ(k) from FEFF paths with correlated-Debye σ² per path; density in atoms/Å³. theta_pairs: Debye temperatures
+    for specific absorber–scatterer pairs, e.g. {"Pt-O": 400}."""
     for p in paths:
         p.s02, p.e0 = s02, e0_shift
-        p.sigma2 = path_sigma2(p, theta_d, temperature, density) + sigma2_extra
+        theta = (theta_pairs or {}).get(f"{p.geom[0][0]}-{p.geom[1][0]}", theta_d)
+        p.sigma2 = path_sigma2(p, theta, temperature, density) + sigma2_extra
     k = np.arange(0, 18.0, 0.05) if k is None else k
     g = ff2chi(paths, k=k)
     return np.asarray(g.k), np.asarray(g.chi)

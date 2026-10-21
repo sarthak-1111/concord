@@ -2,6 +2,7 @@
 metrics with the thresholds registered in eval/config.yaml. Writes results/eval.json and results/eval.md and
 exits 1 when a threshold is missed. Only this module reads ground truth; concord.analysis never does."""
 import argparse
+import asyncio
 import json
 import time
 from concurrent.futures import ProcessPoolExecutor
@@ -84,8 +85,17 @@ def metrics(rows: list[dict]) -> dict:
         "checks_reported": mean([all(c in r["checks"] for c in CHECK_IDS) for r in rows]),
         "runtime_s_mean": mean([r["runtime_s"] for r in rows]),
         "runtime_s_max": max((r["runtime_s"] for r in rows), default=None),
-        "llm_tokens_per_sample": 0,  # the deterministic pipeline makes no LLM calls; agents report their own
+        "llm_tokens_per_sample": 0,  # the deterministic pipeline makes no LLM calls; agent mode fills this in
     }
+    agent_rows = [r for r in rows if "agents" in r and "error" not in r["agents"]]
+    if agent_rows:  # agent mode: an objection confirmed by a re-run (decided by the check tolerances) also flags a sample
+        m["llm_tokens_per_sample"] = mean([r["agents"]["tokens"] for r in agent_rows])
+        m["agent_wall_s_mean"] = mean([r["agents"]["wall_s"] for r in agent_rows])
+        m["agent_rounds_mean"] = mean([r["agents"]["rounds"] for r in agent_rows])
+        m["fault_detection_rate_agents"] = mean([r["flagged"] or bool(r["agents"]["confirmed"]) for r in agent_rows if r["faults"]])
+        m["false_alarm_rate_agents"] = mean([r["flagged"] or bool(r["agents"]["confirmed"]) for r in agent_rows if not r["faults"]])
+        m["unsupported_numbers_total"] = sum(len(r["agents"]["unsupported_numbers"]) for r in agent_rows)
+        m["agent_errors"] = len([r for r in rows if "agents" in r]) - len(agent_rows)
     for tech in ("xrd", "pdf", "exafs"):
         errs = [abs(r["size_rel_err"][tech]) for r in clean if tech in r.get("size_rel_err", {})]
         m[f"size_rel_mae_{tech}"] = mean(errs)
@@ -112,8 +122,10 @@ def markdown(m: dict, verdict: dict, rows: list[dict], cfg: dict) -> str:
     for name, v in verdict.items():
         thr = f"≥ {v['min']}" if "min" in v else f"≤ {v['max']}"
         lines.append(f"| {name} | {fmt(v['value'])} | {thr} | {'pass' if v['pass'] else '**FAIL**'} |")
-    lines += ["", "Other numbers: " + ", ".join(f"{k} {fmt(m[k])}" for k in
-              ("size_rel_mae_exafs", "fault_warn_or_fail_rate", "warn_rate_clean", "runtime_s_max", "llm_tokens_per_sample")), "",
+    extra = ("size_rel_mae_exafs", "fault_warn_or_fail_rate", "warn_rate_clean", "runtime_s_max", "llm_tokens_per_sample",
+             "agent_wall_s_mean", "agent_rounds_mean", "fault_detection_rate_agents", "false_alarm_rate_agents",
+             "unsupported_numbers_total", "agent_errors")
+    lines += ["", "Other numbers: " + ", ".join(f"{k} {fmt(m[k])}" for k in extra if k in m), "",
               "## Fault detection by type", "", "| fault | detected |", "|---|---|"]
     lines += [f"| {t} | {fmt(v)} |" for t, v in m["fault_detection_by_type"].items()]
     lines += ["", "## Per sample", "", "| sample | split | fault | phase (true) | " + " | ".join(CHECK_IDS) + " | s |",
@@ -125,6 +137,16 @@ def markdown(m: dict, verdict: dict, rows: list[dict], cfg: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+async def _agents(todo: list, root: Path, runs: Path) -> list:
+    from concord.agents.pipeline import run_sample_async
+    slots = asyncio.Semaphore(2)  # two samples at a time; the LLM client caps concurrent requests itself
+
+    async def one(sid: str):
+        async with slots:
+            return await run_sample_async(root / "samples" / sid, runs / sid, precomputed=runs / f"{sid}.json")
+    return await asyncio.gather(*(one(sid) for sid, _ in todo), return_exceptions=True)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--config", type=Path, default=ROOT / "eval" / "config.yaml")
@@ -133,6 +155,7 @@ def main() -> int:
     ap.add_argument("--dataset", default=None, help="override the dataset folder (development runs, e.g. dataset_big)")
     ap.add_argument("--splits", nargs="+", default=None, help="override the splits")
     ap.add_argument("--min-index", type=int, default=0, help="skip samples below this number (dataset_big s0000-s0059 = v1)")
+    ap.add_argument("--agents", action="store_true", help="also run the visual inspection and generator-critic loop (LLM)")
     a = ap.parse_args()
     cfg = yaml.safe_load(a.config.read_text())
     cfg["dataset"], cfg["splits"] = a.dataset or cfg["dataset"], a.splits or cfg["splits"]
@@ -149,6 +172,13 @@ def main() -> int:
     for (sid, sp), res in zip(todo, results):
         (runs / f"{sid}.json").write_text(json.dumps(res))
         rows.append(score(res, json.loads((root / "samples" / sid / "sample.json").read_text()), sp))
+    if a.agents:
+        for row, ar in zip(rows, asyncio.run(_agents(todo, root, runs))):
+            row["agents"] = ({"error": f"{type(ar).__name__}: {ar}"} if isinstance(ar, Exception) else
+                             {"rounds": ar["rounds"], "confirmed": ar["confirmed"], "objections": len(ar["log"]),
+                              "discarded": sum(e["status"] == "discarded" for e in ar["log"]), "unsupported_numbers": ar["unsupported_numbers"],
+                              "tokens": ar["llm"]["prompt_tokens"] + ar["llm"]["completion_tokens"], "llm_calls": ar["llm"]["llm_calls"],
+                              "wall_s": ar["wall_s"], "phase": (ar["model"] or {}).get("phase")})
     m = metrics(rows)
     verdict = judge(m, cfg["thresholds"])
     report = {"dataset": cfg["dataset"], "splits": cfg["splits"], "wall_s": round(time.time() - t0, 1), "metrics": m,

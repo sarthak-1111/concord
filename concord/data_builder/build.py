@@ -139,14 +139,20 @@ def build_sample(spec: dict) -> dict:
     if fault == "oxide_shell":
         coverage = float(rng.uniform(0.5, 0.9))
         atoms, n_ox = M.add_oxide_shell(atoms, "Pt", rng, coverage)
-        n_pt = sum(1 for s in atoms.get_chemical_symbols() if s == "Pt")
-        f = n_ox / n_pt
-        valences = {0.0: 1 - f, 2.0: f}
-        oxidation["Pt"] = 2 * f
+        # per-Pt valence from its Pt-O bonds: 0.5 v.u. each at 2.0 Å (four bonds of 2.02 Å make Pt2+ in PtO), at most 2
+        from scipy.spatial import cKDTree
+        sym = np.array(atoms.get_chemical_symbols())
+        pos = atoms.get_positions()
+        n_o = np.array([len(nb) for nb in cKDTree(pos[sym == "O"]).query_ball_point(pos[sym == "Pt"], r=2.15)]) if (sym == "O").any() else np.zeros((sym == "Pt").sum())
+        val = np.minimum(2.0, 0.5 * n_o)
+        valences = {float(v): float(np.mean(val == v)) for v in np.unique(val)}
+        f = float(np.mean(n_o > 0))
+        oxidation["Pt"] = float(val.mean())
         oxidation["O"] = -2.0
         phases = [{"name": sd["name"], "space_group": None, "fraction": 1 - f, "source": cif},
                   {"name": "PtO surface oxide (disordered)", "space_group": None, "fraction": f, "source": "planted"}]
-        detail = f"{n_ox} surface Pt atoms ({100 * f:.0f} % of Pt) bonded to O at 2.0 Å (PtO-like shell)"
+        detail = (f"{int((n_o > 0).sum())} surface Pt atoms ({100 * f:.0f} % of Pt) bonded to O at 2.0 Å (PtO-like layer, "
+                  f"{n_o[n_o > 0].mean():.1f} O per oxidised Pt, mean Pt valence {val.mean():.2f})")
     if fault == "mixed_oxidation_states":
         n_o = sum(1 for s in atoms.get_chemical_symbols() if s == "O")
         atoms, removed = M.remove_fraction(atoms, "O", x / 2, rng)
@@ -178,7 +184,8 @@ def build_sample(spec: dict) -> dict:
         shells = M.cluster_shells(atoms, absorber)
     r1 = min(s["R_A"] for s in shells)
     for s in shells:
-        s["sigma2"] = sigma2_correlated_debye(s["R_A"], S.mass(absorber), S.mass(s["neighbor"]), theta_d, temp, density)
+        theta = cfg.get("pair_debye_temperature_K", {}).get(f"{absorber}-{s['neighbor']}", theta_d)
+        s["sigma2"] = sigma2_correlated_debye(s["R_A"], S.mass(absorber), S.mass(s["neighbor"]), theta, temp, density)
         s.setdefault("absorber", absorber)
 
     sample_dir = OUT / "samples" / spec["sample_id"]
@@ -228,7 +235,7 @@ def build_sample(spec: dict) -> dict:
     pos = atoms.get_positions()
     for i, w in sites:
         chi += w * S.exafs_chi(symbols, pos, absorber, edge, [i], s02_true, theta_d, temp, density, k,
-                               xa["cluster_radius_A"], xa["rmax_path_A"])
+                               xa["cluster_radius_A"], xa["rmax_path_A"], cfg.get("pair_debye_temperature_K"))
     noise = S._u(rng, xa["noise_chi"])
     energy, mu, e_edge = S.mu_spectrum(k, chi, absorber, edge, valences, xa["xanes"], e0_shift, kmax, rng, noise)
     files = ["xrd.xy", "pdf.gr"]

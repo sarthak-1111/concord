@@ -38,6 +38,9 @@ dev = ["pytest"]
 [tool.setuptools.packages.find]
 include = ["concord*"]
 
+[project.scripts]
+concord = "concord.cli:main"
+
 [tool.uv]
 # Supply-chain guard: only resolve releases at least two weeks old.
 exclude-newer = "2026-10-08T00:00:00Z"

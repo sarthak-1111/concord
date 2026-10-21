@@ -22,9 +22,53 @@ INPUT_KEYS = ("sample_id", "composition", "techniques", "instrument", "origin")
 B_BV = 0.37  # bond-valence softness b (Å), Brown & Altermatt (1985), doi:10.1107/S0108768185002063
 
 
-def load_inputs(folder: Path) -> dict:
-    meta = json.loads((Path(folder) / "sample.json").read_text())
-    return {k: meta[k] for k in INPUT_KEYS if k in meta}
+FILES = {"xrd": ["xrd.xy"], "pdf": ["pdf.gr"], "xafs": ["xafs_mu.dat", "xafs_chi.k"]}
+
+
+def _header(path: Path) -> dict:
+    return xrd._header(path) if path.exists() else {}
+
+
+def infer_inputs(folder: Path, composition: str) -> dict:
+    """sample.json-equivalent metadata for a folder of data files: techniques from the files present, instrument
+    values from their '# key=value' headers, and defaults for the rest (listed under 'assumed')."""
+    techs = [t for t, names in FILES.items() if any((folder / n).exists() for n in names)]
+    if not techs:
+        raise FileNotFoundError(f"{folder} has none of {sum(FILES.values(), [])}")
+    hx, hp = _header(folder / "xrd.xy"), _header(folder / "pdf.gr")
+    hxa = _header(folder / "xafs_mu.dat") or _header(folder / "xafs_chi.k")
+    assumed = []
+
+    def get(h: dict, key: str, default, label: str):
+        if key in h:
+            return float(h[key])
+        assumed.append(f"{label}={default}")
+        return default
+    inst = {}
+    if "xrd" in techs:
+        inst["xrd"] = {"wavelength_A": get(hx, "wavelength_A", 1.5406, "xrd.wavelength_A"), "caglioti_deg2": None}
+    if "pdf" in techs:
+        inst["pdf"] = {"qmax": get(hp, "qmax", 25.0, "pdf.qmax"), "qdamp": get(hp, "qdamp", 0.04, "pdf.qdamp"),
+                       "qbroad": get(hp, "qbroad", 0.0, "pdf.qbroad")}
+    if "xafs" in techs:
+        if "edge" not in hxa:
+            raise ValueError("XAFS files need an '# edge=<El>_<edge>' header line, e.g. '# edge=Pt_L3'")
+        assumed.append("xafs.s02=0.9")
+        inst["xafs"] = {"edge": hxa["edge"].replace("_", " "), "s02": 0.9, "temperature_K": 300, "kmax": 12.0}
+    return {"sample_id": folder.name, "composition": composition, "techniques": techs, "instrument": inst,
+            "origin": "user", "assumed": assumed}
+
+
+def load_inputs(folder: Path, composition: str | None = None) -> dict:
+    """The analysis inputs: sample.json without its ground truth, or metadata inferred from the files."""
+    folder = Path(folder)
+    if (folder / "sample.json").exists():
+        meta = json.loads((folder / "sample.json").read_text())
+        out = {k: meta[k] for k in INPUT_KEYS if k in meta}
+        return {**out, "composition": composition or out["composition"]}
+    if not composition:
+        raise ValueError(f"{folder} has no sample.json: give the composition, e.g. --composition Pt3Co")
+    return infer_inputs(folder, composition)
 
 
 def _cations(formula: str) -> set[str]:
@@ -58,9 +102,12 @@ def run_xrd(folder: Path, meta: dict, cands: dict) -> dict:
         size = xrd.scherrer_wh(indexed, lam, instrument=inst)
         size_nm = size["scherrer_median_nm"] or size_nm
     span = float(data["intensity"].max() - data["intensity"].min()) or 1.0
+    calc = xrd.simulate_pattern(cands[ranking[0]["phase"]], tt, lam, size_nm=size_nm, instrument=inst)
+    calc = calc * float(calc @ y / max(calc @ calc, 1e-12))  # least-squares scale onto the corrected pattern
     return {"wavelength_A": lam, "n_peaks": len(peaks), "n_indexed": len(indexed), "peaks": peaks, **size, "ranking": ranking,
             "peak_rel_intensity": max((p["height"] for p in indexed), default=0.0) / span,
-            "curves": {"two_theta": tt, "obs": data["intensity"], "baseline": pre["baseline"], "corrected": y}}
+            "curves": {"two_theta": tt, "obs": data["intensity"], "baseline": pre["baseline"], "corrected": y,
+                       "calc": calc, "diff": y - calc, "sigma": data["sigma"]}}
 
 
 def run_pdf(folder: Path, meta: dict, cands: dict, xrd_res: dict | None) -> dict:
@@ -145,10 +192,10 @@ def bond_valence(refined: Structure, reference: Structure, absorber: str, rcut: 
             "b_A": B_BV, "method": "R0 calibrated so the database structure has its charge-balance valence"}
 
 
-def analyze(folder: str | Path, references: str | Path | None = None) -> dict:
+def analyze(folder: str | Path, references: str | Path | None = None, composition: str | None = None) -> dict:
     folder = Path(folder)
     references = Path(references) if references else folder.parent.parent / "references"
-    meta = load_inputs(folder)
+    meta = load_inputs(folder, composition)
     techs = set(meta["techniques"])
     cands = candidates(meta["composition"])
     out = {"sample_id": meta["sample_id"], "inputs": meta, "candidates": list(cands), "timings_s": {}, "errors": {}}

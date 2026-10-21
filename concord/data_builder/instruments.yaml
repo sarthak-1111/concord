@@ -34,3 +34,6 @@ xafs:
 
 # Debye temperatures (K) used for both U_iso (PDF, XRD) and correlated-Debye σ² (EXAFS)
 debye_temperature_K: {Pt: 240, Pt3Co: 260, PtNi: 280, PtO2: 400, CeO2: 480, TiO2-anatase: 600, TiO2-rutile: 700, Co3O4: 520, IrO2: 450}
+# Pair overrides for the EXAFS sigma2: a metal-oxygen bond of a surface oxide on a metal particle is as stiff as in the
+# bulk oxide; at the metal's theta (Pt 240 K) Pt-O would get sigma2 ~ 0.013 A^2, three times typical Pt-O values.
+pair_debye_temperature_K: {Pt-O: 400}

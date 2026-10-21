@@ -4,28 +4,28 @@
   "test",
   "faults"
  ],
- "wall_s": 163.8,
+ "wall_s": 132.4,
  "metrics": {
   "n_clean": 10,
   "n_faults": 9,
-  "phase_id_accuracy": 0.9,
-  "exafs_bond_length_mae_A": 0.003547925661484408,
-  "pdf_bond_length_mae_A": 0.00035726969141493107,
-  "exafs_cn_mae": 0.34705456932362977,
+  "phase_id_accuracy": 1.0,
+  "exafs_bond_length_mae_A": 0.003255685985471923,
+  "pdf_bond_length_mae_A": 0.0003586127047089629,
+  "exafs_cn_mae": 0.4011588076665026,
   "oxidation_accuracy": 1.0,
   "fault_detection_rate": 0.5555555555555556,
   "fault_warn_or_fail_rate": 0.7777777777777778,
-  "false_alarm_rate": 0.2,
-  "warn_rate_clean": 0.5,
+  "false_alarm_rate": 0.0,
+  "warn_rate_clean": 0.2,
   "checks_reported": 1.0,
-  "runtime_s_mean": 31.071578947368426,
-  "runtime_s_max": 66.76,
+  "runtime_s_mean": 24.80315789473684,
+  "runtime_s_max": 53.53,
   "llm_tokens_per_sample": 0,
-  "size_rel_mae_xrd": 2.0030573458007206,
+  "size_rel_mae_xrd": 0.09892335234634506,
   "size_n_xrd": 8,
-  "size_rel_mae_pdf": 0.037386179286225334,
+  "size_rel_mae_pdf": 0.038457766992854345,
   "size_n_pdf": 8,
-  "size_rel_mae_exafs": 0.30301012176110614,
+  "size_rel_mae_exafs": 0.3618701775194693,
   "size_n_exafs": 3,
   "fault_detection_by_type": {
    "alloy_segregation": 1.0,
@@ -39,22 +39,22 @@
  },
  "thresholds": {
   "phase_id_accuracy": {
-   "value": 0.9,
+   "value": 1.0,
    "min": 0.9,
    "pass": true
   },
   "exafs_bond_length_mae_A": {
-   "value": 0.003547925661484408,
+   "value": 0.003255685985471923,
    "max": 0.02,
    "pass": true
   },
   "pdf_bond_length_mae_A": {
-   "value": 0.00035726969141493107,
+   "value": 0.0003586127047089629,
    "max": 0.02,
    "pass": true
   },
   "exafs_cn_mae": {
-   "value": 0.34705456932362977,
+   "value": 0.4011588076665026,
    "max": 1.0,
    "pass": true
   },
@@ -64,12 +64,12 @@
    "pass": true
   },
   "size_rel_mae_xrd": {
-   "value": 2.0030573458007206,
+   "value": 0.09892335234634506,
    "max": 0.3,
-   "pass": false
+   "pass": true
   },
   "size_rel_mae_pdf": {
-   "value": 0.037386179286225334,
+   "value": 0.038457766992854345,
    "max": 0.2,
    "pass": true
   },
@@ -79,7 +79,7 @@
    "pass": false
   },
   "false_alarm_rate": {
-   "value": 0.2,
+   "value": 0.0,
    "max": 0.2,
    "pass": true
   },
@@ -89,7 +89,7 @@
    "pass": true
   },
   "runtime_s_mean": {
-   "value": 31.071578947368426,
+   "value": 24.80315789473684,
    "max": 120,
    "pass": true
   }
@@ -113,7 +113,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 5.38,
+   "runtime_s": 5.43,
    "errors": {},
    "exafs": [
     {
@@ -123,8 +123,8 @@
     }
    ],
    "pdf_R_err": [
-    -6.595292739941527e-05,
-    -0.00010387889628926672
+    -6.59528873034887e-05,
+    -0.00010387883081142135
    ],
    "valence_err": 0.0
   },
@@ -134,34 +134,34 @@
    "faults": [],
    "notes": "nanoparticle truncated_octahedron, 586 atoms, system Pt",
    "true_phase": "Pt",
-   "phase": "PtNi",
+   "phase": "Pt",
    "checks": {
-    "C1": "fail",
-    "C2": "fail",
-    "C3": "fail",
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "pass",
     "C4": "pass",
     "C5": "pass",
     "C6": "pass"
    },
-   "flagged": true,
-   "warned": true,
-   "runtime_s": 35.07,
+   "flagged": false,
+   "warned": false,
+   "runtime_s": 28.4,
    "errors": {},
    "exafs": [
     {
      "pair": "Pt-Pt",
-     "R_err": -0.004006686425325867,
-     "N_err": -0.2874976111731371
+     "R_err": -0.0010717770952135552,
+     "N_err": -0.8290799986611379
     }
    ],
    "pdf_R_err": [
-    0.0008052192464318431
+    0.0008052192483991583
    ],
    "valence_err": 0.0,
    "size_rel_err": {
-    "xrd": 0.14088916483745417,
-    "pdf": 0.013678401587234735,
-    "exafs": 0.08892390192737196
+    "xrd": 0.23991180580235238,
+    "pdf": 0.013678414779421172,
+    "exafs": -0.2655040692020897
    }
   },
   {
@@ -181,7 +181,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 23.57,
+   "runtime_s": 15.51,
    "errors": {},
    "exafs": [
     {
@@ -191,13 +191,13 @@
     }
    ],
    "pdf_R_err": [
-    -0.0006535634885158625,
-    -0.0003572825754094566
+    -0.0006535634918887201,
+    -0.000357282590992547
    ],
    "valence_err": -0.4974075217837175,
    "size_rel_err": {
-    "xrd": -0.05866283435789242,
-    "pdf": 0.01591940852108948
+    "xrd": 0.013556936752551488,
+    "pdf": 0.015919408456485266
    }
   },
   {
@@ -213,11 +213,11 @@
     "C3": "pass",
     "C4": "pass",
     "C5": "pass",
-    "C6": "warn"
+    "C6": "pass"
    },
    "flagged": false,
-   "warned": true,
-   "runtime_s": 37.67,
+   "warned": false,
+   "runtime_s": 36.34,
    "errors": {},
    "exafs": [
     {
@@ -232,14 +232,14 @@
     }
    ],
    "pdf_R_err": [
-    0.0003819727592295763,
-    0.0003819727592304645
+    0.0003819727606200196,
+    0.0003819727606200196
    ],
    "valence_err": 0.06703234712740352,
    "size_rel_err": {
-    "xrd": 0.26413003262503915,
-    "pdf": 0.006142845622041653,
-    "exafs": 0.6654211152922068
+    "xrd": 0.16086377655297968,
+    "pdf": 0.006142843599181328,
+    "exafs": 0.6654211152930627
    }
   },
   {
@@ -259,15 +259,15 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 66.76,
+   "runtime_s": 39.67,
    "errors": {},
    "pdf_R_err": [
-    0.00011968553519503544,
-    0.00011968553519503544
+    0.00011968553204955157,
+    0.00011968553204955157
    ],
    "size_rel_err": {
-    "xrd": 0.07557885505703812,
-    "pdf": 0.013345682153790372
+    "xrd": 0.05331480426967954,
+    "pdf": 0.013345663583654426
    }
   },
   {
@@ -278,16 +278,16 @@
    "true_phase": "Co3O4",
    "phase": "Co3O4",
    "checks": {
-    "C1": "warn",
+    "C1": "pass",
     "C2": "pass",
     "C3": "pass",
     "C4": "pass",
     "C5": "pass",
-    "C6": "fail"
+    "C6": "pass"
    },
-   "flagged": true,
-   "warned": true,
-   "runtime_s": 25.51,
+   "flagged": false,
+   "warned": false,
+   "runtime_s": 23.07,
    "errors": {},
    "exafs": [
     {
@@ -297,13 +297,13 @@
     }
    ],
    "pdf_R_err": [
-    0.00015142107862753384,
-    0.00014269254225141026
+    0.0001514210520998649,
+    0.0001426925028624737
    ],
    "valence_err": -0.027566112432288126,
    "size_rel_err": {
-    "xrd": 15.383027322202327,
-    "pdf": -0.06582255676866038
+    "xrd": -0.21807625282943627,
+    "pdf": -0.06582255239541447
    }
   },
   {
@@ -323,23 +323,23 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 18.45,
+   "runtime_s": 19.44,
    "errors": {},
    "exafs": [
     {
      "pair": "Pt-O",
-     "R_err": 0.005616171024707128,
-     "N_err": 0.05081682367247531
+     "R_err": 0.005625845756782599,
+     "N_err": 0.05052555867672304
     }
    ],
    "pdf_R_err": [
-    -0.0002207142754386826,
-    -0.0016008425048434916
+    -0.00022022185965608898,
+    -0.0015986213296543816
    ],
    "valence_err": -0.34502692190686135,
    "size_rel_err": {
-    "xrd": 0.0072279187960168955,
-    "pdf": 0.11282782247304854
+    "xrd": 0.010345558418863308,
+    "pdf": 0.1128225598330094
    }
   },
   {
@@ -359,23 +359,23 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 15.97,
+   "runtime_s": 10.18,
    "errors": {},
    "exafs": [
     {
      "pair": "Ir-O",
-     "R_err": -0.0034993937540932496,
-     "N_err": -0.11054388816265881
+     "R_err": -0.003502231592005245,
+     "N_err": -0.11029514909913818
     }
    ],
    "pdf_R_err": [
-    -0.00017274723755056343,
-    0.0006889844923012589
+    -0.00014755664515209155,
+    0.0007410631400048828
    ],
    "valence_err": -0.09310657496107666,
    "size_rel_err": {
-    "xrd": 0.02211876216909773,
-    "pdf": -0.05907353222356339
+    "xrd": 0.022493807784000418,
+    "pdf": -0.06765150892281026
    }
   },
   {
@@ -395,7 +395,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 5.83,
+   "runtime_s": 5.92,
    "errors": {},
    "exafs": [
     {
@@ -405,8 +405,8 @@
     }
    ],
    "pdf_R_err": [
-    -0.00012888060843696536,
-    -0.00020663936911402558
+    -0.00012888058208915254,
+    -0.00020663932608711022
    ],
    "valence_err": 0.0
   },
@@ -427,7 +427,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 34.3,
+   "runtime_s": 18.72,
    "errors": {},
    "exafs": [
     {
@@ -437,13 +437,13 @@
     }
    ],
    "pdf_R_err": [
-    -0.0001287186140088714
+    -0.0001287186124208084
    ],
    "valence_err": 0.0,
    "size_rel_err": {
     "xrd": 0.0728238763608973,
-    "pdf": 0.012279184940374145,
-    "exafs": -0.15468534806373974
+    "pdf": 0.012279184372858399,
+    "exafs": -0.1546853480632555
    }
   },
   {
@@ -465,23 +465,23 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 32.8,
+   "runtime_s": 35.24,
    "errors": {},
    "exafs": [
     {
      "pair": "Ti-O",
-     "R_err": -0.0007582684920557359,
-     "N_err": 3.204505936393927
+     "R_err": -0.001188932109957408,
+     "N_err": 3.2304529793158867
     }
    ],
    "pdf_R_err": [
-    -0.04529883389826894,
-    -0.043790438784765406
+    -0.0453288437906707,
+    -0.044315054192909376
    ],
    "valence_err": -0.1169274896715291,
    "size_rel_err": {
-    "xrd": -0.39863710016254095,
-    "pdf": -0.24058149273625107
+    "xrd": -0.2979400314908497,
+    "pdf": -0.27514132492118104
    }
   },
   {
@@ -490,7 +490,7 @@
    "faults": [
     "oxide_shell"
    ],
-   "notes": "nanoparticle truncated_octahedron, 10815 atoms, system Pt",
+   "notes": "nanoparticle truncated_octahedron, 10785 atoms, system Pt",
    "true_phase": "Pt",
    "phase": "Pt",
    "checks": {
@@ -503,23 +503,23 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 39.38,
+   "runtime_s": 20.43,
    "errors": {},
    "exafs": [
     {
      "pair": "Pt-Pt",
-     "R_err": 0.0037676374863071516,
-     "N_err": 0.17532734352786683
+     "R_err": 0.002113559047653535,
+     "N_err": 0.26764221074592953
     }
    ],
    "pdf_R_err": [
-    -0.0006715836945683229
+    -0.0007127752342230842
    ],
-   "valence_err": -0.17146427883900803,
+   "valence_err": -0.112,
    "size_rel_err": {
-    "xrd": 0.010906347643287295,
-    "pdf": 0.15826147979068178,
-    "exafs": 0.3481041637487841
+    "xrd": -0.005325343897532335,
+    "pdf": 0.15098785805189338,
+    "exafs": 0.624279691078689
    }
   },
   {
@@ -541,7 +541,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 4.17,
+   "runtime_s": 4.33,
    "errors": {},
    "exafs": [
     {
@@ -551,13 +551,13 @@
     }
    ],
    "pdf_R_err": [
-    -0.0002942138642887393,
-    -0.0004741483242893807
+    -0.0002942138605797062,
+    -0.0004741483182320039
    ],
    "valence_err": 0.11920664601996078,
    "size_rel_err": {
-    "xrd": 0.027042967720501507,
-    "pdf": -0.09372521873395272
+    "xrd": 0.026333304755966166,
+    "pdf": -0.09372522075648153
    }
   },
   {
@@ -579,7 +579,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 48.33,
+   "runtime_s": 53.53,
    "errors": {},
    "exafs": [
     {
@@ -589,13 +589,13 @@
     }
    ],
    "pdf_R_err": [
-    0.0002775519540918481
+    0.00027755194614620393
    ],
    "valence_err": 0.05106370527199277,
    "size_rel_err": {
     "xrd": 0.14774296768239314,
-    "pdf": -0.3402188460978516,
-    "exafs": -0.5769924685954971
+    "pdf": -0.34021884611414505,
+    "exafs": -0.5769924685967378
    }
   },
   {
@@ -606,32 +606,33 @@
    ],
    "notes": "nanoparticle icosahedron, 1415 atoms, system Pt",
    "true_phase": "Pt",
-   "phase": "Pt3Co",
+   "phase": null,
    "checks": {
     "C1": "fail",
-    "C2": "fail",
+    "C2": "pass",
     "C3": "fail",
     "C4": "pass",
     "C5": "warn",
-    "C6": "skip"
+    "C6": "fail"
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 62.69,
+   "runtime_s": 42.68,
    "errors": {},
    "exafs": [
     {
      "pair": "Pt-Pt",
-     "R_err": 0.005223184481882193,
-     "N_err": 1.6498306954243862
+     "R_err": -0.004309498185619098,
+     "N_err": 2.32759652364129
     }
    ],
    "pdf_R_err": [
-    0.001863463554825362
+    0.0031234616498814205
    ],
    "valence_err": 0.0,
    "size_rel_err": {
-    "pdf": -0.5006285331296675
+    "xrd": -0.22793070576732802,
+    "pdf": -0.5320566212129277
    }
   },
   {
@@ -653,7 +654,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 34.56,
+   "runtime_s": 18.0,
    "errors": {},
    "exafs": [
     {
@@ -663,13 +664,13 @@
     }
    ],
    "pdf_R_err": [
-    0.0008715281492470695
+    0.0008715281425462074
    ],
    "valence_err": 0.0,
    "size_rel_err": {
-    "xrd": 0.08665558307523927,
-    "pdf": 0.06876738128714614,
-    "exafs": 0.36870174829368135
+    "xrd": 0.062214294704686805,
+    "pdf": 0.06876741806594794,
+    "exafs": 0.3687017482903655
    }
   },
   {
@@ -691,15 +692,15 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 16.6,
+   "runtime_s": 16.67,
    "errors": {
     "exafs": "ValueError: absorber Ce is not in the refined model TiO2"
    },
    "pdf_R_err": [],
    "valence_err": 0.0,
    "size_rel_err": {
-    "xrd": 0.26354660218323706,
-    "pdf": -0.10799304840845927
+    "xrd": 0.17801449807634628,
+    "pdf": -0.10818474744034473
    }
   },
   {
@@ -715,29 +716,29 @@
     "C1": "fail",
     "C2": "warn",
     "C3": "warn",
-    "C4": "warn",
+    "C4": "fail",
     "C5": "warn",
-    "C6": "warn"
+    "C6": "pass"
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 50.75,
+   "runtime_s": 45.34,
    "errors": {},
    "exafs": [
     {
      "pair": "Pt-O",
-     "R_err": -0.013504325894385438,
-     "N_err": 0.920029847425373
+     "R_err": -0.009863089237961642,
+     "N_err": 0.8222144706114722
     }
    ],
    "pdf_R_err": [
-    -0.045991132147776614,
-    0.05896632701872351
+    -0.05169654602985885,
+    0.06767279078072796
    ],
    "valence_err": -1.2110046701084372,
    "size_rel_err": {
-    "xrd": 0.13013054776552324,
-    "pdf": 1.1927887944587352
+    "xrd": 0.20003513747472046,
+    "pdf": 0.35337037826925544
    }
   },
   {
@@ -746,42 +747,41 @@
    "faults": [
     "oxide_shell"
    ],
-   "notes": "nanoparticle cuboctahedron, 1070 atoms, system Pt3Co",
+   "notes": "nanoparticle cuboctahedron, 1144 atoms, system Pt3Co",
    "true_phase": "Pt3Co",
    "phase": "Pt3Co",
    "checks": {
     "C1": "pass",
     "C2": "pass",
     "C3": "warn",
-    "C4": "warn",
+    "C4": "pass",
     "C5": "pass",
     "C6": "pass"
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 32.57,
+   "runtime_s": 32.36,
    "errors": {},
    "exafs": [
     {
      "pair": "Pt-Co",
-     "R_err": -0.005223349432105895,
-     "N_err": 0.08599448835770263
+     "R_err": 0.0026693224544738214,
+     "N_err": 0.21453270453001627
     },
     {
      "pair": "Pt-Pt",
-     "R_err": 0.0005153424901762627,
-     "N_err": 0.9938239350622355
+     "R_err": -0.0012016467951436738,
+     "N_err": 1.5414432547185202
     }
    ],
    "pdf_R_err": [
-    0.00044230821829893685,
-    0.00044230821829893685
+    0.0003828450058529498,
+    0.00038284500585383796
    ],
-   "valence_err": 0.1212095404970614,
+   "valence_err": -0.1044850339285362,
    "size_rel_err": {
-    "xrd": 0.1302253606968982,
-    "pdf": -0.03906929750002474,
-    "exafs": 5.944172312796374
+    "xrd": 0.08168505288904555,
+    "pdf": -0.07811425794477224
    }
   }
  ]

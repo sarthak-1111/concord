@@ -50,4 +50,6 @@ checks:
 # Visual-inspection loop
 vision:
   max_iterations: 3
-  durbin_watson_min: 1.0           # below this the residual is structured (misfit)
+  durbin_watson_min: 1.0           # below this the residual is structured (misfit), on independent points
+  exafs_rfactor_max: 0.05          # EXAFS fit R-factor accepted up to this
+  xrd_area_explained_min: 0.5      # best XRD phase must explain this share of the fitted peak area

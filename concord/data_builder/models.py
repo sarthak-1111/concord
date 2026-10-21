@@ -107,17 +107,39 @@ def segregate(atoms: Atoms, minor: str, major: str, rng: np.random.Generator, st
     return out
 
 
-def add_oxide_shell(atoms: Atoms, metal: str, rng: np.random.Generator, coverage: float, bond: float = 2.0) -> tuple[Atoms, int]:
-    """Planted 'oxide shell': O atoms on under-coordinated surface metal atoms, along the outward normal."""
+def _hemisphere(n: np.ndarray, count: int = 60) -> np.ndarray:
+    """Fibonacci directions on the unit sphere with d·n > 0.15 (the outward hemisphere of a surface atom)."""
+    i = np.arange(2 * count) + 0.5
+    phi, z = np.pi * (1 + 5 ** 0.5) * i, 1 - 2 * i / (2 * count)
+    d = np.c_[np.sqrt(1 - z ** 2) * np.cos(phi), np.sqrt(1 - z ** 2) * np.sin(phi), z]
+    return d[d @ n > 0.15]
+
+
+def add_oxide_shell(atoms: Atoms, metal: str, rng: np.random.Generator, coverage: float, bond: float = 2.0,
+                    per_metal: int = 4) -> tuple[Atoms, int]:
+    """Planted 'oxide shell': a PtO-like surface layer. Each chosen under-coordinated surface metal atom ends up with
+    up to `per_metal` O at `bond` Å (four for Pt2+ as in PtO, bond valence ≈ 0.5 each), placed in its outward
+    hemisphere at least 1.8 Å from other metal atoms (bridging O) and 2.5 Å from other O; O already bonded to a
+    neighbour count."""
     pos = atoms.get_positions()
     center = pos.mean(axis=0)
-    cn = np.array([len(nb) - 1 for nb in cKDTree(pos).query_ball_point(pos, r=3.1)])
+    tree = cKDTree(pos)
+    cn = np.array([len(nb) - 1 for nb in tree.query_ball_point(pos, r=3.1)])
     surface = np.where((cn < 10) & (np.array(atoms.get_chemical_symbols()) == metal))[0]
     chosen = surface[rng.random(len(surface)) < coverage]
-    new = []
+    new: list[np.ndarray] = []
     for i in chosen:
-        normal = pos[i] - center
-        new.append(pos[i] + bond * normal / np.linalg.norm(normal))
+        n = (pos[i] - center) / np.linalg.norm(pos[i] - center)
+        have = sum(1 for o in new if abs(np.linalg.norm(o - pos[i]) - bond) < 0.15)
+        for d in rng.permutation(_hemisphere(n)):
+            if have >= per_metal:
+                break
+            o = pos[i] + bond * d
+            near = tree.query(o, k=2)[0]  # the host must be the nearest metal atom (at `bond`), the next one ≥ 1.8 Å away
+            if near[0] < bond - 1e-6 or near[1] < 1.8 or (new and np.min(np.linalg.norm(np.asarray(new) - o, axis=1)) < 2.5):
+                continue
+            new.append(o)
+            have += 1
     out = atoms + Atoms("O" * len(new), positions=new) if new else atoms.copy()
     return out, len(chosen)
 

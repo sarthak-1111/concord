@@ -1,4 +1,4 @@
-.PHONY: setup hooks health test structures data data-big validate eval ui api
+.PHONY: setup hooks health test structures data data-big validate eval eval-agents analyze ui api
 
 setup: hooks
 	uv sync
@@ -28,6 +28,9 @@ validate:
 
 eval:
 	uv run python -W ignore -m concord.evaluate
+
+eval-agents:  # adds visual inspection + generator-critic loop (LLM, ~minutes per sample)
+	uv run python -W ignore -m concord.evaluate --agents
 
 analyze:  # make analyze S=dataset/samples/s0010
 	uv run python -W ignore -m concord.analysis $(S)

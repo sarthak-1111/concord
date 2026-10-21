@@ -19,6 +19,12 @@ class FakeResponse:
     def json(self):
         return self.payload
 
+    def iter_lines(self):  # streamed reply: content split over two chunks, counts on the final one
+        m = self.payload.get("message", {})
+        text = m.get("content", "")
+        yield json.dumps({"message": {**m, "content": text[: len(text) // 2]}, "done": False}).encode()
+        yield json.dumps({**self.payload, "message": {"role": "assistant", "content": text[len(text) // 2:]}, "done": True}).encode()
+
 
 class FakeSession:
     """Replays queued replies; an Exception instance in the queue is raised instead."""
@@ -26,7 +32,7 @@ class FakeSession:
     def __init__(self, replies):
         self.replies, self.bodies = list(replies), []
 
-    def post(self, url, json=None, timeout=None, headers=None):
+    def post(self, url, json=None, timeout=None, headers=None, stream=False):
         assert headers["Authorization"] == f"Bearer {KEY}"
         self.bodies.append(json)
         reply = self.replies.pop(0)

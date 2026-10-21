@@ -63,6 +63,8 @@ def to_messages(llm_request: LlmRequest) -> list[dict]:
             if calls:
                 m["tool_calls"] = calls
             msgs.append(m)
+    if not any(m["role"] == "user" for m in msgs):  # include_contents='none' leaves only the instruction
+        msgs.append({"role": "user", "content": "Carry out the task described above."})
     return msgs
 
 

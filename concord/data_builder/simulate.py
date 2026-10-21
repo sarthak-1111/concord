@@ -96,14 +96,15 @@ def kmax_for(element: str, edge: str, kmax: float) -> float:
 
 
 def exafs_chi(symbols: list[str], positions: np.ndarray, absorber: str, edge: str, sites: list[int], s02: float,
-              theta_d: float, temperature: float, density: float, k: np.ndarray, radius: float, rmax_path: float) -> np.ndarray:
+              theta_d: float, temperature: float, density: float, k: np.ndarray, radius: float, rmax_path: float,
+              theta_pairs: dict | None = None) -> np.ndarray:
     """χ(k) averaged over absorber sites; each site's cluster runs through FEFF6L (cached by environment)."""
     chis = []
     for i in sites:
         sym, pos, ia = cluster_around(symbols, positions, i, radius)
         from larch.xafs import feffpath
         paths = [feffpath(str(f)) for f in run_feff(feff_input(sym, pos, ia, edge, rmax_path, nleg=3))]
-        chis.append(simulate_chi(paths, s02, temperature, theta_d, density, k=k)[1])
+        chis.append(simulate_chi(paths, s02, temperature, theta_d, density, k=k, theta_pairs=theta_pairs)[1])
     return np.mean(chis, axis=0)
 
 
