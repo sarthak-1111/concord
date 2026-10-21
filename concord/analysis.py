@@ -1,4 +1,4 @@
-"""Deterministic per-sample analysis: XRD, then PDF, then EXAFS/XANES, then cross-technique checks C1–C6.
+"""Deterministic per-sample analysis: XRD, then PDF, then EXAFS/XANES and virtual XAFS, then checks C1–C7.
 
 Every number comes from a tool in concord.tools; the agents (generator, critic) only explain, challenge and
 re-run tools. Inputs are what a user has: the data files plus the sample.json metadata (composition,
@@ -10,13 +10,13 @@ import time
 from pathlib import Path
 
 import numpy as np
-from pymatgen.core import Composition, Structure
+from pymatgen.core import Composition, Element, Structure
 
 from concord import checks
 from concord.config import settings
 from concord.data_builder.fetch import load_structures, systems
 from concord.tools import pdf as pdft
-from concord.tools import xafs, xrd
+from concord.tools import virtual_xafs, xafs, xrd
 
 INPUT_KEYS = ("sample_id", "composition", "techniques", "instrument", "origin")
 B_BV = 0.37  # bond-valence softness b (Å), Brown & Altermatt (1985), doi:10.1107/S0108768185002063
@@ -173,6 +173,31 @@ def run_xanes(folder: Path, meta: dict, references: Path) -> dict:
             "lcf_r_factor": lcf["r_factor"], "standards": stds, "curves": {"energy": e, "norm": norm}}
 
 
+def default_edge(element: str) -> str:
+    return "L3" if Element(element).Z >= 57 else "K"
+
+
+def run_virtual_xafs(folder: Path, meta: dict, fits: list[dict], absorber: str, edge: str) -> dict:
+    """Predicted EXAFS from the PDF-equivalent models; scored against the measured χ(k) when there is one (the
+    prediction never sees it). C7 uses the per-candidate R-factors."""
+    xa = meta["instrument"].get("xafs", {})
+    s02, kmax = float(xa.get("s02", 0.9)), min(12.0, float(xa.get("kmax", 12.0)))
+    pred = virtual_xafs.predict_exafs(fits, absorber, edge, s02=s02, kmax=kmax)
+    measured = folder / "xafs_chi.k"
+    if measured.exists():
+        k, chi = np.loadtxt(measured, unpack=True)
+        pred["vs_measured"] = virtual_xafs.score_against(pred, k, chi)
+        pred["recommendation"] = "This edge was measured, so the prediction serves as a consistency check against the measurement."
+        pred["per_candidate"] = {}
+        for f in fits[:3]:
+            try:
+                one = virtual_xafs.predict_exafs([f], absorber, edge, s02=s02, kmax=kmax, n=4, rw_margin=0.0)
+            except ValueError:  # absorber not in this candidate
+                continue
+            pred["per_candidate"][f["candidate"]] = virtual_xafs.score_against(one, k, chi)["rfactor_R"]
+    return pred
+
+
 def bond_valence(refined: Structure, reference: Structure, absorber: str, rcut: float = 3.0) -> dict:
     """Bond-valence sum of `absorber` in the refined structure. R0 is calibrated on the database structure so
     that it carries its charge-balance valence; the result is the valence implied by the refined bond lengths.
@@ -211,16 +236,23 @@ def analyze(folder: str | Path, references: str | Path | None = None, compositio
             out["timings_s"][name] = round(time.time() - t0, 2)
 
     absorber = meta["instrument"].get("xafs", {}).get("edge", "").split()[0] if "xafs" in techs else None
+    edge_meta = meta["instrument"].get("xafs", {}).get("edge", "").split()
     x_res = step("xrd", run_xrd, folder, meta, cands) if "xrd" in techs and cands else None
     p_res = step("pdf", run_pdf, folder, meta, cands, x_res) if "pdf" in techs and cands else None
     best = p_res["fits"][0] if p_res else None
     e_res = step("exafs", run_exafs, folder, meta, best["structure"]) if absorber and best else None
     n_res = step("xanes", run_xanes, folder, meta, references) if absorber else None
     b_res = step("bvs", bond_valence, best["structure"], cands[best["candidate"]], absorber) if absorber and best else None
-    out.update(xrd=x_res, pdf=p_res, exafs=e_res, xanes=n_res, bvs=b_res)
+    v_res = None
+    if best:  # virtual XAFS for every sample: at the stated edge, else the heaviest cation's L3 or K edge
+        heavy = max(_cations(best["structure"].composition.reduced_formula), key=lambda e: Element(e).Z)
+        v_abs, v_edge = edge_meta if len(edge_meta) == 2 else (heavy, default_edge(heavy))
+        v_res = step("virtual_xafs", run_virtual_xafs, folder, meta, p_res["fits"], v_abs, v_edge)
+    out.update(xrd=x_res, pdf=p_res, exafs=e_res, xanes=n_res, bvs=b_res, virtual_xafs=v_res)
     out["checks"] = [checks.c1_phase(x_res, p_res), checks.c2_bond_lengths(e_res, p_res, absorber),
                      checks.c3_coordination(e_res, p_res, absorber), checks.c4_oxidation(n_res, b_res),
-                     checks.c5_disorder(e_res, p_res, absorber), checks.c6_size(x_res, p_res)]
+                     checks.c5_disorder(e_res, p_res, absorber), checks.c6_size(x_res, p_res),
+                     checks.c7_joint(x_res, p_res, v_res)]
     good = best and best["rw"] <= 2 * settings()["checks"]["C1_phase"]["pdf_good_rw"]
     out["phase"] = best["candidate"] if good else (x_res["ranking"][0]["phase"] if x_res and not best else None)
     out["timings_s"]["total"] = round(sum(out["timings_s"].values()), 2)

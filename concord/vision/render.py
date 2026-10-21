@@ -13,25 +13,29 @@ PREDICTED = "PREDICTED, NOT MEASURED"
 
 
 def fit_plot(x, obs, calc, path: Path, *, xlabel: str, ylabel: str, title: str, band=None, predicted: bool = False) -> str:
-    """Data + model (top) and difference (bottom). band: optional (low, high) envelope drawn behind the model."""
-    x, obs, calc = (np.asarray(v, float) for v in (x, obs, calc))
+    """Data + model (top) and difference (bottom). obs may be None (model only). band: optional (low, high) envelope
+    drawn behind the model. predicted: the model is a prediction, and the plot is stamped PREDICTED, NOT MEASURED."""
+    x, calc = np.asarray(x, float), np.asarray(calc, float)
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     with plt.rc_context(STYLE):
         fig, (top, bottom) = plt.subplots(2, 1, sharex=True, gridspec_kw={"height_ratios": [3, 1]})
         if band is not None:
-            top.fill_between(x, band[0], band[1], color="#e8a33d", alpha=0.35, lw=0, label="ensemble band")
-        if not predicted:
-            top.plot(x, obs, ".", ms=2, color="#1f4e79", label="data")
-        top.plot(x, calc, "-", lw=1.2, color="#c0392b", label="prediction" if predicted else "model")
+            top.fill_between(x, band[0], band[1], color="#e8a33d", alpha=0.35, lw=0, label="ensemble band (5-95 %)")
+        if obs is not None:
+            obs = np.asarray(obs, float)
+            top.plot(x, obs, ".", ms=2, color="#1f4e79", label="measured" if predicted else "data")
+            bottom.plot(x, obs - calc, "-", lw=0.8, color="#555555")
+        else:
+            bottom.text(0.5, 0.5, "nothing measured to compare", ha="center", va="center", transform=bottom.transAxes, color="#555555")
+        top.plot(x, calc, "-", lw=1.2, color="#c0392b", label="prediction (median)" if predicted else "model")
         top.set_ylabel(ylabel)
         top.set_title(title)
         top.legend(loc="upper right")
         if predicted:
             top.text(0.02, 0.92, PREDICTED, transform=top.transAxes, color="#c0392b", weight="bold")
-        else:
-            bottom.plot(x, obs - calc, "-", lw=0.8, color="#555555")
         bottom.axhline(0, color="k", lw=0.5)
         bottom.set_xlabel(xlabel)
-        bottom.set_ylabel("difference")
+        bottom.set_ylabel("measured - predicted" if predicted else "difference")
         fig.tight_layout()
         fig.savefig(path)
         plt.close(fig)

@@ -15,11 +15,6 @@ from pathlib import Path
 from concord.config import ROOT
 
 
-def _print_checks(checks: list[dict]) -> None:
-    for c in checks:
-        print(f"  {c['id']} {c['status'].upper():<4} {c['name']}: {c['explanation']}")
-
-
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="concord", description=__doc__.split("\n")[0], formatter_class=argparse.RawDescriptionHelpFormatter,
                                  epilog=__doc__.split("\n", 2)[2])
@@ -43,17 +38,21 @@ def main(argv: list[str] | None = None) -> int:
         return eval_main()
     out = args.out or ROOT / "results" / "runs" / args.folder.resolve().name
     if args.fast:
+        from concord.agents.pipeline import report_markdown
         from concord.analysis import analyze, to_json
+        from concord.vision.check import plots
         res = analyze(args.folder, composition=args.composition)
+        a = to_json(res)
         out.mkdir(parents=True, exist_ok=True)
-        (out / "analysis.json").write_text(json.dumps(to_json(res)))
-        print(f"{res['sample_id']}: phase {res['phase']} ({res['timings_s']['total']} s)")
-        _print_checks(res["checks"])
+        (out / "analysis.json").write_text(json.dumps(a))
+        plots(res, out)
+        (out / "report.md").write_text(md := report_markdown({"analysis": a}))
+        print(md)
         for k, v in res["errors"].items():
             print(f"  error in {k}: {v}")
         for x in res["inputs"].get("assumed", []):
             print(f"  assumed {x} (not in the file headers)")
-        print(f"→ {out / 'analysis.json'}")
+        print(f"→ {out / 'report.md'}, plots and analysis.json in {out} ({res['timings_s']['total']} s)")
         return 0
     from concord.agents.pipeline import run_sample
     from concord.llm.client import EndpointDown

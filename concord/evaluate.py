@@ -16,7 +16,8 @@ from concord.analysis import analyze, to_json
 from concord.config import ROOT
 from concord.tools.pdfcalc import spherical_envelope
 
-CHECK_IDS = ("C1", "C2", "C3", "C4", "C5", "C6")
+CHECK_IDS = ("C1", "C2", "C3", "C4", "C5", "C6")  # the registered checks_reported threshold covers these
+SHOWN = CHECK_IDS + ("C7",)
 
 
 def _analyse(folder: str) -> dict:
@@ -34,7 +35,7 @@ def exafs_size_nm(n_fit: float, n_bulk: float, r: float) -> float | None:
     return brentq(lambda d: float(spherical_envelope(r, d)) - ratio, r * 1.01, 1e5) / 10
 
 
-def score(res: dict, meta: dict, split: str) -> dict:
+def score(res: dict, meta: dict, split: str, hidden: Path | None = None) -> dict:
     gt = meta["ground_truth"]
     statuses = {c["id"]: c["status"] for c in res["checks"]}
     row = {"sample_id": res["sample_id"], "split": split, "faults": [f["type"] for f in meta["faults"]],
@@ -52,6 +53,12 @@ def score(res: dict, meta: dict, split: str) -> dict:
         row["pdf_R_err"] = [m["R_A"] - true_shells[m["neighbor"]]["R_A"] for m in model if m["neighbor"] in true_shells]
     if res.get("xanes") and absorber in gt["oxidation_state"]:
         row["valence_err"] = res["xanes"]["valence"] - gt["oxidation_state"][absorber]
+    if vx := res.get("virtual_xafs"):  # prediction never saw the XAFS: hidden noise-free χ, or the measured one
+        if hidden and hidden.exists():
+            from concord.tools.virtual_xafs import score_against
+            row["virtual_xafs"] = {"against": "hidden", **score_against(vx, *np.loadtxt(hidden, unpack=True))}
+        elif vx.get("vs_measured"):
+            row["virtual_xafs"] = {"against": "measured", **vx["vs_measured"]}
     if gt["size_nm"]:
         d = gt["size_nm"]
         sizes = {"xrd": (res.get("xrd") or {}).get("sphere_diameter_nm"),
@@ -83,6 +90,10 @@ def metrics(rows: list[dict]) -> dict:
         "false_alarm_rate": mean([r["flagged"] for r in clean]),
         "warn_rate_clean": mean([r["warned"] for r in clean]),
         "checks_reported": mean([all(c in r["checks"] for c in CHECK_IDS) for r in rows]),
+        "virtual_xafs_rfactor_median": float(np.median(vx)) if (vx := [r["virtual_xafs"]["rfactor_R"] for r in clean if "virtual_xafs" in r]) else None,
+        "virtual_xafs_n": len(vx),
+        "virtual_xafs_hidden_rfactor_median": float(np.median(h)) if (h := [r["virtual_xafs"]["rfactor_R"] for r in clean
+                                                                             if r.get("virtual_xafs", {}).get("against") == "hidden"]) else None,
         "runtime_s_mean": mean([r["runtime_s"] for r in rows]),
         "runtime_s_max": max((r["runtime_s"] for r in rows), default=None),
         "llm_tokens_per_sample": 0,  # the deterministic pipeline makes no LLM calls; agent mode fills this in
@@ -122,17 +133,19 @@ def markdown(m: dict, verdict: dict, rows: list[dict], cfg: dict) -> str:
     for name, v in verdict.items():
         thr = f"≥ {v['min']}" if "min" in v else f"≤ {v['max']}"
         lines.append(f"| {name} | {fmt(v['value'])} | {thr} | {'pass' if v['pass'] else '**FAIL**'} |")
-    extra = ("size_rel_mae_exafs", "fault_warn_or_fail_rate", "warn_rate_clean", "runtime_s_max", "llm_tokens_per_sample",
+    extra = ("virtual_xafs_n", "virtual_xafs_hidden_rfactor_median", "size_rel_mae_exafs", "fault_warn_or_fail_rate", "warn_rate_clean", "runtime_s_max", "llm_tokens_per_sample",
              "agent_wall_s_mean", "agent_rounds_mean", "fault_detection_rate_agents", "false_alarm_rate_agents",
              "unsupported_numbers_total", "agent_errors")
     lines += ["", "Other numbers: " + ", ".join(f"{k} {fmt(m[k])}" for k in extra if k in m), "",
               "## Fault detection by type", "", "| fault | detected |", "|---|---|"]
     lines += [f"| {t} | {fmt(v)} |" for t, v in m["fault_detection_by_type"].items()]
-    lines += ["", "## Per sample", "", "| sample | split | fault | phase (true) | " + " | ".join(CHECK_IDS) + " | s |",
-              "|---|---|---|---|" + "---|" * len(CHECK_IDS) + "---|"]
+    lines += ["", "## Per sample", "", "| sample | split | fault | phase (true) | " + " | ".join(SHOWN) + " | virtual XAFS R | s |",
+              "|---|---|---|---|" + "---|" * len(SHOWN) + "---|---|"]
     for r in rows:
-        checks = " | ".join(sym.get(r["checks"].get(c), "?") for c in CHECK_IDS)
-        lines.append(f"| {r['sample_id']} | {r['split']} | {', '.join(r['faults']) or '–'} | {r['phase']} ({r['true_phase']}) | {checks} | {r['runtime_s']:.0f} |")
+        checks = " | ".join(sym.get(r["checks"].get(c), "?") for c in SHOWN)
+        vx = r.get("virtual_xafs")
+        vxs = f"{vx['rfactor_R']:.3f} ({vx['against']})" if vx else "–"
+        lines.append(f"| {r['sample_id']} | {r['split']} | {', '.join(r['faults']) or '–'} | {r['phase']} ({r['true_phase']}) | {checks} | {vxs} | {r['runtime_s']:.0f} |")
     lines += ["", "✓ pass  ! warn  ✗ fail  – skipped (technique missing)"]
     return "\n".join(lines) + "\n"
 
@@ -171,7 +184,7 @@ def main() -> int:
     rows = []
     for (sid, sp), res in zip(todo, results):
         (runs / f"{sid}.json").write_text(json.dumps(res))
-        rows.append(score(res, json.loads((root / "samples" / sid / "sample.json").read_text()), sp))
+        rows.append(score(res, json.loads((root / "samples" / sid / "sample.json").read_text()), sp, root / "hidden" / sid / "xafs_chi.k"))
     if a.agents:
         for row, ar in zip(rows, asyncio.run(_agents(todo, root, runs))):
             row["agents"] = ({"error": f"{type(ar).__name__}: {ar}"} if isinstance(ar, Exception) else

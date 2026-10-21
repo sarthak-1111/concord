@@ -78,3 +78,19 @@ def test_fit_pdf_recovers_lattice_adp_and_size(pt_fcc, ceo2):
     assert abs(fit["lattice"]["a"] - 3.95) < 0.003 and abs(fit["uiso"]["Pt"] - 0.006) < 0.0008
     assert abs(fit["psize_nm"] - 5.0) < 0.5
     assert fit_pdf(r, g, dg, ceo2, qmax=24.0, qdamp=0.03, psize0_A=40.0, label="CeO2")["rw"] > 3 * fit["rw"]
+
+
+@pytest.mark.slow
+def test_virtual_exafs_matches_its_own_model_and_rejects_a_wrong_one(pt_fcc):
+    from concord.tools import virtual_xafs as vx
+    from concord.tools import xafs
+    mass = pt_fcc.composition.elements[0].atomic_mass
+    fit = {"candidate": "Pt", "rw": 0.05, "structure": pt_fcc, "lattice": {"a": 3.924}, "lattice_err": {"a": 0.001},
+           "uiso": {"Pt": debye_uiso(mass, 240, 300)}, "uiso_err": {"Pt": 0.0001}, "psize_nm": None}
+    pred = vx.predict_exafs([fit], "Pt", "L3", n=6)
+    assert pred["label"] == "PREDICTED, NOT MEASURED" and abs(np.mean(pred["theta_K_range"]) - 240) < 15
+    paths = xafs.structure_paths(pt_fcc, "Pt", "L3")
+    same = xafs.simulate_chi(paths, s02=0.9, temperature=300, theta_d=240, density=4 / pt_fcc.volume)
+    hotter = xafs.simulate_chi(paths, s02=0.9, temperature=300, theta_d=150, density=4 / pt_fcc.volume)
+    good, bad = vx.score_against(pred, *same)["rfactor_R"], vx.score_against(pred, *hotter)["rfactor_R"]
+    assert good < 0.01 and bad > 5 * good

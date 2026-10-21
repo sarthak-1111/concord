@@ -184,3 +184,30 @@ def c6_size(xrd: dict | None, pdf: dict | None) -> dict:
         expl = ("XRD sees larger crystallites than the PDF particle diameter: XRD is volume-weighted (large particles dominate) "
                 "while the PDF envelope is closer to a number average, or a disordered surface shell shortens the PDF range.")
     return result("C6", name, status, vals, tol, expl)
+
+
+def c7_joint(xrd: dict | None, pdf: dict | None, virtual: dict | None) -> dict:
+    """Joint score per candidate: mean of XRD profile misfit (1 - correlation), PDF Rw and, when XAFS was measured,
+    the R-factor of the EXAFS predicted from that candidate's PDF model against the measurement."""
+    tol = _tol("C7_joint")
+    name = "Joint simulation score (XRD + PDF + EXAFS)"
+    if not xrd or not pdf:
+        return skip("C7", name, "needs XRD and PDF")
+    corr = {r["phase"]: r["profile_corr"] for r in xrd["ranking"]}
+    exafs = (virtual or {}).get("per_candidate", {})
+    rows = []
+    for f in pdf["fits"][:3]:
+        parts = {"xrd": 1 - max(corr.get(f["candidate"], 0.0), 0.0), "pdf": f["rw"]}
+        if f["candidate"] in exafs:
+            parts["exafs"] = exafs[f["candidate"]]
+        rows.append({"candidate": f["candidate"], **{k: round(v, 4) for k, v in parts.items()}, "score": round(sum(parts.values()) / len(parts), 4)})
+    rows.sort(key=lambda r: r["score"])
+    reported = pdf["fits"][0]["candidate"]
+    margin = rows[1]["score"] - rows[0]["score"] if len(rows) > 1 else None
+    vals = {"candidates": rows, "margin": margin and round(margin, 4), "techniques": sorted({k for r in rows for k in r} - {"candidate", "score"})}
+    if rows[0]["candidate"] != reported:
+        return result("C7", name, "fail", vals, tol, f"Scored on all techniques together, {rows[0]['candidate']} beats the reported {reported}.")
+    if margin is not None and margin < tol["min_margin"]:
+        return result("C7", name, "warn", vals, tol, f"{reported} wins the joint score by only {margin:.3f}: the techniques do not "
+                      f"separate it from {rows[1]['candidate']}.")
+    return result("C7", name, "pass", vals, tol, f"{reported} has the best joint score" + (f" (margin {margin:.3f})." if margin else "."))

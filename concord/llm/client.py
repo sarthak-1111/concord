@@ -13,7 +13,6 @@ import threading
 import time
 from dataclasses import dataclass, field
 from typing import Any
-from urllib.parse import urlparse
 
 import requests
 from pydantic import BaseModel, ValidationError
@@ -50,7 +49,6 @@ class LLMClient:
                  trace: Trace | None = None, session: requests.Session | None = None):
         cfg = cfg or settings()["llm"]
         self.base_url = base_url.rstrip("/")
-        self.host = urlparse(self.base_url).netloc
         self._api_key = api_key
         self.model = model
         self.think = cfg["think"]
@@ -72,7 +70,7 @@ class LLMClient:
         return cls(e["LLM_BASE_URL"], e["LLM_API_KEY"], e.get("LLM_MODEL", "gpt-oss:120b"), trace=trace)
 
     def __repr__(self) -> str:
-        return f"LLMClient(model={self.model!r}, host={self.host!r})"
+        return f"LLMClient(model={self.model!r})"  # no URL: the endpoint address is treated as a secret
 
     def _trace(self) -> Trace:
         return CURRENT_TRACE.get() or self.trace
@@ -98,8 +96,8 @@ class LLMClient:
                 self._trace().log("llm_retry", role=role, attempt=attempt + 1, error=str(exc) if isinstance(exc, _Retryable) else type(exc).__name__)
                 if attempt < self.max_retries:
                     time.sleep(self.backoff_s * 2 ** attempt)
-        raise EndpointDown(f"LLM endpoint {self.host} not responding after {self.max_retries + 1} attempts "
-                           f"({type(last).__name__}: {str(last)[:120]}). The URL can change between sessions: "
+        raise EndpointDown(f"LLM endpoint not responding after {self.max_retries + 1} attempts "
+                           f"({str(last) if isinstance(last, _Retryable) else type(last).__name__}). The URL can change between sessions: "
                            f"check LLM_BASE_URL in .env.")
 
     @staticmethod
@@ -155,14 +153,14 @@ class LLMClient:
             raise
         except (LLMError, ValueError, KeyError, AttributeError, TypeError):
             pass
-        self._trace().log("llm_probe", host=self.host, model=self.model, **caps)
+        self._trace().log("llm_probe", model=self.model, **caps)
         return caps
 
     def health(self) -> dict:
         t0 = time.time()
         r = self.chat("summary", [{"role": "user", "content": "Reply with exactly: OK"}])
         return {"ok": "OK" in r.content, "latency_s": round(time.time() - t0, 2), "model": self.model,
-                "host": self.host, **{f"native_{k}": v for k, v in self.capabilities().items()}}
+                **{f"native_{k}": v for k, v in self.capabilities().items()}}
 
     # -- chat ------------------------------------------------------------------------------
     def chat(self, role: str, messages: list[dict], *, schema: type[BaseModel] | dict | None = None,

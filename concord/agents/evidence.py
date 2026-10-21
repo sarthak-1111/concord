@@ -46,6 +46,10 @@ def bundle(res: dict) -> dict[str, Any]:
         ev["xanes"] = {k: n[k] for k in ("absorber", "edge_eV", "valence", "valence_edge", "lcf_weights")}
     if b := res.get("bvs"):
         ev["bvs"] = {k: b.get(k) for k in ("valence", "formal_valence")}
+    if v := res.get("virtual_xafs"):
+        ev["virtual_xafs"] = {"label": v["label"], "edge": f"{v['absorber']} {v['edge']}", "candidates": v["candidates"],
+                              "theta_K_range": v["theta_K_range"], "vs_measured": v.get("vs_measured"),
+                              "per_candidate_rfactor": v.get("per_candidate"), "recommendation": v["recommendation"]}
     for c in res["checks"]:
         ev[f"check.{c['id']}"] = {k: c[k] for k in ("name", "status", "values", "tolerance", "explanation")}
     for name, err in res.get("errors", {}).items():

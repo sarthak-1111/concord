@@ -148,11 +148,13 @@ class VisionAgent(BaseAgent):
         vis = await asyncio.to_thread(inspect_fits, run["res"], Path(ctx.session.state["out_dir"]))
         ev = dict(ctx.session.state["evidence"])
         for tech, v in vis.items():
+            if "visual" not in v:  # the virtual XAFS plot is shown, not judged
+                continue
             ev[f"vision.{tech}"] = _r({"accepted": v["accepted"], "verdict": v["visual"]["verdict"], "inspector": v["visual"]["inspector"],
                                        "issues": v["visual"]["issues"], "numerical": v["numerical"],
                                        "durbin_watson": v["features"]["durbin_watson"], "structured_regions": v["features"]["structured_regions"],
                                        "unexplained_peaks": v["features"]["unexplained_peaks"]})
-        text = "; ".join(f"{t} {'accepted' if v['accepted'] else 'rejected'} ({v['visual']['inspector']})" for t, v in vis.items())
+        text = "; ".join(f"{t} {'accepted' if v['accepted'] else 'rejected'} ({v['visual']['inspector']})" for t, v in vis.items() if "visual" in v)
         yield _event(ctx, self.name, f"visual inspection: {text}", {"evidence": ev, "vision": to_json(vis)})
 
 
@@ -205,11 +207,22 @@ def report_markdown(st: dict) -> str:
     a, model, text = st["analysis"], st.get("model") or {}, st.get("report_text") or {}
     sym = {"pass": "pass", "warn": "**warn**", "fail": "**FAIL**", "skip": "skip"}
     lines = [f"# Concord report — {a['sample_id']} ({a['inputs']['composition']})", "",
-             f"**{text.get('headline', '')}**", "", f"Phase: **{model.get('phase')}**", "", model.get("summary", ""), "",
-             "## Evidence by technique", ""]
-    lines += [f"- **{k.upper()}**: {v}" for k, v in text.get("techniques", {}).items()]
+             f"**{text.get('headline', '')}**", "", f"Phase: **{model['phase'] if model else a['phase']}**", "", model.get("summary", ""), "",
+             "## Key numbers (from the tools)", ""] + key_numbers(a)
+    if text.get("techniques"):
+        lines += ["", "## Evidence by technique", ""] + [f"- **{k.upper()}**: {v}" for k, v in text["techniques"].items()]
     lines += ["", "## Cross-technique checks", "", "| check | status | explanation |", "|---|---|---|"]
     lines += [f"| {c['id']} {c['name']} | {sym[c['status']]} | {c['explanation']} |" for c in a["checks"]]
+    if v := a.get("virtual_xafs"):
+        lines += ["", f"## Virtual XAFS — {v['label']}", "",
+                  f"{v['absorber']} {v['edge']} EXAFS computed with FEFF from the PDF-refined model ({', '.join(v['candidates'])}; "
+                  f"{v['members']} ensemble members, Debye temperature {v['theta_K_range'][0]:.0f}–{v['theta_K_range'][1]:.0f} K). "
+                  + v["recommendation"]]
+        if m := v.get("vs_measured"):
+            lines += ["", f"Against the measured spectrum: R-factor {m['rfactor_R']:.4f} in R {m['r_window'][0]}–{m['r_window'][1]} Å."]
+    if not model:
+        lines += ["", "Fast mode: tools and checks only; the generator–critic loop was not run."]
+        return "\n".join(lines) + "\n"
     lines += ["", "## Claims", ""] + [f"{i}. {c['statement']} _(evidence: {', '.join(c['evidence'])})_" for i, c in enumerate(model.get("claims", []))]
     lines += ["", "## Objections and resolutions", ""]
     log = st.get("log", [])
@@ -217,6 +230,32 @@ def report_markdown(st: dict) -> str:
     lines += [f"| {e['id']} | {e['objection']} | {', '.join(e['cited']) or '–'} | {e['action'] or '–'} | {e['finding']} | {e['status']} |" for e in log]
     lines += ["", "## Limitations", ""] + [f"- {x}" for x in text.get("limitations", [])]
     return "\n".join(lines) + "\n"
+
+
+def key_numbers(a: dict) -> list[str]:
+    """One line per technique, straight from the analysis result."""
+    out = []
+    if x := a.get("xrd"):
+        r = x["ranking"][0]
+        out.append(f"- **XRD**: best match {r['phase']} (profile correlation {r['profile_corr']:.3f}, {100 * r['obs_area_fraction_explained']:.0f} % "
+                   f"of the peak area explained); sphere diameter {x['sphere_diameter_nm']:.1f} nm from {x['n_indexed']} indexed reflections")
+    if p := a.get("pdf"):
+        f = p["fits"][0]
+        lat = ", ".join(f"{k} {v:.4f} Å" for k, v in f["lattice"].items() if k in "abc" and (k == "a" or abs(v - f["lattice"]["a"]) > 1e-6))
+        size = f"particle diameter {f['psize_nm']:.1f} nm" if f.get("psize_nm") else "no finite-size envelope (bulk)"
+        out.append(f"- **PDF**: {f['candidate']} refines to Rw {f['rw']:.3f}; {lat}; U_iso "
+                   + ", ".join(f"{el} {u:.4f} Å²" for el, u in f["uiso"].items()) + f"; {size}")
+    if e := a.get("exafs"):
+        shells = "; ".join(f"{e['absorber']}–{s['neighbor']} N {s['N']:.1f}" + (f" ± {s['N_err']:.1f}" if s.get("N_err") else "")
+                           + f" at {s['R_A']:.3f} Å, σ² {s['sigma2']:.4f} Å²" + (" (shell not in the model)" if s.get("extra") else "")
+                           for s in e["fit"]["shells"])
+        out.append(f"- **EXAFS** ({e['absorber']} {e['edge']}): {shells}; R-factor {e['fit']['rfactor']:.4f}")
+    if n := a.get("xanes"):
+        out.append(f"- **XANES**: {n['absorber']} valence {n['valence']:.2f} from a linear combination of standards, "
+                   f"{n['valence_edge']:.2f} from the edge position")
+    if b := a.get("bvs"):
+        out.append(f"- **Bond valence** (PDF model): {b['valence']:.2f}")
+    return out or ["- no technique produced a result"]
 
 
 async def run_sample_async(folder: str | Path, out: Path | None = None, on_event=None, composition: str | None = None,
