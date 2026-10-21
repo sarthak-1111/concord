@@ -25,3 +25,9 @@ data-big:  # separate folder, so v1 (dataset/) stays fixed for development and e
 
 validate:
 	uv run python -W ignore scripts/validate_dataset.py
+
+eval:
+	uv run python -W ignore -m concord.evaluate
+
+analyze:  # make analyze S=dataset/samples/s0010
+	uv run python -W ignore -m concord.analysis $(S)

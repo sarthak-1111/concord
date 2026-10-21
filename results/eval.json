@@ -1,0 +1,788 @@
+{
+ "dataset": "dataset",
+ "splits": [
+  "test",
+  "faults"
+ ],
+ "wall_s": 163.8,
+ "metrics": {
+  "n_clean": 10,
+  "n_faults": 9,
+  "phase_id_accuracy": 0.9,
+  "exafs_bond_length_mae_A": 0.003547925661484408,
+  "pdf_bond_length_mae_A": 0.00035726969141493107,
+  "exafs_cn_mae": 0.34705456932362977,
+  "oxidation_accuracy": 1.0,
+  "fault_detection_rate": 0.5555555555555556,
+  "fault_warn_or_fail_rate": 0.7777777777777778,
+  "false_alarm_rate": 0.2,
+  "warn_rate_clean": 0.5,
+  "checks_reported": 1.0,
+  "runtime_s_mean": 31.071578947368426,
+  "runtime_s_max": 66.76,
+  "llm_tokens_per_sample": 0,
+  "size_rel_mae_xrd": 2.0030573458007206,
+  "size_n_xrd": 8,
+  "size_rel_mae_pdf": 0.037386179286225334,
+  "size_n_pdf": 8,
+  "size_rel_mae_exafs": 0.30301012176110614,
+  "size_n_exafs": 3,
+  "fault_detection_by_type": {
+   "alloy_segregation": 1.0,
+   "low_concentration_dopant": 0.0,
+   "mislabeled_metadata": 1.0,
+   "mixed_oxidation_states": 0.0,
+   "multi_domain": 1.0,
+   "oxide_shell": 0.0,
+   "wrong_phase_candidate": 1.0
+  }
+ },
+ "thresholds": {
+  "phase_id_accuracy": {
+   "value": 0.9,
+   "min": 0.9,
+   "pass": true
+  },
+  "exafs_bond_length_mae_A": {
+   "value": 0.003547925661484408,
+   "max": 0.02,
+   "pass": true
+  },
+  "pdf_bond_length_mae_A": {
+   "value": 0.00035726969141493107,
+   "max": 0.02,
+   "pass": true
+  },
+  "exafs_cn_mae": {
+   "value": 0.34705456932362977,
+   "max": 1.0,
+   "pass": true
+  },
+  "oxidation_accuracy": {
+   "value": 1.0,
+   "min": 0.8,
+   "pass": true
+  },
+  "size_rel_mae_xrd": {
+   "value": 2.0030573458007206,
+   "max": 0.3,
+   "pass": false
+  },
+  "size_rel_mae_pdf": {
+   "value": 0.037386179286225334,
+   "max": 0.2,
+   "pass": true
+  },
+  "fault_detection_rate": {
+   "value": 0.5555555555555556,
+   "min": 0.6,
+   "pass": false
+  },
+  "false_alarm_rate": {
+   "value": 0.2,
+   "max": 0.2,
+   "pass": true
+  },
+  "checks_reported": {
+   "value": 1.0,
+   "min": 1.0,
+   "pass": true
+  },
+  "runtime_s_mean": {
+   "value": 31.071578947368426,
+   "max": 120,
+   "pass": true
+  }
+ },
+ "passed": false,
+ "samples": [
+  {
+   "sample_id": "s0004",
+   "split": "test",
+   "faults": [],
+   "notes": "bulk, 1500 atoms, system CeO2",
+   "true_phase": "CeO2",
+   "phase": "CeO2",
+   "checks": {
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "skip"
+   },
+   "flagged": false,
+   "warned": false,
+   "runtime_s": 5.38,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Ce-O",
+     "R_err": -0.0005527562739002789,
+     "N_err": 0.6464745626027106
+    }
+   ],
+   "pdf_R_err": [
+    -6.595292739941527e-05,
+    -0.00010387889628926672
+   ],
+   "valence_err": 0.0
+  },
+  {
+   "sample_id": "s0009",
+   "split": "test",
+   "faults": [],
+   "notes": "nanoparticle truncated_octahedron, 586 atoms, system Pt",
+   "true_phase": "Pt",
+   "phase": "PtNi",
+   "checks": {
+    "C1": "fail",
+    "C2": "fail",
+    "C3": "fail",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "pass"
+   },
+   "flagged": true,
+   "warned": true,
+   "runtime_s": 35.07,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Pt-Pt",
+     "R_err": -0.004006686425325867,
+     "N_err": -0.2874976111731371
+    }
+   ],
+   "pdf_R_err": [
+    0.0008052192464318431
+   ],
+   "valence_err": 0.0,
+   "size_rel_err": {
+    "xrd": 0.14088916483745417,
+    "pdf": 0.013678401587234735,
+    "exafs": 0.08892390192737196
+   }
+  },
+  {
+   "sample_id": "s0014",
+   "split": "test",
+   "faults": [],
+   "notes": "nanoparticle sphere, 16169 atoms, system TiO2-anatase",
+   "true_phase": "TiO2-anatase",
+   "phase": "TiO2-anatase",
+   "checks": {
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "warn",
+    "C5": "pass",
+    "C6": "pass"
+   },
+   "flagged": false,
+   "warned": true,
+   "runtime_s": 23.57,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Ti-O",
+     "R_err": -0.006246722988171305,
+     "N_err": 0.6197912617942816
+    }
+   ],
+   "pdf_R_err": [
+    -0.0006535634885158625,
+    -0.0003572825754094566
+   ],
+   "valence_err": -0.4974075217837175,
+   "size_rel_err": {
+    "xrd": -0.05866283435789242,
+    "pdf": 0.01591940852108948
+   }
+  },
+  {
+   "sample_id": "s0019",
+   "split": "test",
+   "faults": [],
+   "notes": "nanoparticle cuboctahedron, 923 atoms, system Pt3Co",
+   "true_phase": "Pt3Co",
+   "phase": "Pt3Co",
+   "checks": {
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "warn"
+   },
+   "flagged": false,
+   "warned": true,
+   "runtime_s": 37.67,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Pt-Co",
+     "R_err": -0.006838491753523357,
+     "N_err": -0.5710839085967367
+    },
+    {
+     "pair": "Pt-Pt",
+     "R_err": 0.0007259561131851555,
+     "N_err": 0.8766729615047364
+    }
+   ],
+   "pdf_R_err": [
+    0.0003819727592295763,
+    0.0003819727592304645
+   ],
+   "valence_err": 0.06703234712740352,
+   "size_rel_err": {
+    "xrd": 0.26413003262503915,
+    "pdf": 0.006142845622041653,
+    "exafs": 0.6654211152922068
+   }
+  },
+  {
+   "sample_id": "s0029",
+   "split": "test",
+   "faults": [],
+   "notes": "nanoparticle sphere, 3096 atoms, system PtNi",
+   "true_phase": "PtNi",
+   "phase": "PtNi",
+   "checks": {
+    "C1": "pass",
+    "C2": "skip",
+    "C3": "skip",
+    "C4": "skip",
+    "C5": "skip",
+    "C6": "pass"
+   },
+   "flagged": false,
+   "warned": false,
+   "runtime_s": 66.76,
+   "errors": {},
+   "pdf_R_err": [
+    0.00011968553519503544,
+    0.00011968553519503544
+   ],
+   "size_rel_err": {
+    "xrd": 0.07557885505703812,
+    "pdf": 0.013345682153790372
+   }
+  },
+  {
+   "sample_id": "s0034",
+   "split": "test",
+   "faults": [],
+   "notes": "nanoparticle sphere, 342 atoms, system Co3O4",
+   "true_phase": "Co3O4",
+   "phase": "Co3O4",
+   "checks": {
+    "C1": "warn",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "fail"
+   },
+   "flagged": true,
+   "warned": true,
+   "runtime_s": 25.51,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Co-O",
+     "R_err": 0.00459418312998805,
+     "N_err": -0.04470325396001851
+    }
+   ],
+   "pdf_R_err": [
+    0.00015142107862753384,
+    0.00014269254225141026
+   ],
+   "valence_err": -0.027566112432288126,
+   "size_rel_err": {
+    "xrd": 15.383027322202327,
+    "pdf": -0.06582255676866038
+   }
+  },
+  {
+   "sample_id": "s0039",
+   "split": "test",
+   "faults": [],
+   "notes": "nanoparticle sphere, 17807 atoms, system PtO2",
+   "true_phase": "PtO2",
+   "phase": "PtO2",
+   "checks": {
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "pass"
+   },
+   "flagged": false,
+   "warned": false,
+   "runtime_s": 18.45,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Pt-O",
+     "R_err": 0.005616171024707128,
+     "N_err": 0.05081682367247531
+    }
+   ],
+   "pdf_R_err": [
+    -0.0002207142754386826,
+    -0.0016008425048434916
+   ],
+   "valence_err": -0.34502692190686135,
+   "size_rel_err": {
+    "xrd": 0.0072279187960168955,
+    "pdf": 0.11282782247304854
+   }
+  },
+  {
+   "sample_id": "s0044",
+   "split": "test",
+   "faults": [],
+   "notes": "nanoparticle sphere, 21737 atoms, system IrO2",
+   "true_phase": "IrO2",
+   "phase": "IrO2",
+   "checks": {
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "warn",
+    "C6": "pass"
+   },
+   "flagged": false,
+   "warned": true,
+   "runtime_s": 15.97,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Ir-O",
+     "R_err": -0.0034993937540932496,
+     "N_err": -0.11054388816265881
+    }
+   ],
+   "pdf_R_err": [
+    -0.00017274723755056343,
+    0.0006889844923012589
+   ],
+   "valence_err": -0.09310657496107666,
+   "size_rel_err": {
+    "xrd": 0.02211876216909773,
+    "pdf": -0.05907353222356339
+   }
+  },
+  {
+   "sample_id": "s0049",
+   "split": "test",
+   "faults": [],
+   "notes": "bulk, 1500 atoms, system CeO2",
+   "true_phase": "CeO2",
+   "phase": "CeO2",
+   "checks": {
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "skip"
+   },
+   "flagged": false,
+   "warned": false,
+   "runtime_s": 5.83,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Ce-O",
+     "R_err": -2.9067566913454357e-06,
+     "N_err": -0.06411008080028147
+    }
+   ],
+   "pdf_R_err": [
+    -0.00012888060843696536,
+    -0.00020663936911402558
+   ],
+   "valence_err": 0.0
+  },
+  {
+   "sample_id": "s0054",
+   "split": "test",
+   "faults": [],
+   "notes": "nanoparticle cuboctahedron, 3871 atoms, system Pt",
+   "true_phase": "Pt",
+   "phase": "Pt",
+   "checks": {
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "pass"
+   },
+   "flagged": false,
+   "warned": false,
+   "runtime_s": 34.3,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Pt-Pt",
+     "R_err": 0.0033959883952583425,
+     "N_err": -0.19885134096926116
+    }
+   ],
+   "pdf_R_err": [
+    -0.0001287186140088714
+   ],
+   "valence_err": 0.0,
+   "size_rel_err": {
+    "xrd": 0.0728238763608973,
+    "pdf": 0.012279184940374145,
+    "exafs": -0.15468534806373974
+   }
+  },
+  {
+   "sample_id": "s0003",
+   "split": "faults",
+   "faults": [
+    "wrong_phase_candidate"
+   ],
+   "notes": "nanoparticle sphere, 8292 atoms, system TiO2-brookite",
+   "true_phase": "TiO2-brookite",
+   "phase": null,
+   "checks": {
+    "C1": "fail",
+    "C2": "warn",
+    "C3": "fail",
+    "C4": "warn",
+    "C5": "warn",
+    "C6": "pass"
+   },
+   "flagged": true,
+   "warned": true,
+   "runtime_s": 32.8,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Ti-O",
+     "R_err": -0.0007582684920557359,
+     "N_err": 3.204505936393927
+    }
+   ],
+   "pdf_R_err": [
+    -0.04529883389826894,
+    -0.043790438784765406
+   ],
+   "valence_err": -0.1169274896715291,
+   "size_rel_err": {
+    "xrd": -0.39863710016254095,
+    "pdf": -0.24058149273625107
+   }
+  },
+  {
+   "sample_id": "s0010",
+   "split": "faults",
+   "faults": [
+    "oxide_shell"
+   ],
+   "notes": "nanoparticle truncated_octahedron, 10815 atoms, system Pt",
+   "true_phase": "Pt",
+   "phase": "Pt",
+   "checks": {
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "pass"
+   },
+   "flagged": false,
+   "warned": false,
+   "runtime_s": 39.38,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Pt-Pt",
+     "R_err": 0.0037676374863071516,
+     "N_err": 0.17532734352786683
+    }
+   ],
+   "pdf_R_err": [
+    -0.0006715836945683229
+   ],
+   "valence_err": -0.17146427883900803,
+   "size_rel_err": {
+    "xrd": 0.010906347643287295,
+    "pdf": 0.15826147979068178,
+    "exafs": 0.3481041637487841
+   }
+  },
+  {
+   "sample_id": "s0017",
+   "split": "faults",
+   "faults": [
+    "mixed_oxidation_states"
+   ],
+   "notes": "nanoparticle sphere, 12268 atoms, system CeO2",
+   "true_phase": "CeO2",
+   "phase": "CeO2",
+   "checks": {
+    "C1": "warn",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "pass"
+   },
+   "flagged": false,
+   "warned": true,
+   "runtime_s": 4.17,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Ce-O",
+     "R_err": 0.0013289619697669508,
+     "N_err": -0.11645088415628013
+    }
+   ],
+   "pdf_R_err": [
+    -0.0002942138642887393,
+    -0.0004741483242893807
+   ],
+   "valence_err": 0.11920664601996078,
+   "size_rel_err": {
+    "xrd": 0.027042967720501507,
+    "pdf": -0.09372521873395272
+   }
+  },
+  {
+   "sample_id": "s0024",
+   "split": "faults",
+   "faults": [
+    "alloy_segregation"
+   ],
+   "notes": "nanoparticle cuboctahedron, 17885 atoms, system Pt3Co",
+   "true_phase": "Pt3Co",
+   "phase": "Pt",
+   "checks": {
+    "C1": "fail",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "fail"
+   },
+   "flagged": true,
+   "warned": true,
+   "runtime_s": 48.33,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Pt-Pt",
+     "R_err": -0.00041026737926586065,
+     "N_err": 0.2320644021951992
+    }
+   ],
+   "pdf_R_err": [
+    0.0002775519540918481
+   ],
+   "valence_err": 0.05106370527199277,
+   "size_rel_err": {
+    "xrd": 0.14774296768239314,
+    "pdf": -0.3402188460978516,
+    "exafs": -0.5769924685954971
+   }
+  },
+  {
+   "sample_id": "s0031",
+   "split": "faults",
+   "faults": [
+    "multi_domain"
+   ],
+   "notes": "nanoparticle icosahedron, 1415 atoms, system Pt",
+   "true_phase": "Pt",
+   "phase": "Pt3Co",
+   "checks": {
+    "C1": "fail",
+    "C2": "fail",
+    "C3": "fail",
+    "C4": "pass",
+    "C5": "warn",
+    "C6": "skip"
+   },
+   "flagged": true,
+   "warned": true,
+   "runtime_s": 62.69,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Pt-Pt",
+     "R_err": 0.005223184481882193,
+     "N_err": 1.6498306954243862
+    }
+   ],
+   "pdf_R_err": [
+    0.001863463554825362
+   ],
+   "valence_err": 0.0,
+   "size_rel_err": {
+    "pdf": -0.5006285331296675
+   }
+  },
+  {
+   "sample_id": "s0038",
+   "split": "faults",
+   "faults": [
+    "low_concentration_dopant"
+   ],
+   "notes": "nanoparticle truncated_octahedron, 6266 atoms, system Pt",
+   "true_phase": "Pt",
+   "phase": "Pt",
+   "checks": {
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "pass",
+    "C4": "pass",
+    "C5": "pass",
+    "C6": "pass"
+   },
+   "flagged": false,
+   "warned": false,
+   "runtime_s": 34.56,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Pt-Pt",
+     "R_err": 0.002758896498166852,
+     "N_err": 0.6188779131334456
+    }
+   ],
+   "pdf_R_err": [
+    0.0008715281492470695
+   ],
+   "valence_err": 0.0,
+   "size_rel_err": {
+    "xrd": 0.08665558307523927,
+    "pdf": 0.06876738128714614,
+    "exafs": 0.36870174829368135
+   }
+  },
+  {
+   "sample_id": "s0045",
+   "split": "faults",
+   "faults": [
+    "mislabeled_metadata"
+   ],
+   "notes": "nanoparticle sphere, 345 atoms, system CeO2",
+   "true_phase": "CeO2",
+   "phase": null,
+   "checks": {
+    "C1": "fail",
+    "C2": "skip",
+    "C3": "skip",
+    "C4": "fail",
+    "C5": "skip",
+    "C6": "warn"
+   },
+   "flagged": true,
+   "warned": true,
+   "runtime_s": 16.6,
+   "errors": {
+    "exafs": "ValueError: absorber Ce is not in the refined model TiO2"
+   },
+   "pdf_R_err": [],
+   "valence_err": 0.0,
+   "size_rel_err": {
+    "xrd": 0.26354660218323706,
+    "pdf": -0.10799304840845927
+   }
+  },
+  {
+   "sample_id": "s0052",
+   "split": "faults",
+   "faults": [
+    "wrong_phase_candidate"
+   ],
+   "notes": "nanoparticle sphere, 972 atoms, system PtO2-alpha",
+   "true_phase": "PtO2-alpha",
+   "phase": null,
+   "checks": {
+    "C1": "fail",
+    "C2": "warn",
+    "C3": "warn",
+    "C4": "warn",
+    "C5": "warn",
+    "C6": "warn"
+   },
+   "flagged": true,
+   "warned": true,
+   "runtime_s": 50.75,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Pt-O",
+     "R_err": -0.013504325894385438,
+     "N_err": 0.920029847425373
+    }
+   ],
+   "pdf_R_err": [
+    -0.045991132147776614,
+    0.05896632701872351
+   ],
+   "valence_err": -1.2110046701084372,
+   "size_rel_err": {
+    "xrd": 0.13013054776552324,
+    "pdf": 1.1927887944587352
+   }
+  },
+  {
+   "sample_id": "s0059",
+   "split": "faults",
+   "faults": [
+    "oxide_shell"
+   ],
+   "notes": "nanoparticle cuboctahedron, 1070 atoms, system Pt3Co",
+   "true_phase": "Pt3Co",
+   "phase": "Pt3Co",
+   "checks": {
+    "C1": "pass",
+    "C2": "pass",
+    "C3": "warn",
+    "C4": "warn",
+    "C5": "pass",
+    "C6": "pass"
+   },
+   "flagged": false,
+   "warned": true,
+   "runtime_s": 32.57,
+   "errors": {},
+   "exafs": [
+    {
+     "pair": "Pt-Co",
+     "R_err": -0.005223349432105895,
+     "N_err": 0.08599448835770263
+    },
+    {
+     "pair": "Pt-Pt",
+     "R_err": 0.0005153424901762627,
+     "N_err": 0.9938239350622355
+    }
+   ],
+   "pdf_R_err": [
+    0.00044230821829893685,
+    0.00044230821829893685
+   ],
+   "valence_err": 0.1212095404970614,
+   "size_rel_err": {
+    "xrd": 0.1302253606968982,
+    "pdf": -0.03906929750002474,
+    "exafs": 5.944172312796374
+   }
+  }
+ ]
+}

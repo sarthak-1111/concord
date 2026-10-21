@@ -23,14 +23,17 @@ critic:
 # Cross-technique check tolerances (C1–C7)
 checks:
   C1_phase:
-    xrd_weak_rel_intensity: 0.05   # XRD considered weak if matched peak area fraction is below this
+    xrd_weak_rel_intensity: 0.05   # XRD weak if the strongest indexed peak is below this fraction of the pattern's intensity range
     pdf_good_rw: 0.25              # PDF fit considered good below this Rw
+    lattice_warn_rel: 0.003        # refined lattice vs the database value of the phase
   C2_bond_length:
     warn_A: 0.02
     fail_A: 0.05
   C3_coordination:
     warn_abs: 1.0
     fail_abs: 2.0
+    extra_min_sigma: 3.0           # a shell missing from the model (e.g. Pt-O) counts if N > 3 sigma ...
+    extra_min_rfactor_drop: 0.3    # ... and adding it cuts the EXAFS R-factor by at least 30 %
   C4_oxidation:
     warn_abs: 0.5
     fail_abs: 1.0

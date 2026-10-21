@@ -21,7 +21,9 @@ from concord.tools import tool
 
 CU_KA1 = 1.5406
 K_SCHERRER = 0.9
-K_SPHERE_FWHM = 1.2090  # sphere diameter from FWHM: Langford & Wilson 1978, doi:10.1107/S0021889878012844
+# FWHM Scherrer constant for spheres relative to the diameter D, from the sphere's common-volume function
+# A(L) = 1 - 3L/2D + L³/2D³ (Stokes & Wilson 1942); equals 0.892 relative to V^(1/3), and K_β = 4/3.
+K_SPHERE_D = 1.1067
 
 
 # -- loading (CrystaLenz data_loader: inspect_xrd_file / load_xrd_data) ---------------------------------
@@ -167,7 +169,7 @@ def find_and_fit_peaks(two_theta: np.ndarray, y: np.ndarray, height_rel: float =
         err = out.params["center"].stderr
         peaks.append({"two_theta": float(bv["center"]), "two_theta_err": float(err) if err else None,
                       "height": float(out.best_fit.max() - bv["offset"]), "fwhm_deg": voigt_fwhm(bv["sigma"], bv["gamma"]),
-                      "area": float(bv["amp"]), "model": "voigt"})
+                      "sigma_deg": float(bv["sigma"]), "gamma_deg": float(bv["gamma"]), "area": float(bv["amp"]), "model": "voigt"})
     return peaks
 
 
@@ -177,30 +179,43 @@ def caglioti_fwhm_deg(two_theta_deg: float, U: float, V: float, W: float) -> flo
     return math.sqrt(max(U * t * t + V * t + W, 1e-12))
 
 
+def _weighted_median(values: list[float], weights: list[float]) -> float:
+    order = np.argsort(values)
+    cum = np.cumsum(np.asarray(weights, float)[order])
+    return float(np.asarray(values)[order][np.searchsorted(cum, 0.5 * cum[-1])])
+
+
 @tool
 def scherrer_wh(peaks: list[dict], wavelength_A: float = CU_KA1, instrument: dict | None = None,
                 K: float = K_SCHERRER) -> dict:
-    """Scherrer size per peak and a Williamson–Hall fit (β cosθ = Kλ/D + 4ε sinθ).
+    """Crystallite size and strain from peak widths.
 
-    instrument: optional {"U","V","W"} Caglioti terms (deg²) or {"fwhm_deg"}; removed in quadrature.
+    The instrument (Caglioti, Gaussian) is removed from each Voigt fit by subtracting Gaussian widths in quadrature
+    and keeping the Lorentzian width (exact for Voigt profiles); peaks without Voigt parameters fall back to
+    subtracting FWHMs in quadrature.
+    scherrer: column length L = Kλ/(β cosθ) per peak (CrystaLenz convention, K = 0.9).
+    sphere_diameter_nm: D = K_SPHERE_D·λ/(β cosθ), area-weighted median over peaks (strong reflections dominate).
+    williamson_hall: β cosθ = Kλ/L + 4ε sinθ.
+    instrument: optional {"U","V","W"} Caglioti terms (deg²) or {"fwhm_deg"}.
     """
     rows, X, Y = [], [], []
     for pk in peaks:
         tt = float(pk["two_theta"])
-        beta_deg = float(pk["fwhm_deg"])
+        inst = 0.0
         if instrument:
             inst = instrument.get("fwhm_deg") or caglioti_fwhm_deg(tt, instrument["U"], instrument["V"], instrument["W"])
-            beta_deg = math.sqrt(max(beta_deg ** 2 - inst ** 2, 1e-12))
-        theta, beta = math.radians(tt / 2), math.radians(beta_deg)
-        L_A = K * wavelength_A / (beta * math.cos(theta))
-        rows.append({"two_theta": tt, "beta_deg": beta_deg, "L_nm": L_A / 10})
+        if "sigma_deg" in pk:
+            beta_deg = voigt_fwhm(math.sqrt(max(pk["sigma_deg"] ** 2 - (inst / 2.3548) ** 2, 0.0)), pk["gamma_deg"])
+        else:
+            beta_deg = math.sqrt(max(float(pk["fwhm_deg"]) ** 2 - inst ** 2, 1e-12))
+        theta, beta = math.radians(tt / 2), math.radians(max(beta_deg, 1e-6))
+        rows.append({"two_theta": tt, "beta_deg": beta_deg, "L_nm": K * wavelength_A / (beta * math.cos(theta)) / 10,
+                     "D_sphere_nm": K_SPHERE_D * wavelength_A / (beta * math.cos(theta)) / 10})
         X.append(4 * math.sin(theta))
         Y.append(beta * math.cos(theta))
-    sizes = [r["L_nm"] for r in rows]
     out = {"scherrer": rows, "K": K, "wavelength_A": wavelength_A,
-           "scherrer_median_nm": float(np.median(sizes)) if sizes else None,
-           # volume-weighted column length (K=0.9) -> equivalent sphere diameter
-           "sphere_diameter_nm": float(np.median(sizes) * K_SPHERE_FWHM / K) if sizes else None,
+           "scherrer_median_nm": float(np.median([r["L_nm"] for r in rows])) if rows else None,
+           "sphere_diameter_nm": _weighted_median([r["D_sphere_nm"] for r in rows], [pk.get("area", 1.0) for pk in peaks]) if rows else None,
            "williamson_hall": None}
     if len(X) >= 3:
         slope, intercept = np.polyfit(X, Y, 1)
@@ -232,18 +247,20 @@ def d_spacing(two_theta_deg: float, wavelength_A: float = CU_KA1) -> float:
 
 @tool
 def match_reference(peaks: list[dict], ref_lines: list[dict], wavelength_A: float = CU_KA1, min_ref_intensity: float = 5.0) -> dict:
-    """Match observed peaks to reference lines in d-spacing (tolerance max(0.02 Å, 0.5 % d), as in CrystaLenz)."""
+    """Match observed peaks to reference lines in d-spacing: tolerance max(0.02 Å, 0.5 % d) as in CrystaLenz, widened
+    for broad peaks to 15 % of the FWHM in 2θ, since overlapping nanoparticle reflections shift fitted centres."""
     exp = [(p, d_spacing(p["two_theta"], wavelength_A)) for p in peaks]
+    widen = [d / math.tan(math.radians(p["two_theta"] / 2)) * math.radians(0.15 * p.get("fwhm_deg", 0.0) / 2) for p, d in exp]
     strong = [r for r in ref_lines if r["intensity"] >= min_ref_intensity]
     matches, used = [], set()
     for r in strong:
         tol = max(0.02, 0.005 * r["d_A"])
-        cands = [(abs(d - r["d_A"]), i) for i, (_, d) in enumerate(exp) if abs(d - r["d_A"]) <= tol]
+        cands = [(abs(d - r["d_A"]), i) for i, (_, d) in enumerate(exp) if abs(d - r["d_A"]) <= max(tol, widen[i])]
         if cands:
             delta, i = min(cands)
             used.add(i)
             matches.append({"ref_two_theta": r["two_theta"], "exp_two_theta": exp[i][0]["two_theta"], "ref_d": r["d_A"],
-                            "exp_d": exp[i][1], "delta_d": exp[i][1] - r["d_A"], "tol_d": tol, "hkl": r["hkl"][:1],
+                            "exp_d": exp[i][1], "delta_d": exp[i][1] - r["d_A"], "tol_d": max(tol, widen[i]), "hkl": r["hkl"][:1],
                             "ref_intensity": r["intensity"]})
     total_area = sum(p["area"] for p in peaks) or 1.0
     unexplained = [exp[i][0] for i in range(len(exp)) if i not in used]

@@ -1,0 +1,18 @@
+# Pass criteria for `make eval`. Registered on 2026-10-22 before the first evaluation run; a threshold is never
+# edited to make a run pass. A metric added later gets its threshold when it is added, before it is first scored.
+dataset: dataset          # v1; samples s0000-s0059
+splits: [test, faults]    # clean test samples score accuracy and false alarms; fault samples score detection
+workers: 4
+
+thresholds:
+  phase_id_accuracy:        {min: 0.90}   # clean test samples: reported phase == true major phase
+  exafs_bond_length_mae_A:  {max: 0.02}   # first-shell EXAFS R vs true pair distance
+  pdf_bond_length_mae_A:    {max: 0.02}   # first-shell distance in the PDF-refined model vs truth
+  exafs_cn_mae:             {max: 1.0}    # first-shell EXAFS N vs true N, per pair
+  oxidation_accuracy:       {min: 0.80}   # |XANES valence - true valence| <= 0.5
+  size_rel_mae_xrd:         {max: 0.30}   # nanoparticles: XRD sphere diameter vs true equivalent diameter
+  size_rel_mae_pdf:         {max: 0.20}   # nanoparticles: PDF particle diameter vs truth
+  fault_detection_rate:     {min: 0.60}   # fault samples with at least one failed check
+  false_alarm_rate:         {max: 0.20}   # clean test samples with at least one failed check
+  checks_reported:          {min: 1.0}    # C1-C6 present (pass/warn/fail/skip) for every evaluated sample
+  runtime_s_mean:           {max: 120}    # wall time of the analysis per sample

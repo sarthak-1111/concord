@@ -38,7 +38,23 @@ def test_scherrer_recovers_simulated_size(pt_fcc):
     peaks = xrd.find_and_fit_peaks(tt, y)
     out = xrd.scherrer_wh(peaks, instrument=inst)
     assert abs(out["scherrer_median_nm"] - 6.0) / 6.0 < 0.15
-    assert out["sphere_diameter_nm"] > out["scherrer_median_nm"]  # sphere diameter > volume-weighted column length
+
+
+def test_sphere_diameter_from_debye_pattern(pt_fcc):
+    """Diameter of a 5 nm Pt sphere from its Debye-scattering pattern (the physics the dataset uses)."""
+    from ase.build import bulk
+    from debyecalculator import DebyeCalculator
+    atoms = bulk("Pt", "fcc", a=3.924, cubic=True).repeat(16)
+    atoms.translate(-atoms.positions.mean(axis=0))
+    atoms = atoms[np.linalg.norm(atoms.positions, axis=1) <= 25.0]
+    tt = np.arange(30, 90, 0.02)
+    q = 4 * np.pi * np.sin(np.radians(tt / 2)) / 1.5406
+    qq, iq = DebyeCalculator(qmin=q[0] - 0.05, qmax=q[-1] + 0.05, qstep=0.004, biso=0.3, device="cpu").iq(atoms)
+    y = np.interp(q, qq, iq)
+    peaks = xrd.find_and_fit_peaks(tt, y - y.min())
+    matched = {m["exp_two_theta"] for m in xrd.match_reference(peaks, xrd.reference_lines(pt_fcc, two_theta_range=(30, 90)))["matches"]}
+    out = xrd.scherrer_wh([p for p in peaks if p["two_theta"] in matched])
+    assert abs(out["sphere_diameter_nm"] - 5.0) / 5.0 < 0.15
 
 
 def test_williamson_hall_strain_is_dimensionless(pt_fcc):

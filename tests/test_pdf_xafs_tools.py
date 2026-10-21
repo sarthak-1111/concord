@@ -63,3 +63,18 @@ def test_exafs_shell_fit_recovers_model(pt_fcc):
     pt = next(s for s in fit["shells"] if s["neighbor"] == "Pt")
     assert abs(pt["N"] - 12) < 1.5 and abs(pt["R_A"] - 3.924 / np.sqrt(2)) < 0.01
     assert abs(pt["sigma2"] - paths[0].sigma2) < 0.0006
+
+
+@pytest.mark.slow
+def test_fit_pdf_recovers_lattice_adp_and_size(pt_fcc, ceo2):
+    from concord.tools.pdf import fit_pdf
+    r = np.arange(1.0, 25.0, 0.01)
+    calc = PDFCalculator(pt_fcc, rmax=26.0, qmax=24.0)
+    g = calc(r, lattice={"a": 3.95, "b": 3.95, "c": 3.95}, uiso={"Pt": 0.006}, delta2=1.5, qdamp=0.03) * spherical_envelope(r, 50.0)
+    dg = np.full_like(r, 0.01 * np.abs(g).max())
+    g = g + np.random.default_rng(0).normal(0, dg)
+    fit = fit_pdf(r, g, dg, pt_fcc, qmax=24.0, qdamp=0.03, psize0_A=40.0, label="Pt")
+    assert fit["rw"] < 0.1
+    assert abs(fit["lattice"]["a"] - 3.95) < 0.003 and abs(fit["uiso"]["Pt"] - 0.006) < 0.0008
+    assert abs(fit["psize_nm"] - 5.0) < 0.5
+    assert fit_pdf(r, g, dg, ceo2, qmax=24.0, qdamp=0.03, psize0_A=40.0, label="CeO2")["rw"] > 3 * fit["rw"]
