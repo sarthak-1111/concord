@@ -213,9 +213,11 @@ def scherrer_wh(peaks: list[dict], wavelength_A: float = CU_KA1, instrument: dic
 
 
 # -- reference patterns and matching (CrystaLenz reference_check, without the Materials Project dependency) -----
-def reference_lines(structure, wavelength_A: float = CU_KA1, two_theta_range=(10.0, 90.0), min_intensity: float = 1.0) -> list[dict]:
+def reference_lines(structure, wavelength_A: float = CU_KA1, two_theta_range=(10.0, 90.0), min_intensity: float = 1.0,
+                    debye_waller: dict | None = None) -> list[dict]:
     from pymatgen.analysis.diffraction.xrd import XRDCalculator
-    patt = XRDCalculator(wavelength=wavelength_A).get_pattern(structure, two_theta_range=tuple(two_theta_range))
+    calc = XRDCalculator(wavelength=wavelength_A, debye_waller_factors=debye_waller)
+    patt = calc.get_pattern(structure, two_theta_range=tuple(two_theta_range))
     lines = []
     for tt, inten, hkls, d in zip(patt.x, patt.y, patt.hkls, patt.d_hkls):
         if inten >= min_intensity:
@@ -267,12 +269,13 @@ def tch_pseudo_voigt(x: np.ndarray, center: float, h_g: float, h_l: float) -> np
 
 @tool
 def simulate_pattern(structure, two_theta: np.ndarray, wavelength_A: float = CU_KA1, size_nm: float | None = None,
-                     strain: float = 0.0, instrument: dict | None = None) -> np.ndarray:
+                     strain: float = 0.0, instrument: dict | None = None, debye_waller: dict | None = None) -> np.ndarray:
     """Powder pattern of a periodic structure: pymatgen stick pattern broadened by size, strain and instrument."""
     inst = instrument or {"U": 0.004, "V": -0.002, "W": 0.002}
     x = np.asarray(two_theta, float)
     y = np.zeros_like(x)
-    for line in reference_lines(structure, wavelength_A, (max(1.0, x.min() - 5), min(179.0, x.max() + 5)), min_intensity=0.01):
+    for line in reference_lines(structure, wavelength_A, (max(1.0, x.min() - 5), min(179.0, x.max() + 5)), min_intensity=0.01,
+                                debye_waller=debye_waller):
         tt = line["two_theta"]
         theta = math.radians(tt / 2)
         h_g = caglioti_fwhm_deg(tt, inst["U"], inst["V"], inst["W"])

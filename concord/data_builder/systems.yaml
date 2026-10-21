@@ -1,0 +1,109 @@
+# Material systems for the self-built dataset. Structures are fetched from open databases
+# (COD first, then Materials Project if MP_API_KEY is set, then JARVIS and OQMD via OPTIMADE).
+# space_groups: accepted Hermann–Mauguin symbols (COD spelling, origin suffix ignored).
+
+systems:
+  - name: Pt
+    formula: Pt
+    cod_formula: "Pt"
+    space_groups: ["F m -3 m"]
+    kind: metal
+    absorber: Pt
+    edge: L3
+    oxidation_state: {Pt: 0}
+    shapes: [cuboctahedron, truncated_octahedron, sphere]
+  - name: Pt3Co
+    formula: Pt3Co
+    cod_formula: "Co Pt3"
+    space_groups: ["P m -3 m"]
+    kind: alloy
+    absorber: Pt
+    edge: L3
+    oxidation_state: {Pt: 0, Co: 0}
+    shapes: [cuboctahedron, sphere]
+  - name: PtNi
+    formula: PtNi
+    cod_formula: "Ni Pt"
+    space_groups: ["F m -3 m"]
+    kind: alloy
+    absorber: Pt
+    edge: L3
+    oxidation_state: {Pt: 0, Ni: 0}
+    shapes: [cuboctahedron, sphere]
+  - name: PtO2
+    formula: PtO2
+    cod_formula: "O2 Pt"
+    space_groups: ["P n n m"]
+    kind: oxide
+    absorber: Pt
+    edge: L3
+    oxidation_state: {Pt: 4, O: -2}
+    shapes: [sphere]
+  - name: CeO2
+    formula: CeO2
+    cod_formula: "Ce O2"
+    space_groups: ["F m -3 m"]
+    kind: oxide
+    absorber: Ce
+    edge: L3
+    oxidation_state: {Ce: 4, O: -2}
+    shapes: [sphere]
+  - name: TiO2-anatase
+    formula: TiO2
+    cod_formula: "O2 Ti"
+    space_groups: ["I 41/a m d"]
+    kind: oxide
+    absorber: Ti
+    edge: K
+    oxidation_state: {Ti: 4, O: -2}
+    shapes: [sphere]
+  - name: TiO2-rutile
+    formula: TiO2
+    cod_formula: "O2 Ti"
+    space_groups: ["P 42/m n m"]
+    kind: oxide
+    absorber: Ti
+    edge: K
+    oxidation_state: {Ti: 4, O: -2}
+    shapes: [sphere]
+  - name: Co3O4
+    formula: Co3O4
+    cod_formula: "Co3 O4"
+    space_groups: ["F d -3 m"]
+    kind: oxide
+    absorber: Co
+    edge: K
+    oxidation_state: {Co: 2.667, O: -2}
+    shapes: [sphere]
+  - name: IrO2
+    formula: IrO2
+    cod_formula: "Ir O2"
+    space_groups: ["P 42/m n m"]
+    kind: oxide
+    absorber: Ir
+    edge: L3
+    oxidation_state: {Ir: 4, O: -2}
+    shapes: [sphere]
+
+  # Fault-only polymorphs: used for the planted "wrong-phase candidate" fault and kept OUT of the
+  # analysis candidate library, so the best available candidate is wrong.
+  - name: TiO2-brookite
+    formula: TiO2
+    cod_formula: "O2 Ti"
+    space_groups: ["P b c a"]
+    kind: oxide
+    absorber: Ti
+    edge: K
+    oxidation_state: {Ti: 4, O: -2}
+    shapes: [sphere]
+    library: false
+  - name: PtO2-alpha
+    formula: PtO2
+    cod_formula: "O2 Pt"
+    space_groups: ["P -3 m 1"]
+    kind: oxide
+    absorber: Pt
+    edge: L3
+    oxidation_state: {Pt: 4, O: -2}
+    shapes: [sphere]
+    library: false

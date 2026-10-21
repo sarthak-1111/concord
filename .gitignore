@@ -17,3 +17,6 @@ papers/
 *.egg-info/
 runs/
 .cache/
+dataset/
+dataset_big/
+results/runs/

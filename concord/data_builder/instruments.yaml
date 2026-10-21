@@ -1,0 +1,36 @@
+# Instrument and sample-environment ranges for simulation. Each sample draws its own values (seeded).
+
+xrd:
+  wavelength_A: 1.5406                       # Cu Kα1 lab diffractometer
+  two_theta: {min: 10.0, max: 90.0, step: 0.02}
+  caglioti: {U: [0.002, 0.008], V: [-0.004, -0.001], W: [0.001, 0.004]}   # instrument FWHM², deg²
+  counts_max: [3000.0, 50000.0]               # peak counts, sets Poisson noise
+  background: {constant: [0.02, 0.08], hump: [0.0, 0.06], decay: [0.0, 0.05]}   # fractions of the max
+  bulk_crystallite_nm: [80, 200]
+
+pdf:
+  qmin: 0.6
+  qmax: [18.0, 28.0]
+  qdamp: [0.02, 0.05]
+  qbroad: [0.0, 0.015]
+  delta2: [1.0, 3.0]                         # correlated motion, bulk simulation only
+  r: {min: 1.0, max: 30.0, step: 0.01}
+  noise_rel: [0.005, 0.02]                   # Gaussian noise in F(Q), relative to max|G|
+
+xafs:
+  temperature_K: 300
+  k: {max: 15.0, step: 0.05}
+  noise_chi: [0.0008, 0.003]                 # absolute noise on χ(k)
+  s02: {Pt: 0.90, Ce: 0.85, Ti: 0.78, Co: 0.80, Ir: 0.90}   # from the beamline's reference foil
+  s02_calibration_error: 0.03                # the s02 written to sample.json is off by up to this
+  e0_shift_eV: [-3.0, 3.0]
+  absorber_sites: 8                          # absorber sites averaged per nanoparticle
+  cluster_radius_A: 6.5
+  rmax_path_A: 5.5
+  xanes:                                     # simple edge model: lower fidelity, flagged as such
+    chemical_shift_eV_per_valence: {Pt: 0.8, Ce: 1.2, Ti: 1.6, Co: 1.8, Ir: 0.9}
+    white_line: {base: 0.6, per_valence: 0.35}   # relative to the edge step
+    core_width_eV: {Pt: 5.3, Ce: 3.6, Ti: 0.9, Co: 1.3, Ir: 5.3}
+
+# Debye temperatures (K) used for both U_iso (PDF, XRD) and correlated-Debye σ² (EXAFS)
+debye_temperature_K: {Pt: 240, Pt3Co: 260, PtNi: 280, PtO2: 400, CeO2: 480, TiO2-anatase: 600, TiO2-rutile: 700, Co3O4: 520, IrO2: 450}
