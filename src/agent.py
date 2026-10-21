@@ -1,3 +1,4 @@
+from concord.llm.adk_model import model_for
 from google.adk.agents import Agent
 from google.adk.agents import SequentialAgent, ParallelAgent
 
@@ -26,7 +27,7 @@ sequential_pipeline_agent = SequentialAgent(
 )
 
 root_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("summary"),
     name="crystalens_root_agent",
     description="This agent is the root agent for the CrystaLens project, which encompasses both research and XRD analysis functionalities.",
     instruction=prompts.ROOT_AGENT_INSTR,

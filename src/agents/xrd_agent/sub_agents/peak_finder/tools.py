@@ -1,13 +1,8 @@
 import numpy as np
-from scipy.signal import find_peaks
-import lmfit
-from lmfit.lineshapes import voigt
 from google.adk.tools import ToolContext
 
+from concord.tools import xrd
 from src.data_store.data_store import XRD_DATA_STORE
-
-def _voigt(x, amp, center, sigma, gamma, offset):
-    return amp * voigt(x - center, sigma, gamma) + offset
 
 def find_and_fit_peaks(payload: dict, tool_context: ToolContext) -> dict:
     """
@@ -45,58 +40,12 @@ def find_and_fit_peaks(payload: dict, tool_context: ToolContext) -> dict:
         h_rel = float(payload.get("peak_min_height_rel", meta.get("peak_min_height_rel", 0.15)))
         fit_win = float(payload.get("fit_window_deg", meta.get("fit_window_deg", 0.8)))
 
-        # height threshold
-        h = h_rel * (I.max() if np.ptp(I) > 0 else 1.0)
-        peaks, _ = find_peaks(I, height=h, distance=dist, prominence=prom)
-
-        results = []
-        for p in peaks:
-            theta_p = float(theta[p])
-            halfwin = fit_win / 2.0
-            mask = np.abs(theta - theta_p) <= halfwin
-            if not np.any(mask):
-                left = max(0, p - 10); right = min(len(theta) - 1, p + 10)
-                x = theta[left:right+1]; y = I[left:right+1]
-            else:
-                x = theta[mask]; y = I[mask]
-
-            model = lmfit.Model(_voigt)
-            center0 = float(x[np.argmax(y)])
-            height0 = float(y.max() - np.median(y))
-            params = model.make_params(
-                amp=max(height0, 1.0),
-                center=center0,
-                sigma=0.05,
-                gamma=0.05,
-                offset=float(np.percentile(y, 5.0))
-            )
-
-            # bounds
-            x_min, x_max = float(x.min()), float(x.max())
-            window_width = max(1e-3, x_max - x_min)
-            params["center"].min = max(x_min, center0 - 0.12)
-            params["center"].max = min(x_max, center0 + 0.12)
-            params["sigma"].min, params["sigma"].max = 0.01, min(window_width, 0.20)
-            params["gamma"].min, params["gamma"].max = 0.01, min(window_width, 0.20)
-            params["amp"].min, params["amp"].max = 0, max(1.0, float(y.max()) * 10.0)
-            params["offset"].min = 0
-
-            out = model.fit(y, params, x=x)
-
-            # calculate FWHM (Olivero–Longbothum)
-            sigma = out.best_values["sigma"]
-            gamma = out.best_values["gamma"]
-            fwhm_val = 0.5346 * (2*gamma) + np.sqrt(0.2166*(2*gamma)**2 + (2.3548*sigma)**2)
-
-            area = np.trapz(out.best_fit, x)
-
-            results.append({
-                "two_theta": float(out.best_values["center"]),
-                "intensity": float(out.best_values["amp"]),
-                "fwhm_deg": float(fwhm_val),
-                "area": float(area),
-                "model": "voigt"
-            })
+        top = float(I.max()) if np.ptp(I) > 0 else 1.0
+        step = float(np.median(np.diff(theta)))
+        results = xrd.find_and_fit_peaks(theta, I, height_rel=h_rel, prominence_rel=prom / top,
+                                         min_distance_deg=dist * step, fit_window_deg=fit_win)
+        for r in results:
+            r["intensity"] = r["height"]
 
         # update store
         loop_data.update({

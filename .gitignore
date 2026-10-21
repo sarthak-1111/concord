@@ -14,3 +14,6 @@ retriever/text_extractor/extracted_texts/
 xrd_outputs/
 
 papers/
+*.egg-info/
+runs/
+.cache/

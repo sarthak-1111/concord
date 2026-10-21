@@ -1,3 +1,4 @@
+from concord.llm.adk_model import model_for
 from google.adk.agents import Agent
 from google.adk.tools.agent_tool import AgentTool
 
@@ -6,7 +7,7 @@ from src.agents.xrd_agent.sub_agents.scherrer_and_wh import prompts
 from src.agents.xrd_agent.sub_agents.scherrer_and_wh.tools import scherrer_and_wh
 
 scherrer_and_wh_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="scherrer_and_wh_agent",
     description="This agent calculates the Scherrer and Williamson-Hall parameters.",
     instruction=prompts.SCHERRER_AND_WH_INSTR,

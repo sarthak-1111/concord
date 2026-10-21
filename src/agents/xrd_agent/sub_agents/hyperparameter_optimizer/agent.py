@@ -1,3 +1,4 @@
+from concord.llm.adk_model import model_for
 from google.adk.agents import Agent
 from google.adk.tools.agent_tool import AgentTool
 
@@ -6,7 +7,7 @@ from src.agents.xrd_agent.sub_agents.hyperparameter_optimizer import prompts
 from src.agents.xrd_agent.sub_agents.hyperparameter_optimizer.tools import get_analysis_results
 
 hyperparameter_optimizer_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="hyperparameter_optimizer_agent",
     description="This agent optimizes the hyperparameters for the XRD analysis pipeline.",
     instruction=prompts.HYPERPARAMETER_OPTIMIZER_INSTR,

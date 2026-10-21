@@ -1,3 +1,4 @@
+from concord.llm.adk_model import model_for
 from google.adk.agents import Agent
 from google.adk.tools.agent_tool import AgentTool
 
@@ -7,7 +8,7 @@ from src.agents.xrd_agent.sub_agents.reporter.tools.analyzer import get_results,
 from src.agents.xrd_agent.sub_agents.reporter.tools.plotter import plot_results
 
 analyzer_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("report"),
     name="analyzer_agent",
     description="This agent analyzes the XRD data.",
     instruction=prompts.ANALYZER_INSTR,
@@ -17,7 +18,7 @@ analyzer_agent = Agent(
 )
 
 reporter_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("report"),
     name="reporter_agent",
     description="This agent reports the XRD data.",
     instruction=prompts.REPORTER_INSTR,

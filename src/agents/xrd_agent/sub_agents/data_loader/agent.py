@@ -1,3 +1,4 @@
+from concord.llm.adk_model import model_for
 from google.adk.agents import Agent
 from google.adk.tools.agent_tool import AgentTool
 
@@ -6,7 +7,7 @@ from src.agents.xrd_agent.sub_agents.data_loader import prompts
 from src.agents.xrd_agent.sub_agents.data_loader.tools import inspect_xrd_file, load_xrd_data
 
 data_ingester_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="data_ingester_agent",
     description="This agent reads the 2θ and intensity columns and decides on the unit of the 2θ column",
     instruction=prompts.DATA_INGESTION_INSTR,
@@ -16,7 +17,7 @@ data_ingester_agent = Agent(
 )
 
 data_loader_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="data_loader_agent",
     description="This agent loads the data from the file and returns the data in the form of a dictionary",
     instruction=prompts.DATA_LOADER_INSTR,

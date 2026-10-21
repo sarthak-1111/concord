@@ -3,12 +3,44 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "crystalens"
+name = "concord"
 version = "0.1.0"
-requires-python = ">=3.11"
+description = "Multi-technique (XRD + PDF + XAFS) characterization agent with cross-technique checks"
+license = "MIT"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "lmfit",
+    "pymatgen",
+    "ase",
+    "diffpy.structure",
+    "diffpy.srfit",
+    "diffpy.srreal",
+    "xraylarch",
+    "xraydb",
+    "pyyaml",
+    "python-dotenv",
+    "pydantic",
+    "requests",
+    "matplotlib",
+    "starlette",
+    "uvicorn",
+    "debyecalculator>=1.1.1",
+    "torch>=2.14.1",
+    "google-adk==1.12.0",
+]
 
-[tool.setuptools]
-package-dir = {"" = "src"}
+[dependency-groups]
+dev = ["pytest"]
 
 [tool.setuptools.packages.find]
-where = ["src"]
+include = ["concord*"]
+
+[tool.uv]
+# Supply-chain guard: only resolve releases at least two weeks old.
+exclude-newer = "2026-10-08T00:00:00Z"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

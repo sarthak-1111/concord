@@ -52,8 +52,8 @@ class ScherrerResult(BaseModel):
     beta_deg: float = Field(description="FWHM of the peak in degrees used for calculation.")
 
 class WHResult(BaseModel):
-    slope_strain: float = Field(description="Microstrain from Williamson-Hall (slope).")
-    intercept_size: float = Field(description="Intercept (K/L term) from Williamson-Hall.")
+    slope_strain: float = Field(description="Microstrain (dimensionless) from the Williamson-Hall slope.")
+    intercept_size: float = Field(description="Crystallite size in nm from the Williamson-Hall intercept.")
     r2: float = Field(description="Coefficient of determination for the linear fit.")
 
 class ScherrerAndWHOutput(BaseModel):

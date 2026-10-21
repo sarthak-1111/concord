@@ -1,3 +1,4 @@
+from concord.llm.adk_model import model_for
 from google.adk.agents import Agent
 from google.adk.agents import SequentialAgent
 
@@ -6,7 +7,7 @@ from src.agents.research_agent.sub_agents.retriever.tools.retrieve_data import r
 from src.agents.research_agent.sub_agents.retriever.tools.create_vector_store import create_vector_store, check_vector_store
 
 vs_creator_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="vs_creator_agent",
     description="An agent that is a specialist in creating vector stores.",
     instruction=prompts.VS_CREATOR_PROMPT,
@@ -14,7 +15,7 @@ vs_creator_agent = Agent(
 )
 
 retriever_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="retriever_agent",
     description="An agent that is a specialist in retrieving papers.",
     instruction=prompts.RETRIEVER_PROMPT,

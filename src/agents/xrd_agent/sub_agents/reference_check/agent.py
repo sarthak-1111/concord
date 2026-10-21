@@ -1,3 +1,4 @@
+from concord.llm.adk_model import model_for
 from google.adk.agents import Agent
 from google.adk.tools.agent_tool import AgentTool
 
@@ -8,7 +9,7 @@ from src.agents.xrd_agent.sub_agents.reference_check.tools.compare_with_mp impor
 
 
 mp_identifier_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="mp_identifier_agent",
     description="This agent identifies the materials project identifier from the XRD data based on the formula.",
     instruction=prompts.MP_IDENTIFIER_INSTR,
@@ -18,7 +19,7 @@ mp_identifier_agent = Agent(
 )
 
 reference_check_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="reference_check_agent",
     description="This agent compares the XRD data with a reference database.",
     instruction=prompts.REFERENCE_CHECK_INSTR,

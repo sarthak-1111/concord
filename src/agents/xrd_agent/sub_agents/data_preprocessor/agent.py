@@ -1,3 +1,4 @@
+from concord.llm.adk_model import model_for
 from google.adk.agents import Agent
 from google.adk.tools.agent_tool import AgentTool
 
@@ -6,7 +7,7 @@ from src.agents.xrd_agent.sub_agents.data_preprocessor import prompts
 from src.agents.xrd_agent.sub_agents.data_preprocessor.tools import preprocess_xrd_data
 
 data_preprocessor_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="data_preprocessor_agent",
     description="This agent preprocesses the XRD data.",
     instruction=prompts.DATA_PREPROCESSOR_INSTR,

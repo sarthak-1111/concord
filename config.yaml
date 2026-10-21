@@ -1,0 +1,50 @@
+# Concord runtime configuration. Secrets never go here: they live in .env only.
+
+llm:
+  # Thinking level per role ("low" | "medium" | "high").
+  think:
+    planner: high
+    generator: high
+    critic: high
+    tool_selection: medium
+    judge: medium
+    summary: low
+    report: low
+  # Per-request timeout in seconds, by thinking level.
+  timeout_s: {low: 95, medium: 180, high: 300}
+  max_retries: 3
+  backoff_s: 2.0
+  max_concurrency: 2
+
+# Generator–critic loop
+critic:
+  max_rounds: 3
+
+# Cross-technique check tolerances (C1–C7)
+checks:
+  C1_phase:
+    xrd_weak_rel_intensity: 0.05   # XRD considered weak if matched peak area fraction is below this
+    pdf_good_rw: 0.25              # PDF fit considered good below this Rw
+  C2_bond_length:
+    warn_A: 0.02
+    fail_A: 0.05
+  C3_coordination:
+    warn_abs: 1.0
+    fail_abs: 2.0
+  C4_oxidation:
+    warn_abs: 0.5
+    fail_abs: 1.0
+  C5_disorder:
+    # EXAFS sigma2 is expected to be smaller than the PDF pair width because neighbours move together.
+    ratio_low: 0.3
+    ratio_high: 1.3
+  C6_size:
+    warn_rel: 0.25
+    fail_rel: 0.5
+  C7_joint:
+    min_margin: 0.02               # combined-score margin needed to call a winner
+
+# Visual-inspection loop
+vision:
+  max_iterations: 3
+  durbin_watson_min: 1.0           # below this the residual is structured (misfit)

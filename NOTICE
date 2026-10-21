@@ -1,0 +1,9 @@
+Concord
+Copyright (c) 2026 Concord contributors
+
+This project is a fork of CrystaLenz (CrystaLens), an MIT-licensed agentic XRD
+analysis pipeline: https://github.com/MJRaei/CrystaLenz
+Copyright (c) 2025 CrystaLens Contributors
+
+The original MIT licence and copyright notice are kept in LICENSE.
+See docs/PRIOR_WORK.md for exactly what came from CrystaLenz and what is new.

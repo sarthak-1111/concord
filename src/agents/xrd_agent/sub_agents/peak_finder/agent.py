@@ -1,3 +1,4 @@
+from concord.llm.adk_model import model_for
 from google.adk.agents import Agent
 from google.adk.tools.agent_tool import AgentTool
 
@@ -6,7 +7,7 @@ from src.agents.xrd_agent.sub_agents.peak_finder import prompts
 from src.agents.xrd_agent.sub_agents.peak_finder.tools import find_and_fit_peaks
 
 peak_finder_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="peak_finder_agent",
     description="This agent finds and fits peaks in the XRD data.",
     instruction=prompts.PEAK_FINDER_INSTR,

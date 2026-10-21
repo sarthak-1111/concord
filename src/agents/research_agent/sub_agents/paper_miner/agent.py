@@ -1,3 +1,4 @@
+from concord.llm.adk_model import model_for
 from google.adk.agents import Agent
 
 from src.agents.research_agent.sub_agents.paper_miner import prompts
@@ -6,7 +7,7 @@ from src.agents.research_agent.sub_agents.paper_miner.tools.download_pdfs import
 from src.agents.research_agent.sub_agents.paper_miner.tools.extract_texts_from_pdfs import extract_texts_from_pdfs
 
 paper_miner_agent = Agent(
-    model="gemini-2.5-flash",
+    model=model_for("tool_selection"),
     name="paper_miner_agent",
     description="An agent that is a specialist in paper mining.",
     instruction=prompts.PAPER_MINER_PROMPT,

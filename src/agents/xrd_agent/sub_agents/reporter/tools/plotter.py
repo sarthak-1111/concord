@@ -49,9 +49,14 @@ def plot_results(payload: Dict[str, Any], tool_context: ToolContext) -> Dict[str
     html_path = os.path.join(outdir, f"{base}_pattern_{loop_iter}.html")
     png_path = os.path.join(outdir, f"{base}_pattern_{loop_iter}.png")
     fig.write_html(html_path)
-    fig.write_image(png_path, scale=2)
+    figures = [html_path]
+    try:
+        fig.write_image(png_path, scale=2)
+        figures.append(png_path)
+    except (RuntimeError, ValueError):
+        pass  # static export needs Kaleido + Chrome; the HTML figure is enough for the UI
 
     loop_iter += 1
     tool_context.state["loop_iteration"] = loop_iter
 
-    return {"success": True, "figures": [html_path, png_path], "message": f"Plots generated for loop {loop_iter}."}
+    return {"success": True, "figures": figures, "message": f"Plots generated for loop {loop_iter}."}
