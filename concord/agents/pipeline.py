@@ -26,6 +26,7 @@ from concord.agents.resolver import ACTIONS, run_action
 from concord.analysis import analyze, load_inputs, to_json
 from concord.config import ROOT, settings
 from concord.llm.adk_model import model_for
+from concord.llm.client import LLMError
 from concord.trace import CURRENT_TRACE, Trace
 from concord.vision.check import inspect_fits
 
@@ -218,7 +219,11 @@ def report_markdown(st: dict) -> str:
     sym = {"pass": "pass", "warn": "**warn**", "fail": "**FAIL**", "skip": "skip"}
     lines = [f"# Concord report — {a['sample_id']} ({a['inputs']['composition']})", ""]
     lines += [f"**{text['headline']}**", ""] if text.get("headline") else []
-    lines += [f"Phase: **{model['phase'] if model else a['phase']}**", ""] + ([model["summary"], ""] if model.get("summary") else [])
+    if st.get("error"):
+        lines += [f"**Incomplete:** the LLM endpoint failed during the agents' run ({st['error']}). The tools' results and "
+                  "checks below are complete; the agents' text covers only what they finished.", ""]
+    # ADK stores agent outputs without null fields: a model with "no candidate fits" has no "phase" key
+    lines += [f"Phase: **{model.get('phase') if model else a['phase']}**", ""] + ([model["summary"], ""] if model.get("summary") else [])
     lines += [f"Assumed (not in the file headers): {', '.join(a['inputs']['assumed'])}.", ""] if a["inputs"].get("assumed") else []
     lines += [f"Not analysed: {'; '.join(f'{k} ({v})' for k, v in a['errors'].items())}.", ""] if a.get("errors") else []
     lines += ["## Key numbers (from the tools)", ""] + key_numbers(a)
@@ -237,7 +242,7 @@ def report_markdown(st: dict) -> str:
         lines += ["", "## Literature priors (other samples: context, not constraints)", ""]
         lines += [f"- {literature.describe(p)}, [doi:{p['doi']}](https://doi.org/{p['doi']}) ({p['year']}): «{p['snippet'][:220]}»" for p in pri]
     if not model:
-        lines += ["", "Fast mode: tools and checks only; the generator–critic loop was not run."]
+        lines += [] if st.get("error") else ["", "Fast mode: tools and checks only; the generator–critic loop was not run."]
         return "\n".join(lines) + "\n"
     lines += ["", "## Claims", ""] + [f"{i}. {c['statement']} _(evidence: {', '.join(c['evidence'])})_" for i, c in enumerate(model.get("claims", []))]
     lines += ["", "## Objections and resolutions", ""]
@@ -281,25 +286,31 @@ async def run_sample_async(folder: str | Path, out: Path | None = None, on_event
     out.mkdir(parents=True, exist_ok=True)
     trace = Trace(out / "trace.jsonl")
     token = CURRENT_TRACE.set(trace)
-    t0 = time.time()
+    t0, error = time.time(), None
     try:
         runner = InMemoryRunner(agent=root_agent(), app_name="concord")
         session = await runner.session_service.create_session(app_name="concord", user_id="local", state={"sample_folder": str(folder), "out_dir": str(out), "composition": composition,
                                                                          "precomputed": str(precomputed) if precomputed else None})
         msg = types.Content(role="user", parts=[types.Part(text=f"Analyse the sample in {folder}.")])
-        async for event in runner.run_async(user_id="local", session_id=session.id, new_message=msg):
-            if on_event:
-                await on_event(event)
-        st = (await runner.session_service.get_session(app_name="concord", user_id="local", session_id=session.id)).state
+        try:
+            async for event in runner.run_async(user_id="local", session_id=session.id, new_message=msg):
+                if on_event:
+                    await on_event(event)
+        except LLMError as exc:  # the endpoint gave up mid-run: keep what the finished agents produced
+            error = f"{type(exc).__name__}: {exc}"
+        st = dict((await runner.session_service.get_session(app_name="concord", user_id="local", session_id=session.id)).state)
     finally:
         CURRENT_TRACE.reset(token)
+    if "analysis" not in st:
+        raise LLMError(error or "the analysis did not run")
+    st["error"] = error
     md = report_markdown(st)
     prose = " ".join([(st.get("report_text") or {}).get("headline", "")] + list((st.get("report_text") or {}).get("techniques", {}).values())
                      + list((st.get("report_text") or {}).get("limitations", [])) + [(st.get("model") or {}).get("summary", "")])
     result = {"sample_id": st["analysis"]["sample_id"], "model": st.get("model"), "log": st.get("log", []), "rounds": st.get("round", 0),
               "confirmed": [e["id"] for e in st.get("log", []) if e["status"] == "confirmed"],
               "unsupported_numbers": number_guard(prose, st["evidence"]), "report_md": md, "wall_s": round(time.time() - t0, 1),
-              "llm": trace.totals(), "out_dir": str(out)}
+              "llm": trace.totals(), "out_dir": str(out), **({"error": error} if error else {})}
     (out / "report.md").write_text(md)
     (out / "analysis.json").write_text(json.dumps(st["analysis"]))  # before agents.json: the UI marks agents older than the analysis stale
     (out / "agents.json").write_text(json.dumps({**result, "evidence": st["evidence"], "vision": st.get("vision")}, default=str, indent=1)

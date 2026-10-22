@@ -150,11 +150,17 @@ def markdown(m: dict, verdict: dict, rows: list[dict], cfg: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-async def _agents(todo: list, root: Path, runs: Path) -> list:
+async def _agents(todo: list, root: Path, runs: Path, reuse: bool = False) -> list:
     from concord.agents.pipeline import run_sample_async
     slots = asyncio.Semaphore(2)  # two samples at a time; the LLM client caps concurrent requests itself
 
     async def one(sid: str):
+        prev = runs / sid / "agents.json"
+        if reuse and prev.exists():  # a complete run whose checks match the analysis just recomputed
+            ag, checks = json.loads(prev.read_text()), json.loads((runs / f"{sid}.json").read_text())["checks"]
+            seen = {k[6:]: v["status"] for k, v in ag["evidence"].items() if k.startswith("check.")}
+            if "error" not in ag and seen == {c["id"]: c["status"] for c in checks}:
+                return ag
         async with slots:
             return await run_sample_async(root / "samples" / sid, runs / sid, precomputed=runs / f"{sid}.json")
     return await asyncio.gather(*(one(sid) for sid, _ in todo), return_exceptions=True)
@@ -169,6 +175,7 @@ def main() -> int:
     ap.add_argument("--splits", nargs="+", default=None, help="override the splits")
     ap.add_argument("--min-index", type=int, default=0, help="skip samples below this number (dataset_big s0000-s0059 = v1)")
     ap.add_argument("--agents", action="store_true", help="also run the visual inspection and generator-critic loop (LLM)")
+    ap.add_argument("--reuse-agents", action="store_true", help="keep complete agent runs whose checks are unchanged (resume)")
     a = ap.parse_args()
     cfg = yaml.safe_load(a.config.read_text())
     cfg["dataset"], cfg["splits"] = a.dataset or cfg["dataset"], a.splits or cfg["splits"]
@@ -186,8 +193,8 @@ def main() -> int:
         (runs / f"{sid}.json").write_text(json.dumps(res))
         rows.append(score(res, json.loads((root / "samples" / sid / "sample.json").read_text()), sp, root / "hidden" / sid / "xafs_chi.k"))
     if a.agents:
-        for row, ar in zip(rows, asyncio.run(_agents(todo, root, runs))):
-            row["agents"] = ({"error": f"{type(ar).__name__}: {ar}"} if isinstance(ar, Exception) else
+        for row, ar in zip(rows, asyncio.run(_agents(todo, root, runs, a.reuse_agents))):
+            row["agents"] = ({"error": f"{type(ar).__name__}: {ar}"} if isinstance(ar, Exception) else {"error": ar["error"]} if ar.get("error") else
                              {"rounds": ar["rounds"], "confirmed": ar["confirmed"], "objections": len(ar["log"]),
                               "discarded": sum(e["status"] == "discarded" for e in ar["log"]), "unsupported_numbers": ar["unsupported_numbers"],
                               "tokens": ar["llm"]["prompt_tokens"] + ar["llm"]["completion_tokens"], "llm_calls": ar["llm"]["llm_calls"],

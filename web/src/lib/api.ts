@@ -88,6 +88,7 @@ export type View = {
     wall_s: number;
     llm: { llm_calls?: number; prompt_tokens?: number; completion_tokens?: number };
     stale: boolean;
+    error?: string | null;
   } | null;
   vision: Record<string, Vision> | null;
   report_md: string;

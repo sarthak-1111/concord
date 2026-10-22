@@ -55,6 +55,7 @@ class LLMClient:
         self.timeout_s = cfg["timeout_s"]
         self.max_retries = cfg["max_retries"]
         self.backoff_s = cfg["backoff_s"]
+        self.busy_backoff_s = cfg.get("busy_backoff_s", self.backoff_s)
         self._slots = threading.BoundedSemaphore(cfg["max_concurrency"])
         self._probe_lock = threading.Lock()
         self.trace = trace or Trace()
@@ -94,8 +95,8 @@ class LLMClient:
                 last = exc
                 # HTTP status only: connection errors embed the endpoint URL, which counts as a secret here
                 self._trace().log("llm_retry", role=role, attempt=attempt + 1, error=str(exc) if isinstance(exc, _Retryable) else type(exc).__name__)
-                if attempt < self.max_retries:
-                    time.sleep(self.backoff_s * 2 ** attempt)
+                if attempt < self.max_retries:  # a busy server (429/5xx) gets longer to drain its queue than a dropped connection
+                    time.sleep((self.busy_backoff_s if isinstance(exc, _Retryable) else self.backoff_s) * 2 ** attempt)
         raise EndpointDown(f"LLM endpoint not responding after {self.max_retries + 1} attempts "
                            f"({str(last) if isinstance(last, _Retryable) else type(last).__name__}). The URL can change between sessions: "
                            f"check LLM_BASE_URL in .env.")

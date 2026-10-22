@@ -12,8 +12,10 @@ llm:
     report: low
   # Per-request timeout in seconds, by thinking level.
   timeout_s: {low: 95, medium: 180, high: 300}
-  max_retries: 3
-  backoff_s: 2.0
+  max_retries: 5
+  backoff_s: 2.0                   # connection errors: 2, 4, 8 ... s, so a dead endpoint is reported within a minute
+  busy_backoff_s: 15.0             # 429/5xx (Cloudflare 524: a request queued 100 s): 15, 30 ... 240 s; with 3 retries
+                                   # and 2 s on 2026-10-22, five agent runs failed while the endpoint was loaded
   max_concurrency: 2
 
 # Generator–critic loop
