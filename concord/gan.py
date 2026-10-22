@@ -1,6 +1,8 @@
 """Adapter for the Concord Forge realism GANs (one generator each for XRD, PDF and EXAFS).
 
-The weights and the model code are loaded at run time from the clone at GAN_REPO_PATH and never copied here: forge.gan
+The generator weights ship in models/gan/ (from https://github.com/sarthak-1111/GAN-Hackathon, which trains them); the
+model code is loaded at run time from a clone of that repo at GAN_REPO_PATH (the clone's weights are used when
+models/gan/ lacks them): forge.gan
 defines the generator, forge.data / forge.realism / forge.realdata the model grids, views and condition vectors, and
 Git LFS pointers are resolved to the clone's .git/lfs object store. A generator takes a clean simulated spectrum on its
 model grid and returns it with a smooth gain (0.9-1.1), background and coloured noise (EXAFS: also up to 2 glitches);
@@ -90,7 +92,8 @@ def _state():
     models, errors = {}, {}
     for t in TECHNIQUES:
         try:
-            ck = torch.load(_lfs(repo / "artifacts" / "models" / f"realism_{t}" / "generator_ema.pt", repo),
+            bundled = ROOT / "models" / "gan" / f"realism_{t}" / "generator_ema.pt"  # shipped with this repo
+            ck = torch.load(bundled if bundled.exists() else _lfs(repo / "artifacts" / "models" / f"realism_{t}" / "generator_ema.pt", repo),
                             map_location="cpu", weights_only=True)
             G = fg.gan.Generator(fg.realism.LENGTH[t], fg.realism.COND_DIM[t], glitches=t == "exafs")
             G.load_state_dict(ck["state_dict"])
