@@ -3,6 +3,7 @@ tools, a one-line templated finding, and result["confirms"]: whether the re-run 
 the same tolerances the checks use (config.yaml), never by the LLM. The critic may only request actions in ACTIONS.
 Re-fits also return the new technique result under "_new" (private: never put into the evidence), which the
 visual-inspection loop uses as a fix."""
+import inspect
 from pathlib import Path
 
 import numpy as np
@@ -19,7 +20,7 @@ ACTIONS = {
     "exafs_probe_shell": "Add a shell the model lacks to the EXAFS fit. args: {neighbor: element symbol, distance_A: number}",
     "exafs_window_scan": "Refit EXAFS with kmax 10, 11 and 12 to test whether N and sigma2 are stable. args: {}",
     "xrd_size_strongest": "XRD sphere diameter from the strongest indexed reflection alone. args: {}",
-    "xrd_add_phase": "Add a second candidate phase to the XRD model. args: {candidate: name, optional}",
+    "xrd_add_phase": "Add a second candidate phase to the XRD model. args: {candidate: name from sample.candidates} or {} for the runner-up",
     "inspect_region": "Visual inspection of one fit zoomed on a window. args: {technique: xrd|pdf|exafs, x_min: number, x_max: number}",
 }
 
@@ -159,7 +160,9 @@ def run_action(run: dict, action: str, args: dict | None) -> tuple[dict, str]:
     fn = globals().get(action) if action in ACTIONS else None
     if fn is None:
         return {"error": f"unknown action {action}", "confirms": False}, f"no such re-run: {action}"
+    params = inspect.signature(fn).parameters
+    args = {k: v for k, v in (args or {}).items() if k in params and k != "run"}  # the LLM may add arguments
     try:
-        return fn(run, **(args or {}))
+        return fn(run, **args)
     except Exception as exc:  # a failed re-run is reported, not fatal
         return {"error": f"{type(exc).__name__}: {exc}", "confirms": False}, f"re-run {action} failed: {type(exc).__name__}"

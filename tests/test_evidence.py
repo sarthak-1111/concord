@@ -11,3 +11,9 @@ def test_number_guard_accepts_cited_and_rounded_numbers():
 def test_number_guard_flags_invented_numbers():
     assert number_guard("The particle is 6.2 nm across and Rw is 0.064.", EV) == ["6.2"]
     assert number_guard("The lattice is 3.95 Å.", EV) == ["3.95"]
+
+
+def test_rerun_ignores_arguments_the_action_does_not_take():
+    from concord.agents.resolver import run_action
+    result, finding = run_action({}, "xrd_size_strongest", {"optional": "true"})  # the LLM added an argument
+    assert "TypeError" not in finding and "unexpected keyword" not in str(result.get("error", ""))
