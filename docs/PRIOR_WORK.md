@@ -122,8 +122,9 @@ reduction code was not copied. Copied, from `bitbucket.org/fccubic/pdf_backend` 
   rules and the refinement guidance, adapted so it calls no platform tools and answers with Concord's JSON decision.
 - How Concord uses them (new code): `concord/tools/pdf.py` `fit_pdf` runs the copied ladder on Concord's diffpy.srfit
   engine in place of the platform's pdffit2 job service (`_await_fit` in `_analysis_body`), keeps or reverts each stage
-  with the copied `should_accept`, skips the instrument stage (Qdamp is never fitted in Concord) and returns the
-  stages; `concord/agents/fitter.py` gives the PDF fitting agent the copied prompt and judges each of its refits with
+  with the copied `should_accept`, skips the instrument stage (Qdamp is never fitted in Concord), asks no 1 % gain
+  of the particle-size stage (Concord's envelope is in the model whenever it is on, and a diameter held at its XRD
+  start would make C6 compare XRD with itself) and returns the stages; `concord/agents/fitter.py` gives the PDF fitting agent the copied prompt and judges each of its refits with
   the copied `should_accept`. The XRD and EXAFS agents are unchanged by this.
 
 ## 3b. Concord Forge (the user's own repository, used at run time)

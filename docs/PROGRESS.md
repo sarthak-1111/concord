@@ -78,9 +78,11 @@ Times below are JST on 2026-10-22.
 - [x] **2026-10-23 05:46 PDF Refinement specialist copied from the PDF platform.** By the author's decision
   (`PRIOR_WORK.md` §3a), `fit_pdf` now runs fccubic/pdf_backend's ladder (scale + lattice, U_iso, particle size, δ2,
   consolidate; the instrument stage skipped as Qdamp is never fitted) and keeps a stage only if its `should_accept`
-  passes it (converged, Rw at least 1 % lower, physical), else reverts it; the PDF fitting agent uses that specialist's
+  passes it (converged, Rw at least 1 % lower, physical; the particle size needs no gain, so C6 never compares the
+  XRD size with itself), else reverts it; the PDF fitting agent uses that specialist's
   prompt and gate. s0019 (Pt3Co) re-fitted with its saved settings: Rw 0.0736 before and 0.0736 after (stages 0.2445,
-  0.1121, 0.0772 kept; δ2 0.0767 reverted, 0.7 % gain; consolidate 0.0736 kept). The held-out evaluation numbers
+  0.1121, 0.0772 kept; δ2 0.0767 reverted, 0.7 % gain; consolidate 0.0736 kept). Live PDF fitting agent on s0019
+  (gpt-oss, 153 s): tried rmax 30 (Rw 0.0772, reverted), then accepted Rw 0.0736. The held-out evaluation numbers
   above predate this change.
 
 ## Agent runs (`make eval-agents`, test + faults)

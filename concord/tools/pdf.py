@@ -100,7 +100,10 @@ def fit_pdf(r: np.ndarray, g: np.ndarray, dg: np.ndarray, structure: Structure, 
             sol = least_squares(recipe.residual, x0, bounds=recipe.getBounds2(), x_scale="jac", max_nfev=400)
             rw = float(np.sqrt(np.sum(recipe.residual(sol.x) ** 2) / yw2))  # residual(p) also sets the free values to p
             status = "converged" if sol.status > 0 else "max_iterations" if sol.status == 0 else "stagnating"
-            ok, why = should_accept(best_rw, as_result(rw, status=status, **judged()), base)
+            # the envelope is in the model whenever it is on, so its diameter is always refined (no 1 % gain asked): held
+            # at its start, the XRD size, C6 would compare the XRD size with itself
+            gain = 0.0 if stage["key"] == "particle_size" else 0.01
+            ok, why = should_accept(best_rw, as_result(rw, status=status, **judged()), base, min_relative_gain=gain)
             if ok:
                 best_rw, kept = rw, kept | set(free)
             else:
