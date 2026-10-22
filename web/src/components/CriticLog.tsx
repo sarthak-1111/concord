@@ -4,6 +4,7 @@ import Value from "@/components/Value";
 const STATUS: Record<string, [string, string]> = {
   confirmed: ["upheld by re-run", "bg-red-100 text-red-800"],
   "not confirmed": ["refuted by re-run", "bg-emerald-100 text-emerald-800"],
+  failed: ["re-run failed: not settled", "bg-amber-100 text-amber-900"],
   open: ["open: no re-run requested", "bg-amber-100 text-amber-900"],
   discarded: ["discarded: no evidence cited", "bg-slate-100 text-slate-600"],
   number_guard: ["number guard", "bg-violet-100 text-violet-800"],
@@ -17,7 +18,7 @@ export default function CriticLog({ view }: { view: View }) {
     return (
       <section className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900">Critic log</h2>
-        The generator–critic loop has not run for this sample. <b>Run full analysis</b> adds visual inspection of every fit and up to
+        The generator–critic loop has not run for this sample. <b>Run full</b> adds visual inspection of every fit and up to
         three rounds in which a critic (gpt-oss, separate prompt, evidence only) objects with cited evidence and the tools settle each objection.
       </section>
     );

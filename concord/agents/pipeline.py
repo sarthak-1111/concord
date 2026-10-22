@@ -187,7 +187,8 @@ class ResolverAgent(BaseAgent):
                 result, finding = await asyncio.to_thread(run_action, run, o["action"], o.get("args"))
                 key = f"rerun.{entry['id']}.{o['action']}"
                 ev[key] = _r(to_json({k: v for k, v in result.items() if not k.startswith("_")}))
-                entry.update(status="confirmed" if result.get("confirms") else "not confirmed", finding=finding, result_id=key)
+                status = "confirmed" if result.get("confirms") else "failed" if "error" in result else "not confirmed"  # a re-run that could not run refutes nothing
+                entry.update(status=status, finding=finding, result_id=key)
             else:
                 entry.update(status="open", finding="no re-run requested; the analyst must answer it")
             entries.append(entry)
