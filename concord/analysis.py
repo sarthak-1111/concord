@@ -83,16 +83,20 @@ def candidates(composition: str) -> dict[str, Structure]:
     return {name: entries[0][1] for name, entries in load_structures(library_only=True).items() if _cations(formulas[name]) & want}
 
 
-def run_xrd(folder: Path, meta: dict, cands: dict) -> dict:
+def run_xrd(folder: Path, meta: dict, cands: dict, two_theta_min: float | None = None, two_theta_max: float | None = None,
+            baseline_log10_lambda: float = 8.0, smoothing_window: int = 11, peak_height: float = 0.03,
+            peak_prominence: float = 0.02) -> dict:
     inst = meta["instrument"]["xrd"].get("caglioti_deg2")
     data = xrd.load_pattern(folder / "xrd.xy")
+    m = (data["two_theta_deg"] >= (two_theta_min or -np.inf)) & (data["two_theta_deg"] <= (two_theta_max or np.inf))
+    data.update({k: data[k][m] for k in ("two_theta_deg", "intensity", "sigma")})
     lam = data["meta"]["wavelength_A"]
     # stiff baseline: on 168 train/val nanoparticles (dataset_big) the CrystaLenz default (λ=1e5) followed broad
     # peaks and gave sphere-size MAE 10x; λ=1e8, p=0.001 gives MAE 0.098 (median +4.9 %)
-    pre = xrd.preprocess(data["intensity"], baseline_lambda=1e8, baseline_p=0.001)
+    pre = xrd.preprocess(data["intensity"], smoothing_window=smoothing_window, baseline_lambda=10.0 ** baseline_log10_lambda, baseline_p=0.001)
     tt, y = data["two_theta_deg"], pre["intensity_corr"]
     widest = lambda t: np.degrees(xrd.K_SPHERE_D * lam / (10 * MIN_CRYSTALLITE_NM * np.cos(np.radians(t / 2))))
-    peaks = [p for p in xrd.find_and_fit_peaks(tt, y) if p["fwhm_deg"] <= widest(p["two_theta"])]
+    peaks = [p for p in xrd.find_and_fit_peaks(tt, y, height_rel=peak_height, prominence_rel=peak_prominence) if p["fwhm_deg"] <= widest(p["two_theta"])]
     amax = max((p["area"] for p in peaks), default=0.0)  # drop noise spikes: narrower than the instrument, or tiny
     peaks = [p for p in peaks if p["area"] >= 0.01 * amax and (not inst or p["fwhm_deg"] >= 0.7 * xrd.caglioti_fwhm_deg(p["two_theta"], **inst))]
     size_nm = xrd.scherrer_wh(peaks, lam, instrument=inst)["scherrer_median_nm"]
@@ -114,20 +118,23 @@ def run_xrd(folder: Path, meta: dict, cands: dict) -> dict:
                        "calc": calc, "background": bkg, "diff": y - calc, "sigma": data["sigma"]}}
 
 
-def run_pdf(folder: Path, meta: dict, cands: dict, xrd_res: dict | None) -> dict:
+def run_pdf(folder: Path, meta: dict, cands: dict, xrd_res: dict | None, candidate: str | None = None, rmin: float = 1.5,
+            rmax: float = 25.0, qdamp: float | None = None, envelope: bool | None = None) -> dict:
+    """Every candidate refined; best Rw first, or `candidate` first when the user chose the model. envelope None: on,
+    unless the particle diameter runs to its bound."""
     inst = meta["instrument"]["pdf"]
     r, g, dg = pdft.load_gr(folder / "pdf.gr")
     d_xrd = xrd_res.get("sphere_diameter_nm") if xrd_res else None
     psize0 = float(np.clip(10 * d_xrd, 10.0, 380.0)) if d_xrd else None
     fits = []
     for name, structure in cands.items():
-        kw = dict(qmax=inst["qmax"], qdamp=inst["qdamp"], qbroad=inst.get("qbroad", 0.0), label=name)
-        fit = pdft.fit_pdf(r, g, dg, structure, psize0_A=psize0, **kw)
-        if fit["psize_nm"] >= 38.0:  # envelope ran to its 40 nm bound: no finite size inside the fitted r-range
+        kw = dict(qmax=inst["qmax"], qdamp=inst["qdamp"] if qdamp is None else qdamp, qbroad=inst.get("qbroad", 0.0), rmin=rmin, rmax=rmax, label=name)
+        fit = pdft.fit_pdf(r, g, dg, structure, psize0_A=psize0, nanoparticle=envelope is not False, **kw)
+        if envelope is None and fit["psize_nm"] >= 38.0:  # envelope ran to its 40 nm bound: no finite size inside the fitted r-range
             fit = pdft.fit_pdf(r, g, dg, structure, nanoparticle=False, **kw)
         fit["lattice_ref"] = dict(zip("abc", structure.lattice.abc))
         fits.append(fit)
-    return {"fits": sorted(fits, key=lambda f: f["rw"])}
+    return {"fits": sorted(fits, key=lambda f: (f["candidate"] != candidate, f["rw"]))}
 
 
 def measured_chi(folder: Path) -> tuple[np.ndarray, np.ndarray, str]:
@@ -140,28 +147,35 @@ def measured_chi(folder: Path) -> tuple[np.ndarray, np.ndarray, str]:
     return c["k"], c["chi"], "autobk(xafs_mu.dat)"
 
 
-def run_exafs(folder: Path, meta: dict, structure: Structure) -> dict:
+def run_exafs(folder: Path, meta: dict, structure: Structure, kmin: float = 3.0, kmax: float | None = None, rmin: float = 1.0,
+              rmax: float | None = None, kweight: float = 2.0, probe: str = "auto", probe_neighbor: str = "O", probe_r: float = 2.0) -> dict:
+    """Shell fit of the measured χ(k) with paths from the refined model. probe: test for a shell the model lacks
+    (auto: kept when significant, on: always kept, off: no test). rmax None: nearest neighbour + 1 Å."""
     xa = meta["instrument"]["xafs"]
     absorber, edge = xa["edge"].split()
     if absorber not in {el.symbol for el in structure.composition.elements}:
         raise ValueError(f"absorber {absorber} is not in the refined model {structure.composition.reduced_formula}")
     k, chi, source = measured_chi(folder)
-    kmax = min(12.0, float(xa.get("kmax", 12.0)))
+    kmax0 = min(12.0, float(xa.get("kmax", 12.0)))  # also the virtual XAFS transform: the curves below stay comparable to it
+    win = dict(s02=xa["s02"], kmin=kmin, kmax=kmax or kmax0, rmin=rmin, rmax=rmax, kweight=kweight)
     paths = xafs.structure_paths(structure, absorber, edge)
-    fit = xafs.shell_fit(k, chi, paths, s02=xa["s02"], kmin=3.0, kmax=kmax)
+    fit = xafs.shell_fit(k, chi, paths, **win)
     out = {"absorber": absorber, "edge": edge, "chi_source": source, "model": structure.composition.reduced_formula,
            "fit": fit, "extra_shell": None}
-    if "O" not in {s["neighbor"] for s in fit["shells"]}:  # metal model: test for an oxide shell it lacks
+    in_model = probe_neighbor in {s["neighbor"] for s in fit["shells"]}
+    if probe == "on" and in_model:
+        raise ValueError(f"the model already has a {absorber}-{probe_neighbor} shell, so there is nothing to probe")
+    if probe != "off" and not in_model:  # e.g. metal model: test for an oxide shell it lacks
         tol = settings()["checks"]["C3_coordination"]
-        with_o = xafs.shell_fit(k, chi, paths, s02=xa["s02"], kmin=3.0, kmax=kmax, extra=[xafs.probe_path(absorber, edge)])
+        with_o = xafs.shell_fit(k, chi, paths, **win, extra=[xafs.probe_path(absorber, edge, probe_neighbor, probe_r)])
         x = next(s for s in with_o["shells"] if s.get("extra"))
         significant = bool(x["N_err"] and x["N"] / x["N_err"] >= tol["extra_min_sigma"]
                            and with_o["rfactor"] <= (1 - tol["extra_min_rfactor_drop"]) * fit["rfactor"])
-        out["extra_shell"] = {"pair": f"{absorber}-O", "N": x["N"], "N_err": x["N_err"], "R_A": x["R_A"], "sigma2": x["sigma2"],
+        out["extra_shell"] = {"pair": f"{absorber}-{probe_neighbor}", "N": x["N"], "N_err": x["N_err"], "R_A": x["R_A"], "sigma2": x["sigma2"],
                               "rfactor_without": fit["rfactor"], "rfactor_with": with_o["rfactor"], "significant": significant}
-        if significant:
+        if significant or probe == "on":
             out["fit"], out["fit_without_extra"] = with_o, fit
-    ft = xafs.fourier_transform(k, chi, kmin=3.0, kmax=kmax)
+    ft = xafs.fourier_transform(k, chi, kmin=3.0, kmax=kmax0)
     out["curves"] = {"k": k, "chi": chi, "r": ft["r"], "chir_mag": ft["chir_mag"]}
     return out
 
@@ -232,18 +246,39 @@ def bond_valence(refined: Structure, reference: Structure, absorber: str, rcut: 
             "b_A": B_BV, "method": "R0 calibrated so the database structure has its charge-balance valence"}
 
 
-def analyze(folder: str | Path, references: str | Path | None = None, composition: str | None = None) -> dict:
+def from_pdf_model(folder: Path, meta: dict, p_res: dict | None, cands: dict, step=lambda name, fn, *args: fn(*args)) -> tuple:
+    """(bond-valence sum, virtual XAFS): the steps that read only the PDF model, its best fit `fits[0]` (a Structure)."""
+    best = p_res["fits"][0] if p_res else None
+    if not best:
+        return None, None
+    edge_meta = meta["instrument"].get("xafs", {}).get("edge", "").split()
+    absorber = edge_meta[0] if "xafs" in meta["techniques"] else None
+    b_res = step("bvs", bond_valence, best["structure"], cands[best["candidate"]], absorber) if absorber else None
+    # virtual XAFS for every sample: at the stated edge if the model has its element, else the heaviest cation's L3 or K edge
+    heavy = max(_cations(best["structure"].composition.reduced_formula), key=lambda e: Element(e).Z)
+    in_model = {e.symbol for e in best["structure"].composition.elements}
+    v_abs, v_edge = edge_meta if len(edge_meta) == 2 and edge_meta[0] in in_model else (heavy, default_edge(heavy))
+    return b_res, step("virtual_xafs", run_virtual_xafs, folder, meta, p_res["fits"], v_abs, v_edge)
+
+
+def analyze(folder: str | Path, references: str | Path | None = None, composition: str | None = None,
+            overrides: dict[str, dict] | None = None) -> dict:
+    """overrides: user settings per technique, {"xrd" | "pdf" | "exafs": {run_<technique> keyword: value}} (see
+    concord.tweak), recorded under inputs.user_settings."""
     folder = Path(folder)
     references = Path(references) if references else folder.parent.parent / "references"
     meta = load_inputs(folder, composition)
+    if overrides:
+        meta["user_settings"] = overrides
+    ov = overrides or {}
     techs = set(meta["techniques"])
     cands = candidates(meta["composition"])
     out = {"sample_id": meta["sample_id"], "inputs": meta, "candidates": list(cands), "timings_s": {}, "errors": {}}
 
-    def step(name, fn, *args):
+    def step(name, fn, *args, **kw):
         t0 = time.time()
         try:
-            return fn(*args)
+            return fn(*args, **kw)
         except Exception as exc:  # one failed technique must not stop the others; the error is reported
             out["errors"][name] = f"{type(exc).__name__}: {exc}"
             return None
@@ -251,19 +286,12 @@ def analyze(folder: str | Path, references: str | Path | None = None, compositio
             out["timings_s"][name] = round(time.time() - t0, 2)
 
     absorber = meta["instrument"].get("xafs", {}).get("edge", "").split()[0] if "xafs" in techs else None
-    edge_meta = meta["instrument"].get("xafs", {}).get("edge", "").split()
-    x_res = step("xrd", run_xrd, folder, meta, cands) if "xrd" in techs and cands else None
-    p_res = step("pdf", run_pdf, folder, meta, cands, x_res) if "pdf" in techs and cands else None
+    x_res = step("xrd", run_xrd, folder, meta, cands, **ov.get("xrd", {})) if "xrd" in techs and cands else None
+    p_res = step("pdf", run_pdf, folder, meta, cands, x_res, **ov.get("pdf", {})) if "pdf" in techs and cands else None
     best = p_res["fits"][0] if p_res else None
-    e_res = step("exafs", run_exafs, folder, meta, best["structure"]) if absorber and best else None
+    e_res = step("exafs", run_exafs, folder, meta, best["structure"], **ov.get("exafs", {})) if absorber and best else None
     n_res = step("xanes", run_xanes, folder, meta, references) if absorber else None
-    b_res = step("bvs", bond_valence, best["structure"], cands[best["candidate"]], absorber) if absorber and best else None
-    v_res = None
-    if best:  # virtual XAFS for every sample: at the stated edge if the model has its element, else the heaviest cation's L3 or K edge
-        heavy = max(_cations(best["structure"].composition.reduced_formula), key=lambda e: Element(e).Z)
-        in_model = {e.symbol for e in best["structure"].composition.elements}
-        v_abs, v_edge = edge_meta if len(edge_meta) == 2 and edge_meta[0] in in_model else (heavy, default_edge(heavy))
-        v_res = step("virtual_xafs", run_virtual_xafs, folder, meta, p_res["fits"], v_abs, v_edge)
+    b_res, v_res = from_pdf_model(folder, meta, p_res, cands, step)
     out.update(xrd=x_res, pdf=p_res, exafs=e_res, xanes=n_res, bvs=b_res, virtual_xafs=v_res)
     out["checks"] = run_checks(out)
     good = best and best["rw"] <= 2 * settings()["checks"]["C1_phase"]["pdf_good_rw"]

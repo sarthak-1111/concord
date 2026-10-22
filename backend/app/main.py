@@ -12,6 +12,10 @@ sample listing, per-sample result views and plot files. Run it with `make api` (
   POST /api/uploads/inspect          multipart files → per file: detected technique, preview, edge (nothing is saved)
   POST /api/plans                    {composition, candidates?, size_nm?, realistic?} → simulated candidates per technique
                                      and which technique separates them (SIMULATED, NOT MEASURED; never analysed as data)
+  GET  /api/samples/{id}/tweak/{t}   the fit settings of technique t (xrd, pdf, exafs) the user can change: {params}
+  POST /api/samples/{id}/tweak/{t}   {values} → that fit redone with them: curve, metrics, checks and which ones change
+  POST /api/samples/{id}/tweak-apply {overrides: {t: values}} → the whole analysis re-run with them (original kept) → view
+  POST /api/samples/{id}/restore     back to the analysis before the user's settings → view
   POST /api/samples/{id}/generate    {realistic?} → the techniques the user did not measure, simulated from the fitted model
                                      (+ the GAN's instrument realism); GENERATED, NOT MEASURED, never analysed
   GET  /api/elements                 {phases: {element: [library phases with it as a cation]}} for the periodic table
@@ -45,7 +49,7 @@ from concord.agents.pipeline import report_markdown, run_sample_async
 from concord.agents.resolver import ACTIONS, run_action
 from concord.analysis import _cations, analyze, infer_inputs, load_inputs, to_json
 from concord.data_builder.fetch import systems
-from concord import gan, generate, planner
+from concord import gan, generate, planner, tweak
 from concord.config import ROOT
 from concord.upload_inspect import columns, inspect_file
 from concord.llm.client import LLMError
@@ -91,11 +95,16 @@ def _plots(sid: str, a: dict, mtime: float) -> dict[str, str]:
     return {k: f"/files/{sid}/{n}?v={int(index.stat().st_mtime)}" for k, n in names.items()}
 
 
-def view(sid: str) -> dict | None:
+def _analysis_file(sid: str) -> Path | None:
     cached, after_agents = RUNS / f"{sid}.json", RUNS / sid / "analysis.json"
     if after_agents.exists() and (not cached.exists() or after_agents.stat().st_mtime >= cached.stat().st_mtime):
         cached = after_agents  # the agents' copy carries the fixes the visual inspection kept
-    if not cached.exists():
+    return cached if cached.exists() else None
+
+
+def view(sid: str) -> dict | None:
+    cached, after_agents = _analysis_file(sid), RUNS / sid / "analysis.json"
+    if not cached:
         return None
     a, mtime = json.loads(cached.read_text()), cached.stat().st_mtime
     ag = _agents(sid)
@@ -182,6 +191,74 @@ async def make_plan(request: Request) -> JSONResponse:
         return JSONResponse(await asyncio.to_thread(planner.plan, comp, cands, size, realism=realism))
     except ValueError as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
+
+
+def _tweakable(request: Request) -> tuple[Path, dict] | JSONResponse:
+    sid, tech = request.path_params["sid"], request.path_params.get("tech", "xrd")
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    path = _folder(sid) and _analysis_file(sid)
+    if not path:
+        return JSONResponse({"error": "analyse the sample first"}, status_code=404)
+    if tech not in tweak.TECHNIQUES:
+        return JSONResponse({"error": f"technique one of {', '.join(tweak.TECHNIQUES)}"}, status_code=400)
+    return _folder(sid), json.loads(path.read_text())
+
+
+async def tweak_params(request: Request) -> JSONResponse:
+    t = _tweakable(request)
+    if isinstance(t, JSONResponse):
+        return t
+    try:
+        return JSONResponse({"params": to_json(tweak.params(t[1], request.path_params["tech"]))})
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+
+
+async def tweak_refit(request: Request) -> JSONResponse:
+    t = _tweakable(request)
+    if isinstance(t, JSONResponse):
+        return t
+    values = (await request.json()).get("values") or {}
+    if not isinstance(values, dict):
+        return JSONResponse({"error": "values must be an object"}, status_code=400)
+    try:
+        return JSONResponse(to_json(await asyncio.to_thread(tweak.refit, t[0], t[1], request.path_params["tech"], values)))
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+
+
+async def tweak_apply(request: Request) -> JSONResponse:
+    t = _tweakable(request)
+    if isinstance(t, JSONResponse):
+        return t
+    sid, (folder, a) = request.path_params["sid"], t
+    new = (await request.json()).get("overrides") or {}
+    if not isinstance(new, dict) or not all(isinstance(v, dict) for v in new.values()):
+        return JSONResponse({"error": "overrides must be {technique: {setting: value}}"}, status_code=400)
+    overrides = {**(a["inputs"].get("user_settings") or {}), **new}  # earlier changes to other techniques stay
+    try:
+        res = await asyncio.to_thread(tweak.apply, folder, a, overrides)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+    cached, original = RUNS / f"{sid}.json", RUNS / f"{sid}.original.json"
+    if cached.exists() and not original.exists():
+        shutil.copy2(cached, original)  # keeps its time, so a restore gives the agents' copy its precedence back
+    cached.write_text(json.dumps(to_json(res)))
+    return JSONResponse(await asyncio.to_thread(view, sid))
+
+
+async def restore(request: Request) -> JSONResponse:
+    sid = request.path_params["sid"]
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    original = RUNS / f"{sid}.original.json"
+    if not _folder(sid) or not original.exists():
+        return JSONResponse({"error": "nothing to restore"}, status_code=404)
+    shutil.copy2(original, RUNS / f"{sid}.json")
+    original.unlink()
+    (RUNS / sid / "plots.json").unlink(missing_ok=True)  # the restored file is older than the plots of the tweak
+    return JSONResponse(await asyncio.to_thread(view, sid))
 
 
 async def generate_missing(request: Request) -> JSONResponse:
@@ -425,6 +502,10 @@ app = Starlette(routes=[
     Route("/api/uploads/inspect", inspect_upload, methods=["POST"]),
     Route("/api/plans", make_plan, methods=["POST"]),
     Route("/api/samples/{sid}/generate", generate_missing, methods=["POST"]),
+    Route("/api/samples/{sid}/tweak/{tech}", tweak_params, methods=["GET"]),
+    Route("/api/samples/{sid}/tweak/{tech}", tweak_refit, methods=["POST"]),
+    Route("/api/samples/{sid}/tweak-apply", tweak_apply, methods=["POST"]),
+    Route("/api/samples/{sid}/restore", restore, methods=["POST"]),
     Route("/api/elements", elements),
     Route("/api/gan", gan_status),
     Route("/api/gan/showcase", gan_showcase),
