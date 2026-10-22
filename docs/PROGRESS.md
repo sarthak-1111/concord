@@ -163,4 +163,5 @@ Atlassian's published fingerprint); `~/.ssh` was not changed. Only the analysis 
 The eye is the PDF agent's reviewer (`pdf_backend/app/modules/agent/residual.py`), loaded at run time for PDF fits.
 Accept/reject rule set before measuring; on the development split (PDF fits of s0060 and up) it rejected 2/44 clean
 and 20/37 faulty samples. Loading it once wrote a `__pycache__` into the clone; that folder was removed and the
-adapter no longer writes bytecode. The 19 saved critic runs predate the eye. See `PRIOR_WORK.md` §3.
+adapter no longer writes bytecode. s0031 was re-run with the eye at 23:48 (it rejects the PDF fit, Rw 0.505); the
+other 18 saved critic runs predate the eye. See `PRIOR_WORK.md` §3.
