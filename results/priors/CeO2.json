@@ -1,0 +1,179 @@
+{
+ "composition": "CeO2",
+ "phase": "CeO2",
+ "material": "CeO2",
+ "model": "BAAI/bge-small-en-v1.5",
+ "queries": {
+  "openalex": [
+   "CeO2 EXAFS coordination number bond length",
+   "CeO2 XANES oxidation state",
+   "CeO2 nanoparticles size"
+  ],
+  "crossref": [
+   "CeO2 EXAFS",
+   "CeO2 nanoparticles XANES"
+  ],
+  "arxiv": [
+   "all:\"CeO2\" AND (all:EXAFS OR all:XAFS OR all:XANES OR all:nanoparticles)"
+  ]
+ },
+ "papers": 120,
+ "sentences": 872,
+ "errors": [],
+ "priors": [
+  {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 4,
+   "unit": "",
+   "form": "Ce4+",
+   "doi": "10.1002/cctc.202001829",
+   "title": "In‐situ XAS Study of Catalytic N2O Decomposition Over CuO/CeO2 Catalysts",
+   "year": 2021,
+   "source": "OpenAlex",
+   "snippet": "The Cu K‐edge and Ce L3‐edge XANES and EXAFS analyses revealed the dynamic and crucial role of Cu2+/Cu+ and Ce4+/Ce3+ ionic pairs during the catalytic reaction.",
+   "relevance": 0.726
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 3,
+   "unit": "",
+   "form": "Ce3+",
+   "doi": "10.1002/cctc.202001829",
+   "title": "In‐situ XAS Study of Catalytic N2O Decomposition Over CuO/CeO2 Catalysts",
+   "year": 2021,
+   "source": "OpenAlex",
+   "snippet": "The Cu K‐edge and Ce L3‐edge XANES and EXAFS analyses revealed the dynamic and crucial role of Cu2+/Cu+ and Ce4+/Ce3+ ionic pairs during the catalytic reaction.",
+   "relevance": 0.726
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 3,
+   "unit": "",
+   "form": "Ce3+",
+   "doi": "10.1039/c1jm14251h",
+   "title": "Study on the cerium oxidation state in a Lu0.8Sc0.2BO3 host",
+   "year": 2011,
+   "source": "OpenAlex",
+   "snippet": "The specific Ce3+/Ce4+ ratio was also qualitatively determined by fitting the Ce LIII-edge XANES spectra.",
+   "relevance": 0.72
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 4,
+   "unit": "",
+   "form": "Ce4+",
+   "doi": "10.1039/c1jm14251h",
+   "title": "Study on the cerium oxidation state in a Lu0.8Sc0.2BO3 host",
+   "year": 2011,
+   "source": "OpenAlex",
+   "snippet": "The specific Ce3+/Ce4+ ratio was also qualitatively determined by fitting the Ce LIII-edge XANES spectra.",
+   "relevance": 0.72
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 4,
+   "unit": "",
+   "form": "Ce 4+",
+   "doi": "10.1021/acs.jpcc.8b03596",
+   "title": "In Situ Characterization of Cu/CeO2 Nanocatalysts for CO2 Hydrogenation: Morphological Effects of Nanostructured Ceria on the Catalytic Activity",
+   "year": 2018,
+   "source": "OpenAlex",
+   "snippet": "In situ TR-XRD and AP-XPS characterization showed significant changes in the chemical state of the catalysts under reaction conditions, with the copper being fully reduced and a partial Ce 4+ → Ce 3+ transformation occurring.",
+   "relevance": 0.711
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 3,
+   "unit": "",
+   "form": "Ce 3+",
+   "doi": "10.1021/acs.jpcc.8b03596",
+   "title": "In Situ Characterization of Cu/CeO2 Nanocatalysts for CO2 Hydrogenation: Morphological Effects of Nanostructured Ceria on the Catalytic Activity",
+   "year": 2018,
+   "source": "OpenAlex",
+   "snippet": "In situ TR-XRD and AP-XPS characterization showed significant changes in the chemical state of the catalysts under reaction conditions, with the copper being fully reduced and a partial Ce 4+ → Ce 3+ transformation occurring.",
+   "relevance": 0.711
+  },
+  {
+   "quantity": "particle_size",
+   "value": 14.46,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1063/1.4946479",
+   "title": "Effect of oxidizer to fuel molar ratio on particle size and DC conductivity of CeO2 nanoparticles",
+   "year": 2016,
+   "source": "OpenAlex",
+   "snippet": "The average crystallite size was found to be 14.46 nm to 21.57 nm.",
+   "relevance": 0.752
+  },
+  {
+   "quantity": "particle_size",
+   "value": 21.57,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1063/1.4946479",
+   "title": "Effect of oxidizer to fuel molar ratio on particle size and DC conductivity of CeO2 nanoparticles",
+   "year": 2016,
+   "source": "OpenAlex",
+   "snippet": "The average crystallite size was found to be 14.46 nm to 21.57 nm.",
+   "relevance": 0.752
+  },
+  {
+   "quantity": "particle_size",
+   "value": 10.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.17780/ksujes.1369994",
+   "title": "A NOVEL STUDY ON THE SYNTHESIS, CHARACTERIZATION, AND PHOTOCATALYTIC ACTIVITY OF CeO2 NANOPARTICLES CeO2 NANOTANECİKLERİNİN SENTEZİ, KARAKTERİZASYONU VE FOTOKATALİTİK AKTİVİTESİ",
+   "year": 2024,
+   "source": "Crossref",
+   "snippet": "The calculated crystallite particle size utilizing the Scherrer equation was 10 nm.",
+   "relevance": 0.723
+  },
+  {
+   "quantity": "particle_size",
+   "value": 5.2,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1371/journal.pone.0122989",
+   "title": "Dielectrical Properties of CeO2 Nanoparticles at Different Temperatures",
+   "year": 2015,
+   "source": "OpenAlex",
+   "snippet": "The average crystalline domain diameter was found to be 5.2 nm, with a very narrow size distribution.",
+   "relevance": 0.707
+  },
+  {
+   "quantity": "particle_size",
+   "value": 19.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.21203/rs.3.rs-8722013/v1",
+   "title": "Efficient Photocatalytic Degradation of Textile Dyeing Cellulosic materials using CeO2 Nanoparticles by Acrylamide Sol gel Route",
+   "year": 2026,
+   "source": "Crossref",
+   "snippet": "A high-resolution transmission electron microscope (HTEM) was used to analyze the morphology of the particles, which have a size range of 8 to 19 nm at different temperatures such as 300, 400, and 500 0 C.",
+   "relevance": 0.679
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    15.0,
+    40.0
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1134/s0020168524701097",
+   "title": "Controlling the Size of CeO2 Nanoparticles in Ce(NO3)3 Thermolysis",
+   "year": 2024,
+   "source": "OpenAlex",
+   "snippet": "The material prepared from PC/Ce(NO3)3/NaCl consisted of two types of CeO2 particles: particles 15–40 nm in diameter (forming irregularly shaped structures) and particles 1.5–2.2 nm in diameter.",
+   "relevance": 0.676
+  }
+ ],
+ "mined": "2026-10-22"
+}

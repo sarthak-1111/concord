@@ -1,7 +1,7 @@
 import os, pathlib, re
 from typing import List, Dict, Any
 
-import fitz
+from pypdf import PdfReader  # Concord: replaces PyMuPDF (AGPL) with pypdf (BSD)
 
 
 def extract_texts_from_pdfs(
@@ -32,37 +32,26 @@ def extract_texts_from_pdfs(
                 skipped.append({"pdf": p, "reason": "file not found"})
                 continue
 
-            with fitz.open(p) as doc:
-                # Handle encrypted PDFs that can’t be opened without a password
-                if doc.is_encrypted:
-                    try:
-                        if not doc.authenticate(""):
-                            skipped.append({"pdf": p, "reason": "encrypted, cannot authenticate"})
-                            continue
-                    except Exception:
-                        skipped.append({"pdf": p, "reason": "encrypted, cannot open"})
-                        continue
+            doc = PdfReader(p)
+            if doc.is_encrypted and not doc.decrypt(""):
+                skipped.append({"pdf": p, "reason": "encrypted, cannot authenticate"})
+                continue
+            raw_text = "\n".join(page.extract_text() or "" for page in doc.pages)
 
-                text_chunks = []
-                for page in doc:
-                    # "text" gives plain text layout; it's robust and fast
-                    text_chunks.append(page.get_text("text"))
-                raw_text = "".join(text_chunks)
+            text = _normalize_extracted_text(raw_text)
 
-                text = _normalize_extracted_text(raw_text)
+            base = os.path.splitext(os.path.basename(p))[0]
+            txt_path = str(out / f"{base}.txt")
+            with open(txt_path, "w", encoding="utf-8") as f:
+                f.write(f"[SOURCE_PDF_PATH]: {p}\n\n")
+                f.write(text)
 
-                base = os.path.splitext(os.path.basename(p))[0]
-                txt_path = str(out / f"{base}.txt")
-                with open(txt_path, "w", encoding="utf-8") as f:
-                    f.write(f"[SOURCE_PDF_PATH]: {p}\n\n")
-                    f.write(text)
-
-                saved.append({
-                    "pdf": p,
-                    "text_path": txt_path,
-                    "pages": doc.page_count,
-                    "chars": len(text)
-                })
+            saved.append({
+                "pdf": p,
+                "text_path": txt_path,
+                "pages": len(doc.pages),
+                "chars": len(text)
+            })
 
         except Exception as e:
             skipped.append({"pdf": p, "reason": str(e)})

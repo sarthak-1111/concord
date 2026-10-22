@@ -56,6 +56,9 @@ def bundle(res: dict) -> dict[str, Any]:
         ev[f"error.{name}"] = err
     for name, val in res.get("extra_evidence", {}).items():
         ev[name] = val
+    for i, p in enumerate(res.get("priors") or [], 1):  # literature values for other samples, with their source
+        ev[f"prior.{i}"] = {k: p[k] for k in ("quantity", "pair", "element", "value", "uncertainty", "unit", "doi") if p.get(k) is not None} | {
+            "snippet": p["snippet"][:300]}
     return _r(ev)
 
 

@@ -1,216 +1,122 @@
-<p align="center">
-  <img src="web/public/logo.jpg" alt="CrystaLens logo" width="180">
-</p>
+# Concord
 
-CrystaLens is an AI-assisted workflow for X-ray diffraction (XRD) analysis. It combines an agentic backend (Starlette + Google ADK) with a modern Next.js web UI. The system can:
+**One command turns XRD, PDF and XAFS data of the same sample into one structural model, with every
+cross-technique disagreement checked, explained or flagged.**
 
-- **Run an end-to-end XRD pipeline**: load and preprocess data, detect peaks, compute Scherrer/Williamson–Hall size/strain, cross-check against Materials Project references, and generate plots/reports.
-- **Mine research papers**: search Google Programmable Search (CSE), download PDFs, and extract text for quick literature triage.
-- **RAG (Retrieval-Augmented Generation)**: build a FAISS vector database from extracted paper texts using OpenAI embeddings, then semantically retrieve the most relevant chunks to augment agent responses with cited, evidence-based context.
-- Stream results to the web UI as the pipeline progresses.
+Each technique sees a different part of the structure: XRD the long-range order, the PDF the local and
+intermediate order, EXAFS the neighbours of one element, XANES its oxidation state. Concord fits all of them with
+deterministic, tested code and then checks them against each other (C1–C7). A generator–critic pair of LLM
+agents argues over the result, but **numbers decide and the LLM explains**: every number comes from a tool or a
+cited source, and disagreements are settled by re-running tools, never by the model.
 
-<p align="center">
-  <img src="docs/media/workflow.png" alt="CrystaLens workflow diagram" width="800">
-</p>
-
----
+Concord is a fork of [CrystaLenz](https://github.com/MJRaei/CrystaLenz) (MIT). What is new is listed exactly in
+[`docs/PRIOR_WORK.md`](docs/PRIOR_WORK.md).
 
 ## Quick start
 
-### Prerequisites
+```bash
+make setup                     # uv sync + git hooks (Python 3.12, uv)
+cp .env.example .env           # LLM_BASE_URL, LLM_API_KEY (only needed for the agents)
+make data                      # build dataset v1 (60 samples) from open structures, then validate it
 
-- Python 3.11+
-- Node.js 20+ and pnpm (or npm/yarn)
+uv run concord analyze dataset/samples/s0031 --fast   # tools + checks, no LLM, about 30 s
+uv run concord analyze dataset/samples/s0031          # + visual inspection + critic loop (gpt-oss)
+```
 
-### 1) Backend (API)
+A sample folder holds any of `xrd.xy`, `pdf.gr`, `xafs_mu.dat` / `xafs_chi.k`, and either a `sample.json` or
+`--composition Pt3Co`. Techniques are detected from the files present, instrument values from the file headers;
+anything assumed is printed. Output: `results/runs/<sample>/report.md`, fit plots, `analysis.json`.
+
+Web UI (sample picker, cross-check panel, fit plots, virtual XAFS, critic log, literature priors, export):
 
 ```bash
-cd backend
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r ../requirements.txt
-# Install project in editable mode (enables clean imports)
-pip install -e ..
-
-# Run the API
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+make api    # http://127.0.0.1:8000
+make ui     # http://127.0.0.1:3000/console#s0031
 ```
 
-The API exposes:
+Other commands: `uv run concord priors Pt3Co` (literature values with DOIs), `make eval`, `make test`,
+`uv run concord health` (LLM endpoint).
 
-- POST `/api/runs` → returns `{ "run_id": string }`
-- WebSocket `/api/runs/{run_id}/stream` → server-sent JSON events: `status | event | error | done`
-- Static artifacts: `/xrd_outputs/*` serves generated plots from `xrd_outputs/`
+## Results
 
-### 2) Web (UI)
+<!-- results:start -->
+`make eval` on dataset v1 (test, faults: 10 clean samples, 9 with planted faults), thresholds from `eval/config.yaml`. Overall: **pass**.
 
-```bash
-cd web
-pnpm i   # or npm i / yarn
+| metric | value | threshold | |
+|---|---|---|---|
+| Phase identification accuracy | 1 | ≥ 0.9 | pass |
+| EXAFS bond length, mean abs. error (Å) | 0.00326 | ≤ 0.02 | pass |
+| PDF bond length, mean abs. error (Å) | 0.000359 | ≤ 0.02 | pass |
+| EXAFS coordination number, mean abs. error | 0.401 | ≤ 1.0 | pass |
+| Oxidation state within 0.5 | 1 | ≥ 0.8 | pass |
+| Size from XRD, mean rel. error | 0.0989 | ≤ 0.3 | pass |
+| Size from PDF, mean rel. error | 0.0385 | ≤ 0.2 | pass |
+| Planted faults detected (a check fails) | 0.667 | ≥ 0.6 | pass |
+| False alarms on clean samples | 0 | ≤ 0.2 | pass |
+| C1–C6 reported for every sample | 1 | ≥ 1.0 | pass |
+| Runtime per sample, mean (s) | 24.1 | ≤ 120 | pass |
+| Virtual EXAFS vs spectrum, median R-factor | 0.0406 | ≤ 0.1 | pass |
 
-# Optional: configure env (defaults shown)
-# NEXT_PUBLIC_API_HTTP=http://localhost:8000
-# NEXT_PUBLIC_API_WS=ws://localhost:8000
+Virtual EXAFS against the hidden spectrum (XAFS withheld): median R-factor 0.010  
+Faults that only raise a warning: 11% of fault samples.  
 
-pnpm dev
-```
+Per-sample details: [`results/eval.md`](results/eval.md).
+<!-- results:end -->
 
-Open the UI at http://localhost:3000
-
----
-
-## Environment variables
-
-Create a `.env` at the project root for Python tools that call `dotenv.load_dotenv()`.
-
-```bash
-# Research paper mining (Google Programmable Search)
-GOOGLE_CSE_API_KEY=...
-GOOGLE_CSE_ID=...
-
-# Materials Project (XRD reference patterns)
-MP_API_KEY=...
-
-# RAG embeddings (OpenAI text-embedding-3-large)
-OPENAI_API_KEY=...
-
-# Optional – model providers used by google-adk/google-genai
-# GOOGLE_API_KEY=...
-# GOOGLE_GENAI_API_KEY=...
-```
-
-Notes:
-
-- Paper search requires both `GOOGLE_CSE_API_KEY` and `GOOGLE_CSE_ID`.
-- RAG vector store creation requires `OPENAI_API_KEY` (for `text-embedding-3-large` embeddings).
-- Materials Project lookups require `MP_API_KEY`.
-- Static plot export uses Plotly + Kaleido (already in `requirements.txt`).
-
----
-
-## How it works
-
-### High-level architecture
-
-- Backend: Starlette app (`backend/app/main.py`) that adapts the agent runtime to simple HTTP + WS endpoints. It streams agent events to the UI and serves generated artifacts.
-- Agents: Defined with Google ADK in `src/`. The top-level `root_agent` orchestrates a research and XRD pipeline, followed by a final analysis stage.
-- Web UI: Next.js 14 app in `web/`, with a small console interface that posts a prompt, then receives streaming events and renders plots/links.
-
-### Agent graph (simplified)
-
-- `root_agent` (`src/agent.py`)
-  - `sequential_pipeline_agent`
-    - `parallel_research_analysis_agent`
-      - `research_specialist_agent` (paper mining)
-      - `xrd_specialist_agent` (XRD pipeline)
-    - `final_analizer_agent`
-
-- XRD pipeline (`src/agents/xrd_agent/agent.py`)
-  - `data_loader_agent` → `xrd_hyperparameter_optimizer_pipeline` (loop, max_iterations=1)
-    - `hyperparameter_optimizer_agent`
-    - `xrd_analysis_pipeline`:
-      - `data_preprocessor_agent`
-      - `peak_finder_agent`
-      - `scherrer_and_wh_agent`
-      - `reference_check_agent` (Materials Project)
-      - `reporter_agent` (Plotly export to `xrd_outputs/`)
-
-- Paper miner (`src/agents/research_agent/sub_agents/paper_miner/`)
-  - `search_papers.py` → Google CSE (requires `GOOGLE_CSE_*`)
-  - `download_pdfs.py` → downloads to `papers/downloaded_pdfs/`
-  - `extract_texts_from_pdfs.py` → saves text to `papers/extracted_texts/`
-
-- RAG pipeline (`src/agents/research_agent/sub_agents/retriever/`)
-  - `create_vector_store.py` → chunks extracted texts (1200 chars, 200 overlap), embeds with OpenAI `text-embedding-3-large`, L2-normalizes, and stores in a FAISS `IndexFlatIP` index at `papers/vector_store/`
-  - `retrieve_data.py` → embeds the user query with the same model, searches the FAISS index for top-k similar chunks, and returns ranked results with source metadata and similarity scores
-
----
-
-## Using the system
-
-### From the Web UI
-
-- Navigate to the console page and enter a prompt, for example:
-  - “Analyze XRD file at sample_data/sample_xrd.csv and compare with Si (mp-149).”
-  - “Find recent PDFs about V2O5 XRD peak shifts filetype:pdf 2023..NOW.”
-- The UI opens a run, then streams events in real time. Plots appear under `xrd_outputs/` and are linked in the stream.
-
-### Direct API usage
-
-1. Create a run
-
-```bash
-curl -s -X POST http://localhost:8000/api/runs -H 'Content-Type: application/json' \
-  -d '{"input":"Analyze sample_data/sample_xrd.csv vs Si (mp-149)"}'
-```
-
-2. Connect a WebSocket client to `/api/runs/{run_id}/stream` and process events until `done`.
-
----
-
-## Project structure (selected)
+## What it does
 
 ```
-CrystaLens/
-├── backend/
-│   └── app/main.py                # Starlette app: HTTP + WebSocket streaming, serves xrd_outputs
-├── src/
-│   ├── agent.py                   # root_agent wiring (Google ADK)
-│   ├── agents/
-│   │   ├── xrd_agent/             # XRD pipeline agents, tools, prompts
-│   │   └── research_agent/        # Paper miner agents, tools, prompts
-│   ├── data_store/                # In-memory store for XRD runs
-│   └── schemas/                   # Shared schemas
-├── web/                           # Next.js 14 UI
-├── papers/                        # Downloaded PDFs, extracted texts, and FAISS vector store
-├── sample_data/                   # Example XRD CSVs
-├── xrd_outputs/                   # Generated HTML/PNG plots and reports
-└── tests/                         # Pytests for XRD tools
+sample folder ─► XRD   peaks, phase ranking, Scherrer/WH size (Voigt, instrument-corrected)
+               ► PDF   srfit refinement of every candidate: lattice, U_iso, size
+               ► EXAFS first-shell fit on FEFF paths of the PDF model (+ probe shells)
+               ► XANES valence (standards), bond-valence sum of the refined structure
+               ► virtual EXAFS from the PDF model (PREDICTED, NOT MEASURED)
+               ► checks C1–C7 ─► visual inspection of each fit ─► generator ⇄ critic (≤ 3 rounds) ─► report
 ```
 
----
+| Check | Compares |
+|---|---|
+| C1 | XRD phase ranking vs PDF refinement; lattice drift from the database value |
+| C2 | EXAFS bond lengths vs the PDF-refined model |
+| C3 | EXAFS coordination numbers vs the model (with surface truncation); shells the model lacks |
+| C4 | XANES valence vs the bond-valence sum; mixed valence when both move away from the formal value |
+| C5 | EXAFS σ² vs PDF pair widths (correlated vs uncorrelated motion, explained rather than flagged) |
+| C6 | XRD vs PDF size (volume- vs number-weighted, multi-domain particles) |
+| C7 | Joint score of each candidate: simulated XRD, PDF and EXAFS together |
 
-## Testing
+- **Virtual XAFS.** When XAFS is missing, an ensemble of PDF-equivalent models (lattice, displacement, size and
+  equally good candidates) is run through FEFF; the spread is shown as a band, labelled PREDICTED, NOT MEASURED,
+  with a measurement recommendation. When XAFS was measured, the prediction is a consistency check.
+- **Generator–critic loop.** The critic has its own prompt, high thinking and only the evidence. Every objection
+  must cite evidence ids; it can ask for one of five re-runs (another candidate, envelope on/off, a probe shell, a
+  k-range scan, size from the strongest peak), and the re-run decides. A number guard rejects any number in the
+  prose that is not in the evidence.
+- **Visual inspection.** Fit plots are rendered deterministically and judged by the eye module when
+  `EYE_MODULE_PATH` is set, otherwise by an open fallback (residual features + gpt-oss judge). A fit is accepted only
+  if the visual and numerical criteria both pass.
+- **Literature priors.** OpenAlex, Crossref and arXiv abstracts, local embeddings and FAISS; values are read with
+  fixed patterns and kept with their DOI and sentence. They are context for the critic and the report, never fit
+  constraints for this sample.
 
-```bash
-# from repo root
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-pytest -q
-```
+## With or without the eye module
 
----
+Set `EYE_MODULE_PATH` in `.env` to the eye module (a file or package). It is loaded at run time through
+`concord/vision/eye_adapter.py` and never copied into this repository. Without it, the open fallback judges the
+plots from residual statistics; everything else is the same.
 
-## Troubleshooting
+## Limitations
 
-- Can’t fetch Materials Project references: ensure `MP_API_KEY` is set and valid.
-- Paper search returns error: set `GOOGLE_CSE_API_KEY` and `GOOGLE_CSE_ID` in `.env`.
-- Vector store creation fails: ensure `OPENAI_API_KEY` is set (used for embedding generation).
-- WebSocket not connecting: confirm the UI `NEXT_PUBLIC_API_WS` matches your backend URL/port.
-- Static image export fails: ensure `kaleido` is installed (included) and the process has write access to `xrd_outputs/`.
+- The dataset is simulated (open structures, FEFF, Debye-scattering and XRD simulation); real data will expose
+  effects it lacks (preferred orientation, multiple scattering beyond FEFF's paths, beam damage).
+- XANES uses a simple edge model with valence standards; oxide valences carry systematic offsets up to about 0.5.
+- Sub-monolayer oxide shells and dopants of a few percent sit at the detection limit of these techniques; the
+  planted low-concentration dopant is not detected.
+- Pt3Co and Pt are hard to tell apart by PDF alone for small particles; C7 and EXAFS help, not always.
+- The eye module interface could not be inspected (the reference repositories were not available), so the adapter
+  tries a list of common entry points.
+- The reference repositories `pdf_frontend` and `pdf_backend` were not cloned; nothing was taken from them.
 
----
+## Licence
 
-## Tech stack
-
-- Backend: Python, Starlette, Uvicorn, Pydantic, Google ADK, google-genai
-- XRD: NumPy, SciPy, lmfit, pymatgen, mp-api
-- Visualization: Plotly + Kaleido
-- RAG: FAISS (faiss-cpu), OpenAI Embeddings (text-embedding-3-large), NumPy
-- Research miner: requests, PyMuPDF (fitz)
-- Frontend: Next.js 14, React 18, SWR, Tailwind CSS
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgements
-
-- Materials Project and `pymatgen` for structures and diffraction simulation.
-- Plotly for interactive and static plotting.
-- Google ADK for the agent orchestration runtime.
-- Meta FAISS for vector similarity search.
-- OpenAI for embedding generation.
+MIT (see `LICENSE`, `NOTICE`). Structures come from open databases with their licences in `data/manifest.csv`;
+literature priors cite their DOI.

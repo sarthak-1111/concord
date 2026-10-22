@@ -26,8 +26,8 @@ data-big:  # separate folder, so v1 (dataset/) stays fixed for development and e
 validate:
 	uv run python -W ignore scripts/validate_dataset.py
 
-eval:
-	uv run python -W ignore -m concord.evaluate
+eval:  # README results table regenerated from results/eval.json; exit status is the evaluation's
+	uv run python -W ignore -m concord.evaluate; s=$$?; uv run python scripts/update_readme.py; exit $$s
 
 eval-agents:  # adds visual inspection + generator-critic loop (LLM, ~minutes per sample)
 	uv run python -W ignore -m concord.evaluate --agents

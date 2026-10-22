@@ -1,0 +1,107 @@
+{
+ "composition": "PtNi",
+ "phase": "PtNi",
+ "material": "PtNi",
+ "model": "BAAI/bge-small-en-v1.5",
+ "queries": {
+  "openalex": [
+   "PtNi EXAFS coordination number bond length",
+   "PtNi XANES oxidation state",
+   "PtNi nanoparticles size"
+  ],
+  "crossref": [
+   "PtNi EXAFS",
+   "PtNi nanoparticles XANES"
+  ],
+  "arxiv": [
+   "all:\"PtNi\" AND (all:EXAFS OR all:XAFS OR all:XANES OR all:nanoparticles)"
+  ]
+ },
+ "papers": 75,
+ "sentences": 481,
+ "errors": [],
+ "priors": [
+  {
+   "quantity": "particle_size",
+   "value": 3.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1557/proc-1217-y08-03",
+   "title": "Bimetallic Nanoparticles of PtCu and PtNi; Synthesis and CO Oxidation Catalysis",
+   "year": 2009,
+   "source": "Crossref",
+   "snippet": "The average grain sizes observed with a TEM were around 3 nm in diameter.",
+   "relevance": 0.688
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    2.0,
+    5.0
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.3390/catal6120201",
+   "title": "Synthesis of PtNi Alloy Nanoparticles on Graphene-Based Polymer Nanohybrids for Electrocatalytic Oxidation of Methanol",
+   "year": 2016,
+   "source": "OpenAlex",
+   "snippet": "The size of PtNi alloy nanoparticles is approximately 2–5 nm.",
+   "relevance": 0.662
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    2.0,
+    16.0
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1080/17458080.2013.838703",
+   "title": "Fabrication of PtNi bimetallic nanoparticles supported on multi-walled carbon nanotubes",
+   "year": 2013,
+   "source": "OpenAlex",
+   "snippet": "It was observed that the deposited Pt and PtNi bimetallic nanoparticles on the surface of CNTs had average particle sizes of 2–16 nm, when they were prepared from the polyol method.",
+   "relevance": 0.655
+  },
+  {
+   "quantity": "particle_size",
+   "value": 8.3,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1149/1.1802135",
+   "title": "Preparation of Carbon-Supported PtNi Nanoparticles via the Single Source Molecular Precursor Approach",
+   "year": 2004,
+   "source": "OpenAlex",
+   "snippet": "The carbon-supported PtNi nanoparticles had a mean diameter of 8.3 nm and were obtained by a two-stage process involving the ballmilling of carbon and the precursor and the thermal degradation of the homogenized mixture at 550°C in a flowing gas mixture.",
+   "relevance": 0.647
+  },
+  {
+   "quantity": "particle_size",
+   "value": 3.7,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1039/c9nr08352a",
+   "title": "A unique pathway of PtNi nanoparticle formation observed with liquid cell transmission electron microscopy",
+   "year": 2019,
+   "source": "OpenAlex",
+   "snippet": "The resulting PtNi alloy nanoparticles have a narrow size distribution with an average diameter of 3.7 nm, which are smaller than those obtained via classical solution growth.",
+   "relevance": 0.647
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    2.9,
+    5.8
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1039/b307040a",
+   "title": "Preparation of PtNi nanoparticles for the electrocatalytic oxidation of methanolElectronic supplementary information (ESI) available: TEM images of Pt nanoparticle seeds prepared from the methanol reduction of Pt salts. See http://www.rsc.org/suppdata/jm/b3/b307040a/",
+   "year": 2003,
+   "source": "OpenAlex",
+   "snippet": "The average particle size of PtNi prepared by microwave irradiation was the lowest, in the range of 2.9–5.8 nm.",
+   "relevance": 0.642
+  }
+ ],
+ "mined": "2026-10-22"
+}

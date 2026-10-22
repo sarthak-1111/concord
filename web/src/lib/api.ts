@@ -44,6 +44,20 @@ export type VirtualXafs = {
   per_candidate?: Record<string, number> | null;
 };
 
+export type Prior = {
+  quantity: string;
+  pair?: string;
+  element?: string;
+  value: number | [number, number];
+  uncertainty?: number | null;
+  unit: string;
+  doi: string;
+  title: string;
+  year: number | null;
+  source: string;
+  snippet: string;
+};
+
 export type Vision = { accepted: boolean; verdict: string; inspector: string; issues: Record<string, string>[]; numerical: { ok: boolean; reason: string } };
 
 export type View = {
@@ -70,4 +84,5 @@ export type View = {
   } | null;
   vision: Record<string, Vision> | null;
   report_md: string;
+  priors: Prior[];
 };

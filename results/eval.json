@@ -4,7 +4,7 @@
   "test",
   "faults"
  ],
- "wall_s": 131.4,
+ "wall_s": 128.9,
  "metrics": {
   "n_clean": 10,
   "n_faults": 9,
@@ -13,7 +13,7 @@
   "pdf_bond_length_mae_A": 0.0003586127047089629,
   "exafs_cn_mae": 0.4011588076665026,
   "oxidation_accuracy": 1.0,
-  "fault_detection_rate": 0.5555555555555556,
+  "fault_detection_rate": 0.6666666666666666,
   "fault_warn_or_fail_rate": 0.7777777777777778,
   "false_alarm_rate": 0.0,
   "warn_rate_clean": 0.2,
@@ -21,8 +21,8 @@
   "virtual_xafs_rfactor_median": 0.040636521054007974,
   "virtual_xafs_n": 10,
   "virtual_xafs_hidden_rfactor_median": 0.009834937585625071,
-  "runtime_s_mean": 24.651052631578946,
-  "runtime_s_max": 53.08,
+  "runtime_s_mean": 24.103157894736842,
+  "runtime_s_max": 52.12,
   "llm_tokens_per_sample": 0,
   "size_rel_mae_xrd": 0.09892335234634506,
   "size_n_xrd": 8,
@@ -34,7 +34,7 @@
    "alloy_segregation": 1.0,
    "low_concentration_dopant": 0.0,
    "mislabeled_metadata": 1.0,
-   "mixed_oxidation_states": 0.0,
+   "mixed_oxidation_states": 1.0,
    "multi_domain": 1.0,
    "oxide_shell": 0.0,
    "wrong_phase_candidate": 1.0
@@ -77,9 +77,9 @@
    "pass": true
   },
   "fault_detection_rate": {
-   "value": 0.5555555555555556,
+   "value": 0.6666666666666666,
    "min": 0.6,
-   "pass": false
+   "pass": true
   },
   "false_alarm_rate": {
    "value": 0.0,
@@ -92,7 +92,7 @@
    "pass": true
   },
   "runtime_s_mean": {
-   "value": 24.651052631578946,
+   "value": 24.103157894736842,
    "max": 120,
    "pass": true
   },
@@ -102,7 +102,7 @@
    "pass": true
   }
  },
- "passed": false,
+ "passed": true,
  "samples": [
   {
    "sample_id": "s0004",
@@ -122,7 +122,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 5.47,
+   "runtime_s": 5.59,
    "errors": {},
    "exafs": [
     {
@@ -164,7 +164,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 28.41,
+   "runtime_s": 27.53,
    "errors": {},
    "exafs": [
     {
@@ -210,7 +210,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 15.78,
+   "runtime_s": 15.39,
    "errors": {},
    "exafs": [
     {
@@ -256,7 +256,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 36.27,
+   "runtime_s": 34.94,
    "errors": {},
    "exafs": [
     {
@@ -308,7 +308,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 39.62,
+   "runtime_s": 37.77,
    "errors": {},
    "pdf_R_err": [
     0.00011968553204955157,
@@ -346,7 +346,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 23.51,
+   "runtime_s": 22.75,
    "errors": {},
    "exafs": [
     {
@@ -392,7 +392,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 20.45,
+   "runtime_s": 18.72,
    "errors": {},
    "exafs": [
     {
@@ -438,7 +438,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 10.76,
+   "runtime_s": 9.8,
    "errors": {},
    "exafs": [
     {
@@ -484,7 +484,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 6.28,
+   "runtime_s": 5.41,
    "errors": {},
    "exafs": [
     {
@@ -526,7 +526,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 18.89,
+   "runtime_s": 18.83,
    "errors": {},
    "exafs": [
     {
@@ -567,14 +567,14 @@
     "C1": "fail",
     "C2": "warn",
     "C3": "fail",
-    "C4": "warn",
+    "C4": "fail",
     "C5": "warn",
     "C6": "pass",
     "C7": "pass"
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 35.15,
+   "runtime_s": 35.21,
    "errors": {},
    "exafs": [
     {
@@ -622,7 +622,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 20.78,
+   "runtime_s": 20.64,
    "errors": {},
    "exafs": [
     {
@@ -663,14 +663,14 @@
     "C1": "warn",
     "C2": "pass",
     "C3": "pass",
-    "C4": "pass",
+    "C4": "fail",
     "C5": "pass",
     "C6": "pass",
     "C7": "pass"
    },
-   "flagged": false,
+   "flagged": true,
    "warned": true,
-   "runtime_s": 4.04,
+   "runtime_s": 4.01,
    "errors": {
     "virtual_xafs": "ValueError: The function value at x=80.0 is NaN; solver cannot continue."
    },
@@ -711,7 +711,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 53.08,
+   "runtime_s": 52.12,
    "errors": {
     "virtual_xafs": "ValueError: The function value at x=80.0 is NaN; solver cannot continue."
    },
@@ -752,7 +752,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 41.7,
+   "runtime_s": 40.51,
    "errors": {},
    "exafs": [
     {
@@ -799,7 +799,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 18.8,
+   "runtime_s": 17.45,
    "errors": {},
    "exafs": [
     {
@@ -847,7 +847,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 16.4,
+   "runtime_s": 16.48,
    "errors": {
     "exafs": "ValueError: absorber Ce is not in the refined model TiO2",
     "virtual_xafs": "ValueError: Ce is not in the refined model"
@@ -879,7 +879,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 42.39,
+   "runtime_s": 43.79,
    "errors": {
     "virtual_xafs": "ValueError: The function value at x=80.0 is NaN; solver cannot continue."
    },
@@ -920,7 +920,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 30.59,
+   "runtime_s": 31.02,
    "errors": {},
    "exafs": [
     {

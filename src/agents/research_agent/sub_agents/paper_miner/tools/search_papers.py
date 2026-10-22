@@ -1,58 +1,39 @@
-import os, requests
-from typing import List, Dict, Any
+"""Concord: open-access PDF links from OpenAlex and arXiv, replacing the Google Programmable Search call
+(no key needed; responses are cached by concord.literature)."""
+import xml.etree.ElementTree as ET
+from typing import Any, Dict, List
 
-import dotenv
+import requests
 
-dotenv.load_dotenv()
+from concord.config import env
+from concord.literature import _get
 
-GOOGLE_CSE_API_KEY = os.getenv("GOOGLE_CSE_API_KEY")
-GOOGLE_CSE_ID = os.getenv("GOOGLE_CSE_ID")
 
 def search_papers(query: str, max_results: int = 10) -> Dict[str, Any]:
     """
-    Search Google Programmable Search (Custom Search JSON API) and return a list of result URLs.
+    Search open literature (OpenAlex open-access works, arXiv) and return links to their PDFs.
 
     Args:
-        query: The full search query string (e.g., 'graphene MnO2 filetype:pdf').
-        max_results: Maximum URLs to return (API returns up to 10 per call; overall cap 100).
+        query: The search query (e.g., 'Pt3Co nanoparticles EXAFS').
+        max_results: Maximum URLs to return.
 
     Returns:
-        dict with:
-          - status: "ok" | "error"
-          - query: original query
-          - urls: list[str] of result links (unique, trimmed of query params)
-          - total: int number of urls returned
-          - message: optional error/info message
+        dict with status ("ok" | "error"), query, urls (PDF links), total and an optional message.
     """
-    if not GOOGLE_CSE_API_KEY or not GOOGLE_CSE_ID:
-        return {"status": "error", "query": query,
-                "urls": [], "total": 0,
-                "message": "Missing GOOGLE_CSE_API_KEY or GOOGLE_CSE_ID env vars."}
-
-    # API only returns up to 10 per call and caps at 100 total. :contentReference[oaicite:1]{index=1}
-    max_results = max(1, min(int(max_results), 100))
-    url = "https://www.googleapis.com/customsearch/v1"
-
-    all_urls: List[str] = []
-    calls_needed = (max_results + 9) // 10
-
-    for i in range(calls_needed):
-        start_index = i * 10 + 1
-        results_for_call = min(10, max_results - len(all_urls))
-        params = {"key": GOOGLE_CSE_API_KEY, "cx": GOOGLE_CSE_ID, "q": query,
-                  "num": results_for_call, "start": start_index}
-        r = requests.get(url, params=params, timeout=20)
-        if r.status_code != 200:
-            return {"status": "error", "query": query, "urls": list(dict.fromkeys(all_urls)),
-                    "total": len(all_urls),
-                    "message": f"HTTP {r.status_code}: {r.text[:300]}"}
-        data = r.json()
-        items = data.get("items", [])
-        batch = [item["link"].split("?")[0] for item in items if "link" in item]
-        all_urls.extend(batch)
-        if len(all_urls) >= max_results or not items:
-            break
-
-    unique_urls = list(dict.fromkeys(all_urls))[:max_results]
-    print(f"🔗 Total unique links found: {len(unique_urls)}")
-    return {"status": "ok", "query": query, "urls": unique_urls, "total": len(unique_urls)}
+    max_results = max(1, min(int(max_results), 50))
+    urls: List[str] = []
+    try:
+        params = {"search": query, "filter": "open_access.is_oa:true", "per_page": max_results, "select": "best_oa_location"}
+        if key := env().get("OPENALEX_API_KEY"):
+            params["api_key"] = key
+        for w in _get("https://api.openalex.org/works", params, secret=("api_key",)).get("results", []):
+            if url := (w.get("best_oa_location") or {}).get("pdf_url"):
+                urls.append(url)
+        feed = ET.fromstring(_get("https://export.arxiv.org/api/query",
+                                  {"search_query": " AND ".join(f"all:{w}" for w in query.split()), "max_results": max_results}))
+        for e in feed.findall("{http://www.w3.org/2005/Atom}entry"):
+            urls.append(e.findtext("{http://www.w3.org/2005/Atom}id", "").replace("/abs/", "/pdf/"))
+    except (requests.RequestException, ET.ParseError, ValueError) as exc:
+        return {"status": "error", "query": query, "urls": urls, "total": len(urls), "message": f"{type(exc).__name__}: {exc}"}
+    unique = list(dict.fromkeys(u for u in urls if u))[:max_results]
+    return {"status": "ok", "query": query, "urls": unique, "total": len(unique)}

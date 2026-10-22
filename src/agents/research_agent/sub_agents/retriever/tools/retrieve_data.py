@@ -1,11 +1,11 @@
 import os
 import pickle
-import faiss
 import numpy as np
+import torch  # noqa: F401  Concord: torch before faiss (see create_vector_store)
+import faiss
 from typing import Dict, Any, List
-from openai import OpenAI
 
-client = OpenAI()
+from concord.literature import QUERY_PROMPT, embedder
 
 VECTOR_DIR = "papers/vector_store"
 INDEX_FILE = os.path.join(VECTOR_DIR, "papers.faiss")
@@ -13,11 +13,8 @@ CHUNKS_FILE = os.path.join(VECTOR_DIR, "papers.chunks")  # updated extension
 
 
 def _embed_query(query: str) -> List[float]:
-    response = client.embeddings.create(
-        input=[query],
-        model="text-embedding-3-large"
-    )
-    return response.data[0].embedding
+    """Concord: local query embedding (same model as the index) instead of the OpenAI API."""
+    return embedder().encode_query([query], prompt=QUERY_PROMPT, normalize_embeddings=True)[0].tolist()
 
 
 def retrieve_data(payload: Dict[str, Any]) -> Dict[str, Any]:

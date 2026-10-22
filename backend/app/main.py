@@ -4,6 +4,7 @@ sample listing, per-sample result views and plot files. Run it with `make api` (
   GET  /api/samples                  samples in dataset/samples (metadata only, never ground truth)
   GET  /api/samples/{id}             result view: checks, evidence, plots, critic log, report (404 until analysed)
   GET  /api/samples/{id}/export      ?format=json (full analysis + agent run) or ?format=md (report)
+  POST /api/samples/{id}/priors      search the open literature for the sample's material (cached afterwards)
   POST /api/runs                     {sample, mode: "fast" | "full"} → {run_id}
   WS   /api/runs/{run_id}/stream     progress events, then {type: "result", payload: view}, then {type: "done"}
   GET  /files/{id}/...               plot images
@@ -21,6 +22,7 @@ from starlette.routing import Mount, Route, WebSocketRoute
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
+from concord import literature
 from concord.agents.evidence import bundle
 from concord.agents.pipeline import report_markdown, run_sample_async
 from concord.analysis import analyze, load_inputs, to_json
@@ -32,6 +34,11 @@ RUNS = ROOT / "results" / "runs"
 ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 RUN_REQUESTS: dict[str, dict] = {}
 RUNS.mkdir(parents=True, exist_ok=True)
+
+
+def _foreign(request: Request) -> bool:
+    """A browser POST from another site: CORS blocks reading the reply, not the request itself."""
+    return request.headers.get("origin") not in (None, *ORIGINS)
 
 
 def _folder(sid: str) -> Path | None:
@@ -62,6 +69,7 @@ def view(sid: str) -> dict | None:
     a, mtime = json.loads(cached.read_text()), cached.stat().st_mtime
     ag = _agents(sid)
     v = a.get("virtual_xafs")
+    priors = literature.for_result(a)
     return {
         "sample_id": sid, "composition": a["inputs"]["composition"], "techniques": a["inputs"]["techniques"],
         "assumed": a["inputs"].get("assumed", []), "phase": a["phase"], "checks": a["checks"], "errors": a["errors"],
@@ -73,7 +81,8 @@ def view(sid: str) -> dict | None:
         "vision": ag and {t: {"accepted": x["accepted"], "verdict": x["visual"]["verdict"], "inspector": x["visual"]["inspector"],
                               "issues": x["visual"]["issues"], "numerical": x["numerical"]}
                           for t, x in (ag.get("vision") or {}).items() if "visual" in x},
-        "report_md": ag["report_md"] if ag else report_markdown({"analysis": a}),
+        "report_md": ag["report_md"] if ag else report_markdown({"analysis": {**a, "priors": priors}}),
+        "priors": priors,
     }
 
 
@@ -109,7 +118,21 @@ async def export(request: Request) -> Response:
     return Response(json.dumps(body, indent=1), media_type="application/json", headers=head)
 
 
+async def mine_priors(request: Request) -> JSONResponse:
+    sid = request.path_params["sid"]
+    cached = RUNS / f"{sid}.json"
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    if not _folder(sid) or not cached.exists():
+        return JSONResponse({"error": "analyse the sample first: the search uses its identified phase"}, status_code=404)
+    a = json.loads(cached.read_text())
+    r = await asyncio.to_thread(literature.mine, a["inputs"]["composition"], a["phase"])
+    return JSONResponse({k: r[k] for k in ("material", "papers", "sentences", "priors", "errors")})
+
+
 async def create_run(request: Request) -> JSONResponse:
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
     data = await request.json()
     sid, mode = data.get("sample", ""), data.get("mode", "fast")
     if not _folder(sid) or mode not in ("fast", "full"):
@@ -160,6 +183,7 @@ app = Starlette(routes=[
     Route("/api/samples", samples),
     Route("/api/samples/{sid}", sample),
     Route("/api/samples/{sid}/export", export),
+    Route("/api/samples/{sid}/priors", mine_priors, methods=["POST"]),
     Route("/api/runs", create_run, methods=["POST"]),
     WebSocketRoute("/api/runs/{run_id}/stream", stream_run),
     Mount("/files", StaticFiles(directory=RUNS), name="files"),

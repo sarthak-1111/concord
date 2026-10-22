@@ -5,14 +5,11 @@ import pathlib
 from typing import List, Dict, Any
 
 import numpy as np
+import torch  # noqa: F401  Concord: torch before faiss, else two OpenMP runtimes segfault on macOS arm64
 import faiss
 from dataclasses import dataclass
-from openai import OpenAI
-import dotenv
 
-# Load API key
-dotenv.load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+from concord.literature import MODEL, embedder
 
 # Directories
 EXTRACTED_DIR = "papers/extracted_texts"
@@ -83,24 +80,9 @@ def _split_text(text: str, chunk_size: int, chunk_overlap: int) -> List[str]:
 
 # ---------- Embedding ----------
 
-def _embed_texts_openai(
-    texts: List[str],
-    model: str = "text-embedding-3-small",
-    batch_size: int = 64
-) -> np.ndarray:
-    client = OpenAI(api_key=OPENAI_API_KEY)
-    vectors: List[List[float]] = []
-
-    for i in range(0, len(texts), batch_size):
-        batch = texts[i:i + batch_size]
-        resp = client.embeddings.create(model=model, input=batch)
-        vectors.extend([d.embedding for d in resp.data])
-
-    arr = np.array(vectors, dtype=np.float32)
-    # Normalize embeddings for cosine similarity
-    norms = np.linalg.norm(arr, axis=1, keepdims=True) + 1e-12
-    arr = arr / norms
-    return arr
+def _embed_texts(texts: List[str], batch_size: int = 64) -> np.ndarray:
+    """Concord: local sentence embeddings on CPU (unit length, so inner product = cosine) instead of the OpenAI API."""
+    return np.asarray(embedder().encode_document(texts, normalize_embeddings=True, batch_size=batch_size), dtype=np.float32)
 
 # ---------- Main Tool ----------
 
@@ -116,7 +98,7 @@ def create_vector_store() -> Dict[str, Any]:
     vector_store_dir = VECTOR_STORE_DIR
     chunk_size = 1200
     chunk_overlap = 200
-    embedding_model = "text-embedding-3-large"
+    embedding_model = MODEL
     os.makedirs(vector_store_dir, exist_ok=True)
 
     txt_files = [f for f in os.listdir(extracted_dir) if f.endswith(".txt")]
@@ -152,7 +134,7 @@ def create_vector_store() -> Dict[str, Any]:
     if not docs_texts:
         return {"status": "error", "message": "No content to index.", "files_indexed": len(txt_files), "chunks": 0}
 
-    embeddings = _embed_texts_openai(docs_texts, model=embedding_model)
+    embeddings = _embed_texts(docs_texts)
 
     dim = embeddings.shape[1]
     index = faiss.IndexFlatIP(dim)

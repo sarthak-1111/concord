@@ -9,13 +9,14 @@ import TechniqueTabs from "@/components/TechniqueTabs";
 import VirtualXafs from "@/components/VirtualXafs";
 import CriticLog from "@/components/CriticLog";
 import EventCard from "@/components/EventCard";
+import Priors from "@/components/Priors";
 
 const BUTTON = "rounded-lg px-3 py-2 text-sm font-medium shadow-sm transition disabled:cursor-not-allowed disabled:opacity-50";
 
 export default function Workbench() {
   const { data: samples, error: listError, mutate: refreshSamples } = useSWR<SampleRow[]>("/api/samples", fetcher);
   const [sid, setSid] = useState<string>();
-  const { data: view, error, isLoading } = useSWR<View>(sid ? `/api/samples/${sid}` : null, fetcher, { shouldRetryOnError: false, revalidateOnFocus: false });
+  const { data: view, error, isLoading, mutate } = useSWR<View>(sid ? `/api/samples/${sid}` : null, fetcher, { shouldRetryOnError: false, revalidateOnFocus: false });
   const [run, setRun] = useState<{ id: string; sample: string; mode: string }>();
   const { events } = useRunStream(run?.id);
   const failed = events.some((e) => e.type === "error");
@@ -123,6 +124,7 @@ export default function Workbench() {
               <VirtualXafs v={view.virtual_xafs} plot={view.plots.virtual_xafs} />
             </div>
             <CriticLog view={view} />
+            <Priors sid={view.sample_id} priors={view.priors} onMined={() => mutate()} />
           </>
         )}
       </div>

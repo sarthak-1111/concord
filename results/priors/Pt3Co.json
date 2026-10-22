@@ -1,0 +1,98 @@
+{
+ "composition": "Pt3Co",
+ "phase": null,
+ "material": "Pt3Co",
+ "model": "BAAI/bge-small-en-v1.5",
+ "queries": {
+  "openalex": [
+   "Pt3Co EXAFS coordination number bond length",
+   "Pt3Co XANES oxidation state",
+   "Pt3Co nanoparticles size"
+  ],
+  "crossref": [
+   "Pt3Co EXAFS",
+   "Pt3Co nanoparticles XANES"
+  ],
+  "arxiv": [
+   "all:\"Pt3Co\" AND (all:EXAFS OR all:XAFS OR all:XANES OR all:nanoparticles)"
+  ]
+ },
+ "papers": 45,
+ "sentences": 276,
+ "errors": [],
+ "priors": [
+  {
+   "quantity": "particle_size",
+   "value": 3.9,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1002/adfm.202408383",
+   "title": "Thermostable Tellurium Anchoring Enabling Robust Thermal and Electrochemical Stability for Pt3Co Intermetallic Fuel Cell Catalysts",
+   "year": 2024,
+   "source": "OpenAlex",
+   "snippet": "The average size of well‐dispersed Pt3Co i‐NPs (≈3.9 nm) on Te─C is considerably smaller than that of Pt3Co i‐NPs (≈9.1 nm) on commercial carbon.",
+   "relevance": 0.72
+  },
+  {
+   "quantity": "particle_size",
+   "value": 9.1,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1002/adfm.202408383",
+   "title": "Thermostable Tellurium Anchoring Enabling Robust Thermal and Electrochemical Stability for Pt3Co Intermetallic Fuel Cell Catalysts",
+   "year": 2024,
+   "source": "OpenAlex",
+   "snippet": "The average size of well‐dispersed Pt3Co i‐NPs (≈3.9 nm) on Te─C is considerably smaller than that of Pt3Co i‐NPs (≈9.1 nm) on commercial carbon.",
+   "relevance": 0.72
+  },
+  {
+   "quantity": "particle_size",
+   "value": 15.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1080/15533174.2013.831452",
+   "title": "Synthesis and Characterization of Pt3Co@Pt Nanocomposites Using Banana Peel Extract as Novel Surfactants",
+   "year": 2014,
+   "source": "OpenAlex",
+   "snippet": "XRD analysis confirmed the average size of Pt3Co@Pt nanocomposites around 15 nm, which allowed the assumption of the role of PBE surfactant.",
+   "relevance": 0.635
+  },
+  {
+   "quantity": "particle_size",
+   "value": 5.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1149/2.0531514jes",
+   "title": "In-Operando Anomalous Small-Angle X-Ray Scattering Investigation of Pt3Co Catalyst Degradation in Aqueous and Fuel Cell Environments",
+   "year": 2015,
+   "source": "OpenAlex",
+   "snippet": "The ASAXS data, as well as data from aqueous dissolution, X-ray absorption spectroscopy, individual particle energy-dispersive spectroscopy, X-ray fluorescence spectrometry, and kinetic Monte Carlo calculations support a loss mechanism of increased Pt dissolution from Pt 3 Co versus Pt due to destabilization caused by extensive dealloying of particles <∼5 nm during ASTs.",
+   "relevance": 0.617
+  },
+  {
+   "quantity": "particle_size",
+   "value": 5.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1149/1945-7111/abfcd9",
+   "title": "Effect of Particle Size on the Dissolution of Pt3Co/C and Pt/C PEMFC Electrocatalysts",
+   "year": 2021,
+   "source": "OpenAlex",
+   "snippet": "Comparison of Pt3Co/C and Pt/C with similar mean particle sizes (4.9 vs 5.0 nm) and particle size distributions reveals that the Pt3Co/C has a higher potentiostatic dissolution rate (4–5 times), a higher steady state concentration of dissolved Pt (∼2 times), and a larger change in electrochemically-active surface area (ECA) (18 times) after prolonged cycling, indicating that Pt3Co has inferior stability.",
+   "relevance": 0.603
+  },
+  {
+   "quantity": "particle_size",
+   "value": 4.5,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.26434/chemrxiv.15007168/v1",
+   "title": "Gas-assisted thermal annealing for size-controlled ordering of Pt3Co intermetallic nanoparticles for oxygen reduction",
+   "year": 2026,
+   "source": "OpenAlex",
+   "snippet": "Particles with 66% ordered Pt 3 Co and 4.5 nm size could be synthesized by annealing for 2h at 1000°C followed by 50 h at 600°C, under 80% CO in N 2 atmosphere.",
+   "relevance": 0.603
+  }
+ ],
+ "mined": "2026-10-22"
+}

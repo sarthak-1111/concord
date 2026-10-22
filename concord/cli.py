@@ -2,6 +2,7 @@
 
   concord analyze <folder> [--composition Pt3Co]   tools + checks C1-C6 + visual inspection + critic loop → report
   concord analyze <folder> --fast                  tools + checks only (no LLM), seconds per sample
+  concord priors Pt3Co [--phase TiO2-anatase]      literature priors with DOIs (OpenAlex, Crossref, arXiv)
   concord eval                                     evaluation on dataset v1 (same as `make eval`)
   concord health                                   is the LLM endpoint up?
 
@@ -24,6 +25,10 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--composition", help="needed when the folder has no sample.json, e.g. Pt3Co")
     a.add_argument("--fast", action="store_true", help="deterministic tools and checks only (no LLM)")
     a.add_argument("--out", type=Path, help="output folder (default results/runs/<folder name>)")
+    p = sub.add_parser("priors", help="mine literature priors for a composition")
+    p.add_argument("composition")
+    p.add_argument("--phase", help="identified phase, e.g. TiO2-anatase (searches that polymorph)")
+    p.add_argument("--refresh", action="store_true", help="search again instead of using the cache")
     sub.add_parser("eval", help="run the evaluation (make eval)")
     sub.add_parser("health", help="check the LLM endpoint")
     args = ap.parse_args(argv)
@@ -31,6 +36,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "health":
         from concord.llm.client import LLMClient
         print(json.dumps(LLMClient.from_env().health(), indent=1))
+        return 0
+    if args.cmd == "priors":
+        from concord.literature import describe, mine
+        r = mine(args.composition, args.phase, refresh=args.refresh)
+        print(f"{r['material']}: {r['papers']} papers, {r['sentences']} sentences, {len(r['priors'])} priors"
+              + (f" (incomplete: {', '.join(r['errors'])})" if r["errors"] else ""))
+        for x in r["priors"]:
+            print(f"  {describe(x):<40} doi:{x['doi']}  «{x['snippet'][:100]}»")
         return 0
     if args.cmd == "eval":
         from concord.evaluate import main as eval_main
@@ -40,9 +53,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.fast:
         from concord.agents.pipeline import report_markdown
         from concord.analysis import analyze, to_json
+        from concord.literature import for_result
         from concord.vision.check import plots
         res = analyze(args.folder, composition=args.composition)
         a = to_json(res)
+        a["priors"] = for_result(a)  # cached priors only: fast mode stays offline
         out.mkdir(parents=True, exist_ok=True)
         (out / "analysis.json").write_text(json.dumps(a))
         plots(res, out)

@@ -117,18 +117,35 @@ def c3_coordination(exafs: dict | None, pdf: dict | None, absorber: str) -> dict
 
 
 def c4_oxidation(xanes: dict | None, bvs: dict | None) -> dict:
-    """XANES edge position against valence standards vs the bond-valence sum of the PDF-refined structure."""
+    """XANES valence (linear combination of valence standards) vs the bond-valence sum of the PDF-refined structure.
+    A metallic model gets the tolerance of metallic references, whose XANES valence is precise. A valence that the
+    refined bond lengths and the XANES edge both move away from the formal value, in the same direction, is mixed
+    valence or non-stoichiometry even when each shift alone is within tolerance: two techniques agree on it."""
     tol = _tol("C4_oxidation")
     name = "Oxidation state (XANES vs bond-valence sum)"
     if not xanes or not bvs:
         return skip("C4", name, "needs XANES and a PDF-refined structure")
+    formal, metal = bvs["formal_valence"], bvs["formal_valence"] == 0
     d = xanes["valence"] - bvs["valence"]
-    status = _grade(d, tol["warn_abs"], tol["fail_abs"])
-    vals = {"xanes_valence": round(xanes["valence"], 2), "xanes_edge_eV": round(xanes["edge_eV"], 2), "lcf": xanes.get("lcf_weights"),
-            "bvs_valence": round(bvs["valence"], 2), "diff": round(d, 2), "xanes_fidelity": "low (simple edge model)"}
-    expl = ("XANES and the bond-valence sum agree." if status == "pass" else
-            f"XANES says {xanes['valence']:.1f}, the refined structure implies {bvs['valence']:.1f}: mixed valence, a surface "
-            "phase or vacancies the average structure misses.")
+    status = _grade(d, *((tol["metal_warn_abs"], tol["metal_fail_abs"]) if metal else (tol["warn_abs"], tol["fail_abs"])))
+    d_bvs, d_edge = bvs["valence"] - formal, xanes["valence_edge"] - formal
+    shifted = not metal and abs(d_bvs) > tol["bvs_shift_min"] and abs(d_edge) > tol["xanes_shift_min"] and d_bvs * d_edge > 0
+    vals = {"xanes_valence": round(xanes["valence"], 2), "xanes_edge_valence": round(xanes["valence_edge"], 2), "lcf": xanes.get("lcf_weights"),
+            "bvs_valence": round(bvs["valence"], 3), "formal_valence": round(formal, 3), "diff": round(d, 2), "metallic_model": metal,
+            "xanes_fidelity": "low (simple edge model)"}
+    if shifted:
+        status = "fail"
+        expl = (f"The refined bond lengths (bond-valence sum {bvs['valence']:.2f}) and the XANES edge ({xanes['valence_edge']:.2f}) both put "
+                f"the valence {'below' if d_bvs < 0 else 'above'} the formal {formal:g}: mixed valence or non-stoichiometry "
+                "(for example reduced cations with oxygen vacancies) that the stoichiometric model lacks.")
+    elif status == "pass":
+        expl = "XANES and the bond-valence sum agree."
+    elif metal:
+        expl = (f"XANES shows an oxidised component (valence {xanes['valence']:.2f}) that the metallic model lacks: a surface oxide "
+                "or oxidised species.")
+    else:
+        expl = (f"XANES says {xanes['valence']:.1f}, the refined structure implies {bvs['valence']:.1f}: mixed valence, a surface "
+                "phase or vacancies the average structure misses.")
     return result("C4", name, status, vals, tol, expl)
 
 

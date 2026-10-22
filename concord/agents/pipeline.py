@@ -21,6 +21,7 @@ from google.genai import types
 from pydantic import BaseModel, Field
 
 from concord.agents.evidence import _r, bundle, number_guard
+from concord import literature
 from concord.agents.resolver import ACTIONS, run_action
 from concord.analysis import analyze, load_inputs, to_json
 from concord.config import ROOT, settings
@@ -72,6 +73,7 @@ Rules:
 3. Each check with status warn or fail gets a claim that explains it physically, or says the data deviate from every candidate.
 4. If check.C1 fails because no candidate fits, set phase to null.
 5. Answer each objection in `responses`: change the claim, or show with evidence ids why it stands.
+6. prior.* entries are literature values for other samples (with DOI): context for a claim, never proof of this sample.
 Reply with JSON only."""
 
 CRITIC = """You are an independent reviewer of a structural analysis of X-ray data. You see only the evidence bundle and
@@ -85,7 +87,9 @@ Rules:
    oxidised XANES component or non-zero valence in a metallic model, a lattice moved away from the database value,
    a size or coordination number that the techniques do not share), deserves an objection with a re-run that tests it.
 4. Do not repeat an objection that an earlier re-run settled; the log shows them.
-5. If the claims are sound, return no objections and verdict "accept".
+5. prior.* entries are literature values for other samples (with DOI). Cite one to motivate a re-run (for example a
+   probe shell at the literature distance), never as proof on its own.
+6. If the claims are sound, return no objections and verdict "accept".
 Reply with JSON only."""
 
 REPORTER = """Write the prose parts of the final report of a Concord analysis for a materials scientist: a one-sentence
@@ -134,6 +138,10 @@ class AnalysisAgent(BaseAgent):
         folder, comp = Path(ctx.session.state["sample_folder"]), ctx.session.state.get("composition")
         pre = ctx.session.state.get("precomputed")  # analysis JSON from an earlier run of the same tools (eval)
         res = json.loads(Path(pre).read_text()) if pre else await asyncio.to_thread(analyze, folder, None, comp)
+        try:
+            res["priors"] = await asyncio.to_thread(literature.for_result, res, True)
+        except Exception as exc:  # literature is context: a failed search never stops the analysis
+            res["priors"], res.setdefault("errors", {})["priors"] = [], f"literature search failed ({type(exc).__name__})"
         RUNS[ctx.session.id] = {"folder": folder, "meta": load_inputs(folder, comp), "res": res}
         statuses = ", ".join(f"{c['id']} {c['status']}" for c in res["checks"])
         yield _event(ctx, self.name, f"analysis done: phase {res['phase']}; {statuses}",
@@ -220,6 +228,9 @@ def report_markdown(st: dict) -> str:
                   + v["recommendation"]]
         if m := v.get("vs_measured"):
             lines += ["", f"Against the measured spectrum: R-factor {m['rfactor_R']:.4f} in R {m['r_window'][0]}–{m['r_window'][1]} Å."]
+    if pri := a.get("priors"):
+        lines += ["", "## Literature priors (other samples: context, not constraints)", ""]
+        lines += [f"- {literature.describe(p)}, [doi:{p['doi']}](https://doi.org/{p['doi']}) ({p['year']}): «{p['snippet'][:220]}»" for p in pri]
     if not model:
         lines += ["", "Fast mode: tools and checks only; the generator–critic loop was not run."]
         return "\n".join(lines) + "\n"

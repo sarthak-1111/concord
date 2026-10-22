@@ -37,6 +37,14 @@ checks:
   C4_oxidation:
     warn_abs: 0.5
     fail_abs: 1.0
+    # Metallic models (formal valence 0), calibrated 2026-10-22 on the dev split (dataset_big val + faults, s0060 and up):
+    # the XANES valence of clean metals and alloys is 0.05 +- 0.055, at most 0.16 (alloying raises the white line).
+    metal_warn_abs: 0.2
+    metal_fail_abs: 0.25
+    # Mixed valence: |BVS - formal| is at most 0.009 for clean dev samples of every system; the XANES edge must move the
+    # same way by more than its typical error.
+    bvs_shift_min: 0.03
+    xanes_shift_min: 0.1
   C5_disorder:
     # EXAFS sigma2 is expected to be smaller than the PDF pair width because neighbours move together.
     ratio_low: 0.3

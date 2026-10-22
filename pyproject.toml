@@ -30,6 +30,9 @@ dependencies = [
     "debyecalculator>=1.1.1",
     "torch>=2.14.1",
     "google-adk==1.12.0",
+    "sentence-transformers>=6.1.0",
+    "faiss-cpu>=1.15.1",
+    "pypdf>=6.19.0",
 ]
 
 [dependency-groups]
