@@ -154,8 +154,10 @@ fit, fitting k-weights 1, 2 and 3 together, `robustness`, multi-shell fits and r
 read-only on 2026-10-22 into `../concord-ref/GAN-Hackathon`; the three realism generators (`generator_ema.pt`) were
 fetched with Git LFS into the clone's LFS store, each checked against its LFS hash, and the clone's working tree is
 unchanged. `concord/gan.py` imports the repository's model code at run time (with its directory-creating `paths`
-module stubbed and no bytecode written) and loads the weights with `torch.load(weights_only=True)`; nothing is copied
-into Concord. Used for: instrument realism in the planner and the Real or GAN? demonstration, including the real
+module stubbed and no bytecode written) and loads the weights with `torch.load(weights_only=True)`. On 2026-10-23 the
+three generators (weights, model cards, configs, sha256, training history) were copied into `models/gan/` so the
+published repository carries them, sha256-checked on copy; `concord/gan.py` loads those first. The model code and the
+training stay in GAN-Hackathon. Used for: instrument realism in the planner and the Real or GAN? demonstration, including the real
 spectra and simulated twins of `artifacts/data/real/` with their per-item licences shown. Not used for any analysis,
 check or metric. Its predictor model is not used.
 
