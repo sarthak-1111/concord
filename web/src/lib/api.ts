@@ -67,6 +67,16 @@ export type Vision = {
   steps: { iteration: number; action: string; finding: string; kept: boolean }[];
 };
 
+export type Fitting = {
+  agent: string;
+  metric: string;  // "rw" and "rfactor": lower is better; "score": higher is better
+  start: number | null;
+  end: number | null;
+  values: Record<string, unknown>;
+  steps: { step: number; changes: Record<string, unknown>; metric: number | null; kept: boolean; reason: string; error?: string | null }[];
+  verdict: string;
+};
+
 export type View = {
   sample_id: string;
   composition: string;
@@ -91,6 +101,7 @@ export type View = {
     error?: string | null;
   } | null;
   vision: Record<string, Vision> | null;
+  fitting?: Record<string, Fitting> | null;
   report_md: string;
   priors: Prior[];
   raw_pdf?: boolean;  // the folder has the raw PDF intensity, so it can be re-reduced

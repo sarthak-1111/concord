@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
-import { CheckCircle, Funnel, Sliders, XCircle, Wrench } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, CheckCircle, Funnel, Robot, Sliders, XCircle, Wrench } from "@phosphor-icons/react";
 import { API, curvesKey, fetcher, type Curves, type View } from "@/lib/api";
-import Value from "@/components/Value";
+import Value, { fmt } from "@/components/Value";
 import Plot from "@/components/Plot";
 
 const TABS: { key: string; label: string; ids: (ev: Record<string, unknown>) => string[]; error: string[] }[] = [
@@ -33,6 +33,7 @@ export default function TechniqueTabs({ view, focus, onStudio }: { view: View; f
   const tab = tabs.find((t) => t.key === active) ?? tabs[0];
   if (!tab) return <p className="text-sm text-meta">No technique produced a result.</p>;
   const vision = view.vision?.[tab.key];
+  const fit = view.fitting?.[tab.key];
   const c = curves?.[tab.key as "xrd" | "pdf" | "exafs"];
   const pngs = [view.plots[tab.key], view.plots[`${tab.key}_zoom`]].filter(Boolean);
   return (
@@ -64,6 +65,28 @@ export default function TechniqueTabs({ view, focus, onStudio }: { view: View; f
             </div>
           ) : pngs[0] ? <Figure src={pngs[0]} alt={`${tab.label} fit: data, model and difference`} />
             : <p className="text-sm text-meta">No fit plot for this technique.</p>}
+          {fit ? (
+            <div className="rounded-md bg-surface p-3 text-sm shadow-ring">
+              <div className="eyebrow flex items-center gap-1"><Robot size={12} weight="bold" aria-hidden />Fitted by the {tab.label} agent</div>
+              <p className="mt-1 tabular-nums text-fg">{fit.metric} {fmt(fit.start)} → {fmt(fit.end)}{Object.keys(fit.values).length ? "" : ", kept the defaults"}</p>
+              {fit.steps.length ? (
+                <ol className="mt-2 grid gap-1.5">
+                  {fit.steps.map((s) => (
+                    <li key={s.step} className="grid gap-0.5">
+                      <div className="flex flex-wrap items-center gap-x-2">
+                        <span className="font-mono text-xs">{Object.entries(s.changes).map(([k, v]) => `${k} ${fmt(v)}`).join(", ") || "defaults"}</span>
+                        <span className="tabular-nums text-muted">{fmt(s.metric)}</span>
+                        {s.kept ? <span className="flex items-center gap-1 text-xs text-ok"><CheckCircle size={12} weight="fill" aria-hidden />kept</span>
+                          : <span className="flex items-center gap-1 text-xs text-meta"><ArrowCounterClockwise size={12} weight="bold" aria-hidden />reverted</span>}
+                      </div>
+                      <p className="text-fg-2">{s.reason}{s.error ? ` (${s.error})` : ""}</p>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
+              <p className="mt-2 text-muted">{fit.verdict}</p>
+            </div>
+          ) : null}
           {vision ? (
             <div className={`rounded-md p-3 text-sm ${vision.accepted ? "bg-ok-bg" : "bg-bad-bg"}`}>
               <div className={`flex items-center gap-1.5 font-medium ${vision.accepted ? "text-ok" : "text-bad"}`}>

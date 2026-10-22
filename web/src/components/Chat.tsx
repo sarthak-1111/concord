@@ -20,9 +20,9 @@ type Actions = {
 };
 
 const SUGGEST: Record<Exclude<ChatReply["suggest"], "none">, [string, typeof Lightning]> = {
-  run_fast: ["Run tools and checks", Lightning], run_full: ["Run the critic", UsersThree], find_priors: ["Search the literature", BookOpen],
+  run_fast: ["Run tools and checks", Lightning], run_full: ["Run the agents", UsersThree], find_priors: ["Search the literature", BookOpen],
 };
-const RUN_LABEL = { fast: "Tools and checks", full: "Visual inspection and critic", priors: "Literature search", action: "Re-run" };
+const RUN_LABEL = { fast: "Tools and checks", full: "Fitting agents, inspection and critic", priors: "Literature search", action: "Re-run" };
 
 /** The answer with every number that matches an evidence value marked; a click opens where it came from. */
 function Sourced({ text, cites, evidence, open }: { text: string; cites: string[]; evidence?: Record<string, unknown>; open: (id: string) => void }) {
@@ -68,13 +68,13 @@ function Brief({ row, view, state, act, busy }: { row?: SampleRow; view?: View; 
         <p className="text-[15px] text-fg-2">
           <b className="font-medium text-fg">{row?.composition ?? "This sample"}</b>
           {row ? <> has {row.techniques.map((t) => t.toUpperCase()).join(", ")} data</> : null} and has not been analysed yet.
-          The tools and checks usually take under a minute and need no language model; the critic adds a visual inspection of every fit and a
-          review that takes about 25 minutes.
+          The tools and checks usually take under a minute and need no language model; the agents fit each technique, inspect every fit
+          visually and review the result, which takes about 25 minutes.
         </p>
         {state === "error" ? <p className="text-sm text-bad">The results could not be loaded. Is the API running?</p> : null}
         <div className="flex flex-wrap gap-2">
           <button disabled={busy} onClick={() => act.run("fast")} className="btn btn-primary"><Lightning size={16} weight="fill" aria-hidden />Run tools and checks</button>
-          <button disabled={busy} onClick={() => act.run("full")} className="btn btn-quiet"><UsersThree size={16} weight="bold" aria-hidden />Run with the critic</button>
+          <button disabled={busy} onClick={() => act.run("full")} className="btn btn-quiet"><UsersThree size={16} weight="bold" aria-hidden />Run the agents</button>
         </div>
       </div>
     );
@@ -249,8 +249,8 @@ export default function Chat({ sid, row, view, state, msgs, asking, busy, act, g
             <button type="button" disabled={busy} onClick={() => act.run("fast")} className="btn btn-ghost px-2" title="Run the tools and checks, about 30 s">
               <Lightning size={18} weight="bold" aria-hidden /><span className="hidden sm:inline">Checks</span>
             </button>
-            <button type="button" disabled={busy} onClick={() => act.run("full")} className="btn btn-ghost px-2" title="Visual inspection and critic review, about 25 min">
-              <UsersThree size={18} weight="bold" aria-hidden /><span className="hidden sm:inline">Critic</span>
+            <button type="button" disabled={busy} onClick={() => act.run("full")} className="btn btn-ghost px-2" title="Fitting agents, visual inspection and critic review, about 25 min">
+              <UsersThree size={18} weight="bold" aria-hidden /><span className="hidden sm:inline">Agents</span>
             </button>
             <button type="button" disabled={busy || !ready} onClick={act.findPriors} className="btn btn-ghost px-2" title="Search the open literature for this material">
               <BookOpen size={18} weight="bold" aria-hidden /><span className="hidden sm:inline">Literature</span>

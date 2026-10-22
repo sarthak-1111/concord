@@ -20,8 +20,9 @@ from google.adk.runners import InMemoryRunner
 from google.genai import types
 from pydantic import BaseModel, Field
 
+from concord.agents import fitter
 from concord.agents.evidence import _r, bundle, number_guard
-from concord import literature
+from concord import literature, tweak
 from concord.agents.resolver import ACTIONS, run_action
 from concord.analysis import analyze, load_inputs, to_json
 from concord.config import ROOT, settings
@@ -149,6 +150,37 @@ class AnalysisAgent(BaseAgent):
                      {"analysis": to_json(res), "evidence": bundle(to_json(res)), "log": [], "round": 0})
 
 
+class FittingAgent(BaseAgent):
+    """One LLM fitting agent per technique drives its fit (concord.agents.fitter); the settings they keep re-run the analysis."""
+
+    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
+        run = RUNS[ctx.session.id]
+        analysis, fitting = to_json(run["res"]), {}
+        for tech in fitter.TECHS:
+            if not analysis.get(tech):
+                continue
+            try:
+                f = await asyncio.to_thread(fitter.fit, run["folder"], analysis, tech)
+            except Exception as exc:  # an agent that fails leaves the default fit in place, and says so
+                f = {"agent": f"{tech}_fitter", "metric": fitter.METRIC[tech][0], "start": None, "end": None, "values": {}, "steps": [],
+                     "verdict": f"the agent stopped: {type(exc).__name__}: {str(exc)[:200]}"}
+            if f:
+                fitting[tech] = f
+                yield _event(ctx, f["agent"], fitter.summary(tech, f) if f["start"] is not None else f["verdict"], {"fitting": dict(fitting)})
+        ev = {f"fitting.{t}": _r({k: f[k] for k in ("metric", "start", "end", "values", "verdict")}) for t, f in fitting.items()}
+        overrides = {t: f["values"] for t, f in fitting.items() if f["values"]}
+        if overrides:  # the whole analysis and every check again, with the settings the agents kept
+            res = await asyncio.to_thread(tweak.apply, run["folder"], analysis, overrides)
+            res["priors"] = run["res"].get("priors", [])
+            run["res"] = res
+            analysis = to_json(res)
+            statuses = ", ".join(f"{c['id']} {c['status']}" for c in res["checks"])
+            yield _event(ctx, self.name, f"re-analysed with the fitting agents' settings ({', '.join(overrides)}): phase {res['phase']}; {statuses}",
+                         {"analysis": analysis, "evidence": {**bundle(analysis), **ev}, "fitting": fitting})
+        else:
+            yield _event(ctx, self.name, "the fitting agents kept the default fits", {"evidence": {**ctx.session.state["evidence"], **ev}, "fitting": fitting})
+
+
 class VisionAgent(BaseAgent):
     """Plots every fit, has the eye module (or the fallback judge) inspect it, and adds the verdicts as evidence."""
 
@@ -156,7 +188,7 @@ class VisionAgent(BaseAgent):
         run = RUNS[ctx.session.id]
         vis = await asyncio.to_thread(inspect_fits, run["res"], Path(ctx.session.state["out_dir"]), run)
         analysis = to_json(run["res"])  # a kept fix changes the fits and the checks
-        ev = bundle(analysis)
+        ev = {**{k: v for k, v in ctx.session.state.get("evidence", {}).items() if k.startswith("fitting.")}, **bundle(analysis)}
         for tech, v in vis.items():
             if "visual" not in v:  # the virtual XAFS plot is shown, not judged
                 continue
@@ -211,7 +243,7 @@ def root_agent() -> SequentialAgent:
                      max_iterations=settings()["critic"]["max_rounds"])
     reporter = LlmAgent(name="reporter", model=model_for("report"), instruction=_reporter_instruction,
                         output_schema=ReportText, output_key="report_text", include_contents="none", disallow_transfer_to_parent=True, disallow_transfer_to_peers=True)
-    return SequentialAgent(name="concord", sub_agents=[AnalysisAgent(name="analysis"), VisionAgent(name="vision"), loop, reporter])
+    return SequentialAgent(name="concord", sub_agents=[AnalysisAgent(name="analysis"), FittingAgent(name="fitting"), VisionAgent(name="vision"), loop, reporter])
 
 
 def report_markdown(st: dict) -> str:
@@ -314,7 +346,7 @@ async def run_sample_async(folder: str | Path, out: Path | None = None, on_event
               "llm": trace.totals(), "out_dir": str(out), **({"error": error} if error else {})}
     (out / "report.md").write_text(md)
     (out / "analysis.json").write_text(json.dumps(st["analysis"]))  # before agents.json: the UI marks agents older than the analysis stale
-    (out / "agents.json").write_text(json.dumps({**result, "evidence": st["evidence"], "vision": st.get("vision")}, default=str, indent=1)
+    (out / "agents.json").write_text(json.dumps({**result, "evidence": st["evidence"], "vision": st.get("vision"), "fitting": st.get("fitting")}, default=str, indent=1)
                                      .replace(f"{ROOT}/", ""))  # repo-relative paths: the file is committed for the test samples
     RUNS.pop(session.id, None)
     return result

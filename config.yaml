@@ -7,6 +7,7 @@ llm:
     generator: high
     critic: high
     tool_selection: medium
+    fitter: medium  # fitting agents: which settings to try next, and whether a refit is acceptable
     judge: low  # reads a short text summary of residual statistics
     summary: low
     report: low

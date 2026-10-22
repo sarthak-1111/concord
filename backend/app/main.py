@@ -129,6 +129,7 @@ def view(sid: str) -> dict | None:
         "vision": ag and {t: {"accepted": x["accepted"], "verdict": x["visual"]["verdict"], "inspector": x["visual"]["inspector"],
                               "issues": x["visual"]["issues"], "numerical": x["numerical"], "steps": x.get("steps", [])}
                           for t, x in (ag.get("vision") or {}).items() if "visual" in x},
+        "fitting": (ag.get("fitting") if ag else None) or None,
         "report_md": ag["report_md"] if ag and not fresh else report_markdown({"analysis": {**a, "priors": priors}}),
         "priors": priors,
         "raw_pdf": bool(folder and (folder / "pdf_iq.dat").exists()),
@@ -483,8 +484,8 @@ def _round(v, digits: int = 5):
 
 
 def curves(sid: str) -> dict | None:
-    cached = RUNS / f"{sid}.json"
-    if not cached.exists():
+    cached = _analysis_file(sid)  # the agents' copy when newer: it carries the fits the fitting agents kept
+    if not cached:
         return None
     a = json.loads(cached.read_text())
     out = {}
@@ -559,7 +560,7 @@ async def stream_run(ws: WebSocket) -> None:
             res = await asyncio.to_thread(analyze, _folder(sid))
             cached.write_text(json.dumps(to_json(res)))
         if req["mode"] == "full":
-            await send("status", "Visual inspection and the generator and critic loop (gpt-oss)")
+            await send("status", "Fitting agents for XRD, PDF and EXAFS, visual inspection, then the generator and critic loop (gpt-oss)")
             await run_sample_async(_folder(sid), RUNS / sid, on_event=on_event, precomputed=cached)
         await send("result", await asyncio.to_thread(view, sid))
         await send("done")

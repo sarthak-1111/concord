@@ -51,7 +51,7 @@ export default function Workbench({ sid, view, state, tab, setTab, focus, open, 
   const vd = verdict(view), [VIcon, vColor] = VERDICT[vd.tone];
   const notes = [...Object.entries(view.errors).map(([k, v]) => ({ bad: true, text: `${k} failed: ${v}` })),
     ...view.assumed.map((a) => ({ bad: false, text: `Assumed ${a}, not in the file headers.` })),
-    ...Object.entries(view.user_settings ?? {}).map(([t, v]) => ({ bad: false, text: `${t.toUpperCase()} fitted with your settings: ${Object.entries(v).map(([k, x]) => `${k} ${String(x)}`).join(", ")}.` }))];
+    ...Object.entries(view.user_settings ?? {}).map(([t, v]) => ({ bad: false, text: `${t.toUpperCase()} fitted with ${Object.keys(view.fitting?.[t]?.values ?? {}).length ? "the fitting agent's" : "your"} settings: ${Object.entries(v).map(([k, x]) => `${k} ${String(x)}`).join(", ")}.` }))];
   return (
     <div className="flex h-full min-h-0 flex-col">
       <header className="grid gap-4 border-b border-line px-6 pt-5 pb-4">
