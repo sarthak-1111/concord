@@ -55,7 +55,10 @@ changes the boundary.
 | `concord/cli.py` | `concord analyze <folder> [--fast]`, `concord priors`, `concord eval`, `concord health` |
 | `concord/data_builder/`, `scripts/validate_dataset.py`, `data/` | dataset builder from open structures (COD; Materials Project, JARVIS, OQMD as fallbacks), nanoparticle models, XRD/PDF/XAFS simulation with planted faults, validator, structure manifest |
 | `concord/agents/chat.py` | questions about one sample answered from its evidence bundle: cited evidence ids, number guard with one rewrite, a suggested follow-up run |
-| `backend/app/main.py`, `web/src/components/*.tsx`, `web/src/lib/{api,thread}.ts` | sample workbench API and UI: conversation (`Chat`), results workbench (`Workbench`, `CheckPanel`, `TechniqueTabs`, `VirtualXafs`, `CriticLog`, `Priors`), sample rail, upload dialog |
+| `concord/upload_inspect.py` | technique detection from file content (with the file name as a hint), previews, absorption edge from a μ(E) energy range; used to rewrite CSV and text-header uploads as plain columns |
+| `concord/planner.py` | measurement planner: candidate phases simulated with Concord's XRD, PDF and FEFF code, pairwise separation per technique, separation over instrument noise when a realism model is given |
+| `concord/gan.py` | run-time adapter for the realism GANs of Concord Forge (below) |
+| `backend/app/main.py`, `web/src/components/*.tsx`, `web/src/lib/{api,thread,insight}.ts` | sample workbench API and UI: conversation (`Chat`), results workbench (`Workbench`, `CheckPanel` with Settle this, `TechniqueTabs`, `VirtualXafs`, `CriticLog`, `Priors`), interactive SVG plots (`Plot`), measurement planner (`Planner`), Real or GAN? (`RealOrGan`), sample rail, upload dialog |
 | `config.yaml`, `concord/config.py`, `concord/trace.py`, `scripts/secret_scan.py`, `.githooks/pre-commit`, `Makefile` | configuration, JSONL trace, pre-commit secret scan, make targets |
 | `tests/` except the four ported XRD tests | 40+ tests: physics of every tool, checks, evidence, literature extraction, LLM client, vision, secret scan |
 
@@ -83,6 +86,17 @@ Ideas found there that Concord had already built independently (nothing changed)
 - a fix is kept only when it improves the fit (their stage acceptance and fit check; Concord's keep-or-revert loop);
 - prose may state only numbers from saved results (their reporter's number check; Concord's number guard);
 - uncertainties scaled to the number of independent points (their PDF uncertainties; Concord's EXAFS windows).
+
+## 3b. Concord Forge (the user's own repository, used at run time)
+
+[github.com/sarthak-1111/GAN-Hackathon](https://github.com/sarthak-1111/GAN-Hackathon), by the same author, cloned
+read-only on 2026-10-22 into `../concord-ref/GAN-Hackathon`; the three realism generators (`generator_ema.pt`) were
+fetched with Git LFS into the clone's LFS store, each checked against its LFS hash, and the clone's working tree is
+unchanged. `concord/gan.py` imports the repository's model code at run time (with its directory-creating `paths`
+module stubbed and no bytecode written) and loads the weights with `torch.load(weights_only=True)`; nothing is copied
+into Concord. Used for: instrument realism in the planner and the Real or GAN? demonstration, including the real
+spectra and simulated twins of `artifacts/data/real/` with their per-item licences shown. Not used for any analysis,
+check or metric. Its predictor model is not used.
 
 ## 4. Libraries, services and data used (not ours)
 

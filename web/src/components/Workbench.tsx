@@ -1,7 +1,8 @@
 "use client";
-import { BookOpen, ChartLine, DownloadSimple, FileText, Lightning, ListChecks, UsersThree, Waveform } from "@phosphor-icons/react";
-import { API, type Tab, type View } from "@/lib/api";
-import CheckPanel, { CheckStrip, type Focus } from "@/components/CheckPanel";
+import { BookOpen, ChartLine, CheckCircle, DownloadSimple, FileText, Lightning, ListChecks, UsersThree, WarningCircle, Waveform, XCircle } from "@phosphor-icons/react";
+import { API, curvesKey, type Tab, type View } from "@/lib/api";
+import { verdict } from "@/lib/insight";
+import CheckPanel, { CheckStrip, type Focus, type Settling } from "@/components/CheckPanel";
 import TechniqueTabs from "@/components/TechniqueTabs";
 import VirtualXafs from "@/components/VirtualXafs";
 import CriticLog from "@/components/CriticLog";
@@ -22,9 +23,11 @@ function Skeleton() {
   );
 }
 
-export default function Workbench({ sid, view, state, tab, setTab, focus, open, onRun, busy, onMined }: {
+const VERDICT = { ok: [CheckCircle, "text-ok"], warn: [WarningCircle, "text-warn"], bad: [XCircle, "text-bad"] } as const;
+
+export default function Workbench({ sid, view, state, tab, setTab, focus, open, onRun, busy, onMined, settling }: {
   sid: string; view?: View; state: "loading" | "missing" | "error" | "ready"; tab: Tab; setTab: (t: Tab) => void; focus?: Focus;
-  open: (evidenceId: string) => void; onRun: () => void; busy: boolean; onMined: () => void;
+  open: (evidenceId: string) => void; onRun: () => void; busy: boolean; onMined: () => void; settling: Omit<Settling, "view">;
 }) {
   if (state === "loading") return <Skeleton />;
   if (!view) {
@@ -44,16 +47,20 @@ export default function Workbench({ sid, view, state, tab, setTab, focus, open, 
       </div>
     );
   }
+  const vd = verdict(view), [VIcon, vColor] = VERDICT[vd.tone];
   const notes = [...Object.entries(view.errors).map(([k, v]) => ({ bad: true, text: `${k} failed: ${v}` })),
     ...view.assumed.map((a) => ({ bad: false, text: `Assumed ${a}, not in the file headers.` }))];
   return (
     <div className="flex h-full min-h-0 flex-col">
       <header className="grid gap-4 border-b border-line px-6 pt-5 pb-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="font-mono text-xs text-meta">{sid} · {view.techniques.map((t) => t.toUpperCase()).join(" · ")} · tools {view.timings_s.total} s</div>
             <h1 translate="no" className="mt-0.5 font-display text-[28px] font-medium leading-tight">{view.composition}</h1>
-            <p className="text-sm text-muted">Phase <span className="font-medium text-fg">{view.phase ?? "none: no candidate structure fits"}</span></p>
+            <p className="mt-1 flex items-start gap-1.5 text-sm text-fg-2">
+              <VIcon size={18} weight="fill" className={`mt-px shrink-0 ${vColor}`} aria-hidden />
+              <span><span className={`font-semibold ${vColor}`}>{vd.head}.</span> {vd.detail}</span>
+            </p>
           </div>
           <div className="flex gap-1">
             <a href={`${API}/api/samples/${sid}/export?format=md`} className="btn btn-ghost" title="Download the report as Markdown"><FileText size={16} weight="bold" aria-hidden />Report</a>
@@ -81,9 +88,9 @@ export default function Workbench({ sid, view, state, tab, setTab, focus, open, 
       </div>
       <div role="tabpanel" className="@container min-h-0 flex-1 overflow-y-auto px-6 py-5">
         <div key={tab} className="rise">
-          {tab === "checks" ? <CheckPanel checks={view.checks} focus={focus} /> : null}
+          {tab === "checks" ? <CheckPanel checks={view.checks} focus={focus} settling={{ view, ...settling }} /> : null}
           {tab === "fits" ? <TechniqueTabs key={view.sample_id} view={view} focus={focus} /> : null}
-          {tab === "virtual" ? <VirtualXafs v={view.virtual_xafs} plot={view.plots.virtual_xafs} reason={view.errors.virtual_xafs} /> : null}
+          {tab === "virtual" ? <VirtualXafs v={view.virtual_xafs} plot={view.plots.virtual_xafs} reason={view.errors.virtual_xafs} curvesUrl={curvesKey(view)} /> : null}
           {tab === "critic" ? <CriticLog view={view} onOpen={open} /> : null}
           {tab === "literature" ? <Priors sid={view.sample_id} priors={view.priors} onMined={onMined} /> : null}
           {tab === "report" ? (

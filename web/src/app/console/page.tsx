@@ -6,12 +6,15 @@ import { API, fetcher, locate, post, type ChatReply, type Prior, type SampleRow,
 import { useRunStream } from "@/lib/useRunStream";
 import { useThreads, type Msg, type Step } from "@/lib/thread";
 import type { Focus } from "@/components/CheckPanel";
+import type { Settle } from "@/lib/insight";
 import Rail from "@/components/Rail";
 import Chat from "@/components/Chat";
 import Workbench from "@/components/Workbench";
 import Upload from "@/components/Upload";
+import Planner from "@/components/Planner";
+import RealOrGan from "@/components/RealOrGan";
 
-type Run = { id: string; sid: string; mode: "fast" | "full" };
+type Run = { id: string; sid: string; mode: "fast" | "full"; local?: boolean };  // local: no stream, a single request
 
 const tally = (v: View) => {
   const n = (s: string) => v.checks.filter((c) => c.status === s).length;
@@ -24,7 +27,7 @@ export default function Console() {
   const { data: view, error, isLoading, mutate } = useSWR<View>(sid ? `/api/samples/${sid}` : null, fetcher, { shouldRetryOnError: false, revalidateOnFocus: false });
   const threads = useThreads();
   const [run, setRun] = useState<Run>();
-  const { events } = useRunStream(run?.id);
+  const { events } = useRunStream(run?.local ? undefined : run?.id);
   const [asking, setAsking] = useState<string>();
   const [tab, setTab] = useState<Tab>("checks");
   const [focus, setFocus] = useState<Focus>();
@@ -32,17 +35,25 @@ export default function Console() {
   const [results, setResults] = useState(true);  // xl and up: the results panel can be hidden
   const [rail, setRail] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [planning, setPlanning] = useState(false);
+  const [showcase, setShowcase] = useState(false);
+  const { data: ganStatus } = useSWR<{ loaded: string[] }>("/api/gan", fetcher, { revalidateOnFocus: false });
   const handled = useRef<string | undefined>(undefined);
   const searching = useRef(false);
 
   useEffect(() => {  // first visit: the sample named in the URL hash, else the first test sample
     if (sid || !samples?.length) return;
     const h = window.location.hash.slice(1);
+    setPlanning(h === "plan");
     setSid(samples.some((s) => s.id === h) ? h : (samples.find((s) => s.split === "test") ?? samples[0]).id);
   }, [samples, sid]);
 
   useEffect(() => {  // links like /console#s0031 also work on an open page
-    const onHash = () => window.location.hash.length > 1 && setSid(window.location.hash.slice(1));
+    const onHash = () => {
+      const h = window.location.hash.slice(1);
+      setPlanning(h === "plan");
+      if (h && h !== "plan") setSid(h);
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
@@ -71,10 +82,12 @@ export default function Console() {
 
   const select = useCallback((id: string) => {
     setSid(id);
+    setPlanning(false);
     setFocus(undefined);
     setRail(false);
     history.replaceState(null, "", `#${id}`);
   }, []);
+  const plan = () => { setPlanning(true); setRail(false); setUploading(false); history.replaceState(null, "", "#plan"); };
 
   const start = async (mode: "fast" | "full", id = sid) => {
     if (!id || run) return;
@@ -122,6 +135,26 @@ export default function Console() {
     }
   };
 
+  const settle = async (check: string, s: Settle) => {
+    if (!sid || run) return;
+    const id = sid, rid = `action-${Date.now()}`;
+    const finish = (patch: Partial<Extract<Msg, { kind: "run" }>>) =>
+      threads.update(id, (m) => m.map((x) => (x.kind === "run" && x.id === rid ? { ...x, ended: Date.now(), ...patch } : x)));
+    threads.update(id, (m) => [...m, { kind: "run", id: rid, mode: "action", label: s.label, check, state: "running", started: Date.now(),
+      steps: [{ kind: "status", text: `Testing ${check} with a deterministic re-run: ${s.action}` }] }]);
+    setRun({ id: rid, sid: id, mode: "fast", local: true });
+    try {
+      const d = await post<{ result: Record<string, unknown> & { confirms?: boolean; error?: string }; finding: string }>(`/api/samples/${id}/actions`, { action: s.action, args: s.args });
+      if (d.result.error) finish({ state: "error", error: d.finding });
+      else finish({ state: "done", confirms: !!d.result.confirms, result: d.result,
+        summary: `${d.finding}. ${d.result.confirms ? `This supports the doubt behind ${check}.` : `The original result holds.`}` });
+    } catch (e) {
+      finish({ state: "error", error: (e as Error).message });
+    } finally {
+      setRun(undefined);
+    }
+  };
+
   const open = (evidenceId: string) => {
     const t = locate(evidenceId);
     setTab(t.tab);
@@ -145,14 +178,16 @@ export default function Console() {
     <div className="flex h-[100dvh] overflow-hidden bg-bg text-fg">
       <a href="#conversation" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-sm focus:bg-surface focus:px-3 focus:py-2 focus:shadow-raised">Skip to the conversation</a>
       <aside className="hidden w-[264px] shrink-0 border-r border-line lg:block">
-        <Rail samples={samples} error={listError} selected={sid} running={run?.sid} onSelect={select} onNew={() => setUploading(true)} />
+        <Rail samples={samples} error={listError} selected={sid} running={run?.sid} onSelect={select} onNew={() => setUploading(true)}
+          onPlan={plan} onShowcase={() => setShowcase(true)} planning={planning} />
       </aside>
       {rail ? (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Samples">
           <button className="absolute inset-0 bg-black/30" aria-label="Close the sample list" onClick={() => setRail(false)} />
           <div className="rise absolute inset-y-0 left-0 w-[min(300px,85vw)] bg-bg shadow-raised">
             <button onClick={() => setRail(false)} className="btn btn-ghost absolute right-2 top-14 z-10 px-2" aria-label="Close"><X size={18} weight="bold" /></button>
-            <Rail samples={samples} error={listError} selected={sid} running={run?.sid} onSelect={select} onNew={() => { setRail(false); setUploading(true); }} />
+            <Rail samples={samples} error={listError} selected={sid} running={run?.sid} onSelect={select} onNew={() => { setRail(false); setUploading(true); }}
+              onPlan={plan} onShowcase={() => { setRail(false); setShowcase(true); }} planning={planning} />
           </div>
         </div>
       ) : null}
@@ -160,8 +195,9 @@ export default function Console() {
       <main className="flex min-w-0 flex-1 flex-col">
         <div className="flex h-12 shrink-0 items-center gap-2 border-b border-line px-3 xl:hidden">
           <button onClick={() => setRail(true)} className="btn btn-ghost px-2 lg:hidden" aria-label="Open the sample list"><List size={20} weight="bold" /></button>
-          <span className="min-w-0 truncate text-sm"><span className="font-medium">{view?.composition ?? row?.composition}</span> <span className="font-mono text-xs text-meta">{sid}</span></span>
-          <div role="tablist" aria-label="View" className="ml-auto inline-flex rounded-md bg-surface-warm p-0.5">
+          <span className="min-w-0 truncate text-sm">{planning ? <span className="font-medium">Plan a measurement</span>
+            : <><span className="font-medium">{view?.composition ?? row?.composition}</span> <span className="font-mono text-xs text-meta">{sid}</span></>}</span>
+          <div role="tablist" aria-label="View" className={`ml-auto rounded-md bg-surface-warm p-0.5 ${planning ? "hidden" : "inline-flex"}`}>
             {([["chat", "Chat", ChatCircle], ["results", "Results", ChartLine]] as const).map(([k, label, Icon]) => (
               <button key={k} role="tab" aria-selected={pane === k} onClick={() => setPane(k)}
                 className={`flex items-center gap-1 rounded-sm px-2.5 py-1 text-sm font-medium transition-colors duration-150 ${pane === k ? "bg-surface text-fg shadow-ring" : "text-muted"}`}>
@@ -172,7 +208,9 @@ export default function Console() {
         </div>
 
         <div className="flex min-h-0 flex-1">
-          {sid ? (
+          {planning ? (
+            <section aria-label="Plan a measurement" className="min-w-0 flex-1"><Planner initial={view?.composition} ganReady={!!ganStatus?.loaded?.length} onShowcase={() => setShowcase(true)} /></section>
+          ) : sid ? (
             <>
               <section aria-label="Conversation" className={`relative min-w-0 flex-1 flex-col ${pane === "chat" ? "flex" : "hidden"} xl:flex ${results ? "xl:max-w-[520px] xl:border-r xl:border-line" : ""}`}>
                 <button onClick={() => setResults((x) => !x)} className="btn btn-ghost absolute right-3 top-3 z-10 hidden px-2 xl:inline-flex"
@@ -184,7 +222,8 @@ export default function Console() {
               </section>
               <section aria-label="Results" className={`min-w-0 flex-1 bg-surface/40 ${pane === "results" ? "block" : "hidden"} ${results ? "xl:block" : "xl:hidden"}`}>
                 <Workbench sid={sid} view={view} state={state} tab={tab} setTab={setTab} focus={focus} open={open}
-                  onRun={() => start("fast")} busy={busy} onMined={() => mutate()} />
+                  onRun={() => start("fast")} busy={busy} onMined={() => mutate()}
+                  settling={{ runs: threads.get(sid).filter((m): m is Extract<Msg, { kind: "run" }> => m.kind === "run" && m.mode === "action"), busy, onSettle: settle }} />
               </section>
             </>
           ) : (
@@ -194,7 +233,9 @@ export default function Console() {
           )}
         </div>
       </main>
-      <Upload open={uploading} onClose={() => setUploading(false)} onUploaded={uploaded} />
+      <Upload open={uploading} onClose={() => setUploading(false)} onUploaded={uploaded} onPlan={plan}
+        onExample={() => { setUploading(false); select("s0031"); }} />
+      <RealOrGan open={showcase} onClose={() => setShowcase(false)} />
     </div>
   );
 }

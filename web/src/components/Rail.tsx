@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CaretDown, CheckCircle, CircleDashed, CircleNotch, IntersectThree, MagnifyingGlass, Monitor, Moon, Plus, SealCheck, Sun } from "@phosphor-icons/react";
+import { CaretDown, CheckCircle, CircleDashed, CircleNotch, Compass, Detective, IntersectThree, MagnifyingGlass, Monitor, Moon, Plus, SealCheck, Sun } from "@phosphor-icons/react";
 import type { SampleRow } from "@/lib/api";
 
 const GROUPS: [string | null, string][] = [["test", "Test"], ["faults", "Planted faults"], ["uploaded", "Your uploads"], ["val", "Validation"], ["train", "Training"], [null, "Other"]];
@@ -25,8 +25,9 @@ function ThemeToggle() {
   );
 }
 
-export default function Rail({ samples, error, selected, running, onSelect, onNew }: {
+export default function Rail({ samples, error, selected, running, onSelect, onNew, onPlan, onShowcase, planning }: {
   samples?: SampleRow[]; error?: Error; selected?: string; running?: string; onSelect: (id: string) => void; onNew: () => void;
+  onPlan: () => void; onShowcase: () => void; planning: boolean;
 }) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<Record<string, boolean>>({ test: true, faults: true, uploaded: true });
@@ -42,7 +43,13 @@ export default function Rail({ samples, error, selected, running, onSelect, onNe
         </div>
         <ThemeToggle />
       </div>
-      <button onClick={onNew} className="btn btn-quiet justify-start"><Plus size={16} weight="bold" aria-hidden />Analyse your own data</button>
+      <div className="grid gap-1">
+        <button onClick={onNew} className="btn btn-quiet justify-start"><Plus size={16} weight="bold" aria-hidden />Analyse your own data</button>
+        <button onClick={onPlan} aria-current={planning ? "page" : undefined} className={`btn justify-start ${planning ? "bg-surface-warm text-fg" : "btn-ghost"}`}>
+          <Compass size={16} weight="bold" aria-hidden />Plan a measurement
+        </button>
+        <button onClick={onShowcase} className="btn btn-ghost justify-start"><Detective size={16} weight="bold" aria-hidden />Real or GAN?</button>
+      </div>
       <label className="relative block">
         <span className="sr-only">Search samples</span>
         <MagnifyingGlass size={16} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-meta" aria-hidden />
@@ -76,7 +83,7 @@ export default function Rail({ samples, error, selected, running, onSelect, onNe
                     return (
                       <li key={s.id}>
                         <button onClick={() => onSelect(s.id)} aria-current={active ? "page" : undefined}
-                          className={`flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm transition-colors duration-150 ${active ? "bg-surface-warm text-fg" : "text-fg-2 hover:bg-surface-warm/60"}`}>
+                          className={`flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm transition-colors duration-150 ${active && !planning ? "bg-surface-warm text-fg" : "text-fg-2 hover:bg-surface-warm/60"}`}>
                           <span className="min-w-0 flex-1 truncate font-medium">{s.composition}</span>
                           <span className="font-mono text-xs text-meta">{s.id}</span>
                           <span title={state} className="text-meta">

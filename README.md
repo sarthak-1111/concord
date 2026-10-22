@@ -31,8 +31,12 @@ Web UI: a conversation with the analyst beside a results workbench. The conversa
 (from the data, no LLM), streams every run (tools, critic, literature search) as it happens, and answers questions
 about the sample from its evidence only: each answer cites evidence ids that open the matching check, fit or panel,
 and passes the number guard (a number the evidence lacks is flagged, never hidden). The workbench holds the
-cross-check strip, fit plots with the visual verdicts, the virtual XAFS, the critic review, literature priors and the
-report, with Markdown and JSON export. Light and dark themes; phone layouts switch between the two panes.
+cross-check strip under a one-line verdict, interactive fit plots (drag to zoom, a readout of every curve) with the
+visual verdicts, the virtual XAFS, the critic review, literature priors and the report, with Markdown and JSON export.
+Every failing or warning check offers **Settle this**: one of the critic's deterministic re-runs (another PDF
+candidate, a second XRD phase, an EXAFS k-range scan, a probe shell, envelope on or off, size from the strongest
+peak), and the re-run's numbers decide. Numbers in the analyst's answers are linked to the evidence value they came
+from. Light and dark themes; phone layouts switch between the two panes.
 
 ```bash
 make api    # http://127.0.0.1:8000
@@ -40,8 +44,11 @@ make ui     # http://127.0.0.1:3000/console#s0031
 ```
 
 Your own data in the UI: press **Analyse your own data** in the sidebar (or the upload button in the composer), give
-the composition and any of the XRD, PDF and XAFS files (plus the edge for XAFS), and press *Upload and analyse*; the
-tools run at once and the critic is one click away. Values missing from the file headers are assumed and listed. For the XANES valence, put μ(E) of at least
+the composition and drop up to three files. Concord reads each one and works out from its content whether it is an XRD
+pattern, a PDF, μ(E) or χ(k), shows a preview and the reading it chose (changeable), and finds the absorption edge
+from the energy range of a μ(E) scan. CSV files and files with a text header row are rewritten as plain columns. The
+tools run at once and the critic is one click away. Without data: **Try an example** opens an analysed sample, and
+**Plan a measurement** (below) tells you what to measure. Values missing from the file headers are assumed and listed. For the XANES valence, put μ(E) of at least
 two standards of known valence as `<El>_v<valence>.dat` in a `references/` folder beside the sample folders.
 
 Other commands: `uv run concord priors Pt3Co` (literature values with DOIs), `make eval`, `make test`,
@@ -113,6 +120,23 @@ sample folder ─► XRD   peaks, phase ranking, Scherrer/WH size (Voigt, instru
 - **Literature priors.** OpenAlex, Crossref and arXiv abstracts, local embeddings and FAISS; values are read with
   fixed patterns and kept with their DOI and sentence. They are context for the critic and the report, never fit
   constraints for this sample.
+
+## Plan a measurement, and the realism GANs
+
+**Plan a measurement** takes a composition and a particle size, simulates XRD, PDF and EXAFS for every candidate
+phase with Concord's own simulators, and ranks the techniques by how different the closest pair of candidates looks
+(RMS difference of curves scaled to unit RMS). Everything is labelled SIMULATED, NOT MEASURED and is never analysed
+as data. With **Instrument realism**, the realism GANs of the companion repository
+[Concord Forge](https://github.com/sarthak-1111/GAN-Hackathon) add the background, gain and noise a real instrument
+records, and each pair is reported as a multiple of that noise: for Pt3Co at 3 nm, PDF keeps its closest pair 39 times
+above the noise while XRD separates Pt from Pt3Co by less than twice the noise. **Real or GAN?** shows a measured
+spectrum next to its simulation and the GAN's version of it, and asks which one was measured.
+
+Set `GAN_REPO_PATH` to a clone of that repository (its `generator_ema.pt` weights fetched with Git LFS). The models are
+loaded at run time with `torch.load(weights_only=True)` and never copied here. Their limits, from the repository's
+own test: a classifier tells GAN output from measured data 66 % of the time for XRD (classical added noise: 81 %), but
+95 % for PDF and 91 % for EXAFS, no better than classical noise. EXAFS realism covers the Pt, Co, Ni, Fe and Cu edges
+only. Without the GANs the planner works with clean simulations.
 
 ## With or without the eye module
 

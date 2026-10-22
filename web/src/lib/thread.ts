@@ -7,7 +7,8 @@ export type Msg =
   | { kind: "user"; text: string }
   | ({ kind: "answer" } & ChatReply)
   | { kind: "error"; text: string }
-  | { kind: "run"; id: string; mode: "fast" | "full" | "priors"; state: "running" | "done" | "error"; started: number; ended?: number; steps: Step[]; summary?: string; error?: string };
+  | { kind: "run"; id: string; mode: "fast" | "full" | "priors" | "action"; label?: string; state: "running" | "done" | "error"; started: number; ended?: number;
+      steps: Step[]; summary?: string; error?: string; confirms?: boolean; check?: string; result?: Record<string, unknown> };
 
 const key = (sid: string) => `concord.thread.${sid}`;
 

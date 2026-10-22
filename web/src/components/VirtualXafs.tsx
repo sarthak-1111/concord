@@ -1,9 +1,13 @@
 import { Lightbulb } from "@phosphor-icons/react";
-import { type VirtualXafs as V } from "@/lib/api";
+import useSWR from "swr";
+import { fetcher, type Curves, type VirtualXafs as V } from "@/lib/api";
+import Plot from "@/components/Plot";
 import { fmt } from "@/components/Value";
 import { Figure } from "@/components/TechniqueTabs";
 
-export default function VirtualXafs({ v, plot, reason }: { v: V | null; plot?: string; reason?: string }) {
+export default function VirtualXafs({ v, plot, reason, curvesUrl }: { v: V | null; plot?: string; reason?: string; curvesUrl?: string }) {
+  const { data: curves } = useSWR<Curves>(v && curvesUrl ? curvesUrl : null, fetcher, { revalidateOnFocus: false });
+  const c = curves?.virtual;
   if (!v) {
     return (
       <section className="text-sm text-muted">
@@ -23,7 +27,15 @@ export default function VirtualXafs({ v, plot, reason }: { v: V | null; plot?: s
         members over lattice, displacement, size and equally good candidates; Debye temperature {fmt(v.theta_K_range[0])} to {fmt(v.theta_K_range[1])} K.
         The band is the 5 to 95 % range.
       </p>
-      {plot ? (
+      {c ? (
+        <div className="min-w-0 rounded-md border-2 border-dashed border-bad/50 bg-surface p-3">
+          <div className="mb-2 text-sm font-medium text-fg">{c.title}</div>
+          <Plot x={c.x} xLabel={c.x_label} yLabel={c.y_label} ariaLabel={c.title}
+            band={{ lo: c.lo, hi: c.hi, color: "var(--series-1)", label: "predicted band, 5 to 95 %" }}
+            series={[{ key: "median", label: "prediction (median)", y: c.median, color: "var(--series-1)", width: 2 },
+              ...(c.measured ? [{ key: "measured", label: "measured", x: c.measured.x, y: c.measured.y, color: "var(--series-2)", width: 1.25, dash: "4 3" }] : [])]} />
+        </div>
+      ) : plot ? (
         <div className="rounded-md border-2 border-dashed border-bad/50 p-1">
           <Figure src={plot} alt={`Predicted ${v.absorber} ${v.edge} EXAFS band, ${v.label}`} />
         </div>

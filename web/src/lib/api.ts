@@ -116,3 +116,11 @@ export function locate(id: string): { tab: Tab; focus?: string } {
   if (id.startsWith("rerun.")) return { tab: "critic" };
   return { tab: "checks" };
 }
+
+type Pts = (number | null)[];
+export type FitCurve = { title: string; x_label: string; y_label: string; x: number[]; obs: Pts; calc: Pts; diff: Pts; ticks: number[]; window: [number, number] | null };
+export type Curves = Record<"xrd" | "pdf" | "exafs", FitCurve | undefined> & {
+  virtual?: { title: string; x_label: string; y_label: string; x: number[]; lo: Pts; median: Pts; hi: Pts; measured: { x: number[]; y: Pts } | null };
+};
+/** Curves are re-read whenever the plots were re-rendered (their URLs carry the rendering time). */
+export const curvesKey = (v: View) => `/api/samples/${v.sample_id}/curves?v=${encodeURIComponent(Object.values(v.plots).sort()[0] ?? "")}`;

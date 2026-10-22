@@ -1,8 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { CheckCircle, XCircle, Wrench } from "@phosphor-icons/react";
-import { API, type View } from "@/lib/api";
+import { API, curvesKey, fetcher, type Curves, type View } from "@/lib/api";
 import Value from "@/components/Value";
+import Plot from "@/components/Plot";
 
 const TABS: { key: string; label: string; ids: (ev: Record<string, unknown>) => string[]; error: string[] }[] = [
   { key: "xrd", label: "XRD", ids: () => ["xrd.ranking", "xrd.size"], error: ["xrd"] },
@@ -22,12 +24,15 @@ export const Figure = ({ src, alt, caption, lazy }: { src: string; alt: string; 
 
 export default function TechniqueTabs({ view, focus }: { view: View; focus?: { id: string; n: number } }) {
   const ev = view.evidence;
+  const { data: curves } = useSWR<Curves>(curvesKey(view), fetcher, { revalidateOnFocus: false });
   const tabs = TABS.filter((t) => view.plots[t.key] || t.ids(ev).some((id) => id in ev) || t.error.some((e) => e in view.errors));
   const [active, setActive] = useState(tabs[0]?.key);
   useEffect(() => { if (focus && tabs.some((t) => t.key === focus.id)) setActive(focus.id); }, [focus?.n]); // eslint-disable-line react-hooks/exhaustive-deps
   const tab = tabs.find((t) => t.key === active) ?? tabs[0];
   if (!tab) return <p className="text-sm text-meta">No technique produced a result.</p>;
   const vision = view.vision?.[tab.key];
+  const c = curves?.[tab.key as "xrd" | "pdf" | "exafs"];
+  const pngs = [view.plots[tab.key], view.plots[`${tab.key}_zoom`]].filter(Boolean);
   return (
     <section aria-label="Fits by technique" className="grid gap-4">
       <div role="tablist" aria-label="Technique" className="inline-flex w-fit flex-wrap gap-1 rounded-md bg-surface-warm p-1">
@@ -38,14 +43,17 @@ export default function TechniqueTabs({ view, focus }: { view: View; focus?: { i
           </button>
         ))}
       </div>
-      <div role="tabpanel" className="grid gap-5 @3xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <div className="grid content-start gap-4">
-          {view.plots[tab.key] ? <Figure src={view.plots[tab.key]} alt={`${tab.label} fit: data, model and difference`} />
+      <div role="tabpanel" className="grid gap-5 @4xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div className="grid min-w-0 content-start gap-4">
+          {c ? (
+            <div className="min-w-0 rounded-md bg-surface p-3 shadow-ring">
+              <div className="mb-2 text-sm font-medium text-fg">{c.title}</div>
+              <Plot key={tab.key} x={c.x} xLabel={c.x_label} yLabel={c.y_label} ticks={c.ticks} window={c.window} ariaLabel={`${c.title}: data, model and difference`}
+                series={[{ key: "obs", label: "data", y: c.obs, color: "var(--series-1)", width: 1.25 }, { key: "calc", label: "model", y: c.calc, color: "var(--series-2)", width: 1.5 }]}
+                diff={{ y: c.diff, label: "difference (data minus model)" }} />
+            </div>
+          ) : pngs[0] ? <Figure src={pngs[0]} alt={`${tab.label} fit: data, model and difference`} />
             : <p className="text-sm text-meta">No fit plot for this technique.</p>}
-          {view.plots[`${tab.key}_zoom`] ? (
-            <Figure src={view.plots[`${tab.key}_zoom`]} alt={`${tab.label} fit zoomed on the largest misfit`} lazy
-              caption="Zoom on the window where the difference is largest relative to the noise." />
-          ) : null}
           {vision ? (
             <div className={`rounded-md p-3 text-sm ${vision.accepted ? "bg-ok-bg" : "bg-bad-bg"}`}>
               <div className={`flex items-center gap-1.5 font-medium ${vision.accepted ? "text-ok" : "text-bad"}`}>
@@ -66,8 +74,17 @@ export default function TechniqueTabs({ view, focus }: { view: View; focus?: { i
               ) : null}
             </div>
           ) : null}
+          {c && pngs.length ? (
+            <details className="text-sm">
+              <summary className="cursor-pointer text-muted hover:text-fg">Figures the visual inspection judged</summary>
+              <div className="mt-2 grid gap-3">
+                {pngs.map((p, i) => <Figure key={p} src={p} lazy alt={`${tab.label} fit${i ? ", zoomed on the largest misfit" : ""}`}
+                  caption={i ? "Zoom on the window where the difference is largest relative to the noise." : undefined} />)}
+              </div>
+            </details>
+          ) : null}
         </div>
-        <div className="grid content-start gap-4">
+        <div className="grid min-w-0 content-start gap-4">
           {tab.error.filter((e) => e in view.errors).map((e) => (
             <p key={e} role="alert" className="rounded-md bg-bad-bg p-3 text-sm text-bad">{e}: {view.errors[e]}</p>
           ))}

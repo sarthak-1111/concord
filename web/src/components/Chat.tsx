@@ -5,6 +5,8 @@ import {
 } from "@phosphor-icons/react";
 import type { ChatReply, SampleRow, View } from "@/lib/api";
 import type { Msg } from "@/lib/thread";
+import { NUMBER, sources } from "@/lib/insight";
+import { fmt } from "@/components/Value";
 import { TONE } from "@/components/CheckPanel";
 import { Chip } from "@/components/CriticLog";
 
@@ -19,7 +21,28 @@ type Actions = {
 const SUGGEST: Record<Exclude<ChatReply["suggest"], "none">, [string, typeof Lightning]> = {
   run_fast: ["Run tools and checks", Lightning], run_full: ["Run the critic", UsersThree], find_priors: ["Search the literature", BookOpen],
 };
-const RUN_LABEL = { fast: "Tools and checks", full: "Visual inspection and critic", priors: "Literature search" };
+const RUN_LABEL = { fast: "Tools and checks", full: "Visual inspection and critic", priors: "Literature search", action: "Re-run" };
+
+/** The answer with every number that matches an evidence value marked; a click opens where it came from. */
+function Sourced({ text, cites, evidence, open }: { text: string; cites: string[]; evidence?: Record<string, unknown>; open: (id: string) => void }) {
+  if (!evidence) return <>{text}</>;
+  const find = sources(evidence, cites);
+  const out: React.ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(NUMBER)) {
+    const src = find(m[0].trim());
+    if (!src || m.index === undefined) continue;
+    out.push(text.slice(last, m.index));
+    out.push(
+      <button key={m.index} onClick={() => open(src.id)} title={`${src.id}${src.path ? `, ${src.path}` : ""} = ${fmt(src.value)}`}
+        className="rounded-[3px] font-medium tabular-nums underline decoration-meta decoration-dotted underline-offset-[3px] hover:bg-surface-warm hover:decoration-accent">
+        {m[0]}
+      </button>);
+    last = m.index + m[0].length;
+  }
+  out.push(text.slice(last));
+  return <>{out}</>;
+}
 
 function questions(view: View): string[] {
   const flagged = view.checks.find((c) => c.status === "fail") ?? view.checks.find((c) => c.status === "warn");
@@ -112,7 +135,7 @@ function Activity({ m }: { m: Extract<Msg, { kind: "run" }> }) {
     <div className="rounded-md bg-surface shadow-ring">
       <button onClick={() => setOpen((x) => !x)} aria-expanded={open} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm">
         <Icon size={16} weight="bold" aria-hidden className={m.state === "running" ? "animate-spin text-accent" : m.state === "done" ? "text-ok" : "text-bad"} />
-        <span className="font-medium text-fg">{RUN_LABEL[m.mode]}</span>
+        <span className="font-medium text-fg">{m.label ?? RUN_LABEL[m.mode]}</span>
         <span className="text-meta tabular-nums">{m.state === "running" ? `running, ${took}` : m.state === "done" ? took : "stopped"}</span>
         <CaretDown size={12} weight="bold" className={`ml-auto text-meta transition-transform duration-150 ${open ? "" : "-rotate-90"}`} aria-hidden />
       </button>
@@ -132,7 +155,7 @@ function Activity({ m }: { m: Extract<Msg, { kind: "run" }> }) {
   );
 }
 
-function Message({ m, act, busy }: { m: Msg; act: Actions; busy: boolean }) {
+function Message({ m, act, busy, evidence }: { m: Msg; act: Actions; busy: boolean; evidence?: Record<string, unknown> }) {
   if (m.kind === "user") {
     return <div className="ml-auto max-w-[85%] whitespace-pre-wrap rounded-lg bg-surface-warm px-4 py-2.5 text-[15px] text-fg">{m.text}</div>;
   }
@@ -142,7 +165,7 @@ function Message({ m, act, busy }: { m: Msg; act: Actions; busy: boolean }) {
   const SIcon = s?.[1];
   return (
     <div className="grid gap-2.5">
-      <div className="whitespace-pre-wrap text-[15px] text-fg">{m.answer}</div>
+      <div className="whitespace-pre-wrap text-[15px] text-fg"><Sourced text={m.answer} cites={m.cites} evidence={evidence} open={act.open} /></div>
       {m.unsupported_numbers.length ? (
         <p className="flex items-start gap-1.5 text-sm text-warn">
           <WarningCircle size={16} weight="fill" className="mt-0.5 shrink-0" aria-hidden />
@@ -195,7 +218,7 @@ export default function Chat({ sid, row, view, state, msgs, asking, busy, act }:
             </div>
             <Brief row={row} view={view} state={state} act={act} busy={busy} />
           </div>
-          <div className="grid gap-6" aria-live="polite">{msgs.map((m, i) => <div key={i} className="rise"><Message m={m} act={act} busy={busy} /></div>)}</div>
+          <div className="grid gap-6" aria-live="polite">{msgs.map((m, i) => <div key={i} className="rise"><Message m={m} act={act} busy={busy} evidence={view?.evidence} /></div>)}</div>
           {asking ? (
             <div className="grid gap-2" aria-live="polite" aria-busy="true">
               <span className="text-sm text-meta">Reading the evidence…</span>

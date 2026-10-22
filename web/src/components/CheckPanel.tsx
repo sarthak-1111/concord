@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle, MinusCircle, WarningCircle, XCircle, CaretDown } from "@phosphor-icons/react";
-import type { Check, Status } from "@/lib/api";
+import { CheckCircle, CircleNotch, MinusCircle, WarningCircle, XCircle, CaretDown, Flask } from "@phosphor-icons/react";
+import type { Check, Status, View } from "@/lib/api";
+import type { Msg } from "@/lib/thread";
+import { settlers, type Settle } from "@/lib/insight";
 import Value from "@/components/Value";
 
 export const TONE: Record<Status, { fg: string; bg: string; label: string; Icon: typeof CheckCircle }> = {
@@ -45,7 +47,38 @@ export function CheckStrip({ checks, onOpen }: { checks: Check[]; onOpen: (id: s
 
 export type Focus = { id: string; n: number };  // n changes on every request, so the same check can be opened twice
 
-function CheckRow({ c, focus }: { c: Check; focus?: Focus }) {
+type Run = Extract<Msg, { kind: "run" }>;
+export type Settling = { view: View; runs: Run[]; busy: boolean; onSettle: (check: string, s: Settle) => void };
+
+function Settle({ c, st }: { c: Check; st: Settling }) {
+  const options = settlers(c, st.view);
+  const last = st.runs.filter((r) => r.check === c.id).at(-1);
+  if (!options.length) return null;
+  return (
+    <div className="mt-3 grid gap-2">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="eyebrow mr-1">Settle this</span>
+        {options.map((o) => (
+          <button key={o.label} disabled={st.busy} onClick={() => st.onSettle(c.id, o)} className="btn btn-quiet py-1 text-[13px]">
+            <Flask size={14} weight="bold" aria-hidden />{o.label}
+          </button>
+        ))}
+      </div>
+      {last ? (
+        <p role="status" className={`flex items-start gap-1.5 text-sm ${last.state === "running" ? "text-muted" : last.state === "error" ? "text-bad" : last.confirms ? "text-warn" : "text-ok"}`}>
+          {last.state === "running" ? <CircleNotch size={16} weight="bold" className="mt-0.5 shrink-0 animate-spin" aria-hidden />
+            : last.confirms ? <WarningCircle size={16} weight="fill" className="mt-0.5 shrink-0" aria-hidden /> : <CheckCircle size={16} weight="fill" className="mt-0.5 shrink-0" aria-hidden />}
+          <span className="text-fg-2">
+            <span className="font-medium">{last.label}: </span>
+            {last.state === "running" ? "running…" : last.error ?? last.summary}
+          </span>
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function CheckRow({ c, focus, st }: { c: Check; focus?: Focus; st?: Settling }) {
   const focused = focus?.id === c.id;
   const [open, setOpen] = useState(c.status === "warn" || c.status === "fail");
   const ref = useRef<HTMLLIElement>(null);
@@ -62,6 +95,7 @@ function CheckRow({ c, focus }: { c: Check; focus?: Focus }) {
         <StatusPill status={c.status} />
       </div>
       <p className="mt-1 max-w-[70ch] text-sm text-fg-2">{c.explanation}</p>
+      {st && (c.status === "fail" || c.status === "warn") ? <Settle c={c} st={st} /> : null}
       {hasNumbers ? (
         <>
           <button onClick={() => setOpen((x) => !x)} aria-expanded={open}
@@ -83,7 +117,7 @@ function CheckRow({ c, focus }: { c: Check; focus?: Focus }) {
   );
 }
 
-export default function CheckPanel({ checks, focus }: { checks: Check[]; focus?: Focus }) {
+export default function CheckPanel({ checks, focus, settling }: { checks: Check[]; focus?: Focus; settling?: Settling }) {
   const count = (s: Status) => checks.filter((c) => c.status === s).length;
   return (
     <section aria-labelledby="checks-h">
@@ -92,7 +126,7 @@ export default function CheckPanel({ checks, focus }: { checks: Check[]; focus?:
         <span className="text-sm text-meta">{count("pass")} pass, {count("warn")} warn, {count("fail")} fail, {count("skip")} skipped</span>
       </div>
       <ul className="mt-1 divide-y divide-line">
-        {checks.map((c) => <CheckRow key={c.id} c={c} focus={focus} />)}
+        {checks.map((c) => <CheckRow key={c.id} c={c} focus={focus} st={settling} />)}
       </ul>
     </section>
   );

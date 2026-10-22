@@ -7,6 +7,13 @@ sample listing, per-sample result views and plot files. Run it with `make api` (
   GET  /api/samples/{id}/export      ?format=json (full analysis + agent run) or ?format=md (report)
   POST /api/samples/{id}/priors      search the open literature for the sample's material (cached afterwards)
   POST /api/samples/{id}/chat        {messages: [{role, content}]} → {answer, cites, suggest, unsupported_numbers}
+  GET  /api/samples/{id}/curves      fit curves for interactive plots (data, model, difference, reflections, virtual band)
+  POST /api/samples/{id}/actions     {action, args} → one deterministic re-run from the critic's menu: {result, finding}
+  POST /api/uploads/inspect          multipart files → per file: detected technique, preview, edge (nothing is saved)
+  POST /api/plans                    {composition, candidates?, size_nm?, realistic?} → simulated candidates per technique
+                                     and which technique separates them (SIMULATED, NOT MEASURED; never analysed as data)
+  GET  /api/gan                      which realism GANs are loaded
+  GET  /api/gan/showcase             ?technique=xrd&seed=0 → a real spectrum, its simulation and the GAN's version
   POST /api/runs                     {sample, mode: "fast" | "full"} → {run_id}
   WS   /api/runs/{run_id}/stream     progress events, then {type: "result", payload: view}, then {type: "done"}
   GET  /files/{id}/...               plot images
@@ -32,14 +39,19 @@ from concord import literature
 from concord.agents.chat import answer
 from concord.agents.evidence import bundle
 from concord.agents.pipeline import report_markdown, run_sample_async
+from concord.agents.resolver import ACTIONS, run_action
 from concord.analysis import analyze, infer_inputs, load_inputs, to_json
+from concord import gan, planner
 from concord.config import ROOT
+from concord.upload_inspect import columns, inspect_file
 from concord.llm.client import LLMError
 from concord.vision.check import plots
+from concord.vision.render import fit_curves
 
 SAMPLES = ROOT / "dataset" / "samples"
 UPLOADS = ROOT / "uploads"
 MAX_UPLOAD = 20 * 2**20  # bytes per request
+NUMBERS = re.compile(r"[-+0-9.eE]+(?:[ \t]+[-+0-9.eE]+)+")  # a plain whitespace-separated row of numbers
 RUNS = ROOT / "results" / "runs"
 ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 RUN_REQUESTS: dict[str, dict] = {}
@@ -126,6 +138,56 @@ def _number(form, key: str, lo: float, hi: float) -> float | None:
     return v
 
 
+def _composition(raw) -> str:
+    comp = str(raw or "").strip()
+    if not re.fullmatch(r"(?:[A-Z][a-z]?(?:\d+(?:\.\d+)?)?){1,6}", comp):
+        raise ValueError("give the composition as a formula, e.g. Pt3Co or CeO2")
+    if not all(Element.is_valid_symbol(e) for e in re.findall(r"[A-Z][a-z]?", comp)):
+        raise ValueError(f"unknown element in {comp}")
+    return comp
+
+
+async def inspect_upload(request: Request) -> JSONResponse:
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    if int(request.headers.get("content-length") or 0) > MAX_UPLOAD:
+        return JSONResponse({"error": f"upload larger than {MAX_UPLOAD // 2**20} MB"}, status_code=413)
+    async with request.form(max_files=3, max_fields=4) as form:
+        comp = str(form.get("composition") or "").strip() or None
+        files = [f for _, f in form.multi_items() if getattr(f, "filename", None)]
+        out = [await asyncio.to_thread(inspect_file, f.filename, await f.read(), comp) for f in files]
+    return JSONResponse({"files": out})
+
+
+async def make_plan(request: Request) -> JSONResponse:
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    d = await request.json()
+    try:
+        comp, size = _composition(d.get("composition")), float(d.get("size_nm") or 3.0)
+        if not 1.0 <= size <= 20.0:
+            raise ValueError("particle size must be between 1 and 20 nm")
+        cands = [str(c) for c in d["candidates"]] if d.get("candidates") else None
+        realism = gan.realism if d.get("realistic") and gan.available()["loaded"] else None
+        return JSONResponse(await asyncio.to_thread(planner.plan, comp, cands, size, realism=realism))
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+
+
+async def gan_status(request: Request) -> JSONResponse:
+    return JSONResponse(await asyncio.to_thread(gan.available))
+
+
+async def gan_showcase(request: Request) -> JSONResponse:
+    tech, seed = request.query_params.get("technique", "xrd"), request.query_params.get("seed", "0")
+    if tech not in ("xrd", "pdf", "exafs") or not seed.isdigit():
+        return JSONResponse({"error": "technique xrd, pdf or exafs and a whole-number seed"}, status_code=400)
+    try:
+        return JSONResponse(await asyncio.to_thread(gan.showcase, tech, int(seed)))
+    except Exception as exc:  # the GAN repo is optional: say why the demo is unavailable
+        return JSONResponse({"error": f"the GAN demo is unavailable: {exc}"}, status_code=503)
+
+
 async def upload(request: Request) -> JSONResponse:
     if _foreign(request):
         return JSONResponse({"error": "forbidden"}, status_code=403)
@@ -140,12 +202,8 @@ async def _save_upload(form) -> JSONResponse:
     instrument values added to its '# key=value' header (they override the file's own), metadata inferred."""
     folder = None
     try:
-        comp = str(form.get("composition") or "").strip()
-        if not re.fullmatch(r"(?:[A-Z][a-z]?(?:\d+(?:\.\d+)?)?){1,6}", comp):
-            raise ValueError("give the composition as a formula, e.g. Pt3Co or CeO2")
+        comp = _composition(form.get("composition"))
         elements = set(re.findall(r"[A-Z][a-z]?", comp))
-        if not all(Element.is_valid_symbol(e) for e in elements):
-            raise ValueError(f"unknown element in {comp}")
         files = {k: form[k] for k in ("xrd", "pdf", "xafs") if getattr(form.get(k), "filename", None)}
         if not files:
             raise ValueError("upload at least one of the XRD, PDF and XAFS files")
@@ -158,10 +216,20 @@ async def _save_upload(form) -> JSONResponse:
         folder = UPLOADS / f"u{uuid.uuid4().hex[:7]}"
         folder.mkdir(parents=True)
         for kind, f in files.items():
-            lines = (await f.read()).decode("utf-8", errors="replace").splitlines(keepends=True)
+            raw = await f.read()
+            lines = raw.decode("utf-8", errors="replace").splitlines(keepends=True)
             n = next((i for i, line in enumerate(lines) if not line.startswith("#")), len(lines))
+            if kind == "xrd" and inspect_file(f.filename, raw, comp)["x_label"].startswith("Q"):
+                heads[kind]["x"] = "q_inv_A"
             head = " ".join(f"{k}={v}" for k, v in heads[kind].items() if v is not None)
-            (folder / names[kind]).write_text("".join(lines[:n]) + (f"# {head}\n" if head else "") + "".join(lines[n:]))
+            body = "".join(lines[n:])
+            if not all(NUMBERS.fullmatch(line.strip()) for line in lines[n:] if line.strip()):
+                # CSV or a text header row: rewritten as two plain columns, which is what the loaders read
+                xy = columns(f.filename, raw)
+                if xy is None or len(xy[0]) < 2:
+                    raise ValueError(f"{f.filename}: could not read two columns of numbers")
+                body = "".join(f"{a:.8g} {b:.8g}\n" for a, b in zip(*xy))
+            (folder / names[kind]).write_text("".join(lines[:n]) + (f"# {head}\n" if head else "") + body)
         (folder / "sample.json").write_text(json.dumps(infer_inputs(folder, comp), indent=1))
     except ValueError as exc:
         if folder:
@@ -219,6 +287,51 @@ async def chat(request: Request) -> JSONResponse:
         return JSONResponse({"error": f"the language model is unavailable: {exc}"}, status_code=503)
 
 
+def _round(v, digits: int = 5):
+    """Arrays as lists of floats with a few significant digits: the plots need shape, not 17 digits."""
+    return [None if x is None or x != x else float(f"{x:.{digits}g}") for x in (v.tolist() if hasattr(v, "tolist") else v)]
+
+
+def curves(sid: str) -> dict | None:
+    cached = RUNS / f"{sid}.json"
+    if not cached.exists():
+        return None
+    a = json.loads(cached.read_text())
+    out = {}
+    for tech, c in fit_curves(a).items():
+        obs, calc = (_round(c[k]) for k in ("obs", "calc"))
+        out[tech] = {"title": c["title"], "x_label": c["xlabel"], "y_label": c["ylabel"], "x": _round(c["x"], 6), "obs": obs, "calc": calc,
+                     "diff": [o - m if o is not None and m is not None else None for o, m in zip(obs, calc)],
+                     "ticks": _round(c.get("ticks") or []), "window": c.get("window")}
+    if v := a.get("virtual_xafs"):
+        e = (a.get("exafs") or {}).get("fit", {}).get("curves", {})
+        out["virtual"] = {"title": f"Virtual EXAFS {v['absorber']} {v['edge']}, {v['label']}", "x_label": "R (Å, not phase corrected)",
+                          "y_label": "|χ(R)| (Å⁻³)", "x": _round(v["r"], 6), "lo": _round(v["chir_lo"]), "median": _round(v["chir_median"]),
+                          "hi": _round(v["chir_hi"]), "measured": {"x": _round(e["r"], 6), "y": _round(e["chir_mag_data"])} if e.get("r") else None}
+    return out
+
+
+async def sample_curves(request: Request) -> JSONResponse:
+    sid = request.path_params["sid"]
+    c = _folder(sid) and await asyncio.to_thread(curves, sid)
+    return JSONResponse(c) if c else JSONResponse({"error": "not analysed yet"}, status_code=404)
+
+
+async def action(request: Request) -> JSONResponse:
+    sid, cached = request.path_params["sid"], RUNS / f"{request.path_params['sid']}.json"
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    data = await request.json()
+    name, args = data.get("action"), data.get("args") or {}
+    if not _folder(sid) or not cached.exists():
+        return JSONResponse({"error": "analyse the sample first"}, status_code=404)
+    if name not in ACTIONS or not isinstance(args, dict):
+        return JSONResponse({"error": f"unknown re-run; one of {', '.join(ACTIONS)}"}, status_code=400)
+    run = {"folder": _folder(sid), "meta": load_inputs(_folder(sid)), "res": json.loads(cached.read_text()), "out_dir": RUNS / sid}
+    result, finding = await asyncio.to_thread(run_action, run, name, {k: str(v) for k, v in args.items()})
+    return JSONResponse({"action": name, "args": args, "result": to_json(result), "finding": finding})
+
+
 async def create_run(request: Request) -> JSONResponse:
     if _foreign(request):
         return JSONResponse({"error": "forbidden"}, status_code=403)
@@ -274,7 +387,13 @@ app = Starlette(routes=[
     Route("/api/samples/{sid}/export", export),
     Route("/api/samples/{sid}/priors", mine_priors, methods=["POST"]),
     Route("/api/samples/{sid}/chat", chat, methods=["POST"]),
+    Route("/api/samples/{sid}/curves", sample_curves),
+    Route("/api/samples/{sid}/actions", action, methods=["POST"]),
     Route("/api/uploads", upload, methods=["POST"]),
+    Route("/api/uploads/inspect", inspect_upload, methods=["POST"]),
+    Route("/api/plans", make_plan, methods=["POST"]),
+    Route("/api/gan", gan_status),
+    Route("/api/gan/showcase", gan_showcase),
     Route("/api/runs", create_run, methods=["POST"]),
     WebSocketRoute("/api/runs/{run_id}/stream", stream_run),
     Mount("/files", StaticFiles(directory=RUNS), name="files"),

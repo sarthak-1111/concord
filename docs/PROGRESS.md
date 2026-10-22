@@ -48,6 +48,15 @@ Times below are JST on 2026-10-22.
   rewrite, then anything unsupported is flagged); runs and literature searches stream into the conversation. Checked
   in a browser at 1440×900 and 390×844, light and dark; design detector clean; 51 tests.
 
+- [x] **22:38 Intuitive UI and the GANs.** Drop-zone upload that detects the technique from file content (all 3,040
+  dataset files, also under neutral names) with previews and the edge found from μ(E); CSV and text-header uploads are
+  rewritten as plain columns (they crashed the loaders before). Try an example; Plan a measurement (candidates
+  simulated, techniques ranked; Pt3Co at 3 nm: PDF 0.978, EXAFS 0.54, XRD 0.303); Settle this on every flagged check
+  (the critic's re-runs, e.g. s0031 C3 k-range scan in 1 s); interactive fit plots; a one-line verdict; numbers in
+  answers linked to their evidence. Concord Forge's realism GANs loaded at run time (`GAN_REPO_PATH`): instrument
+  realism in the planner (XRD separates Pt from Pt3Co by 1.62 times the noise, PDF keeps 39 times) and Real or GAN?
+  with the repository's own classifier scores (XRD 66 %, PDF 95 %, EXAFS 91 %). 96 tests.
+
 ## Agent runs (`make eval-agents`, test + faults)
 
 First batch (4.2 h, ended 14:12): 14 of 19 samples complete, 0 unsupported numbers in the reports, 1.6 critic
