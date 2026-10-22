@@ -1,22 +1,22 @@
 # Concord report — s0029 (PtNi)
 
-**PtNi phase identified with excellent XRD (score 0.9693, profile correlation 0.9712) and PDF (Rw 0.08845) agreement.**
+**PtNi phase identified as the best candidate for the PtNi sample**
 
 Phase: **PtNi**
 
-Concord analysis of the PtNi sample combining XRD and PDF data.
+The structural model for the PtNi sample is best described by the PtNi phase, with consistent and high‑quality fits from XRD and PDF, size agreement, and the strongest joint simulation score. Visual inspection of both datasets was accepted, while EXAFS data are pending.
 
 ## Key numbers (from the tools)
 
 - **XRD**: best match PtNi (profile correlation 0.971, 97 % of the peak area explained); sphere diameter 4.5 nm from 5 indexed reflections
-- **PDF**: PtNi refines to Rw 0.088; a 3.7852 Å; U_iso Pt 0.0029 Å²; particle diameter 4.4 nm
+- **PDF**: PtNi refines to Rw 0.089; a 3.7854 Å; U_iso Pt 0.0029 Å²; particle diameter 4.4 nm
 
 ## Evidence by technique
 
-- **XRD**: XRD fitting yields a high score of 0.9693 and profile correlation of 0.9712, indicating an excellent fit; the sphere diameter from XRD is 4.542 nm.
-- **PDF**: PDF fitting yields a low Rw of 0.08845, well below the good‑fit threshold of 0.25, with refined lattice parameters a = b = c = 3.785 Å and a particle size of 4.37 nm.
-- **EXAFS**: Virtual XAFS predicts that measuring the Pt L₃ edge to k ≥ 12 Å⁻¹ would discriminate PtNi from the PDF‑equivalent Pt₃Co phase.
-- **XANES**: No XANES data were acquired; oxidation‑state assessment is therefore unavailable.
+- **XRD**: The XRD fit score is 0.9693, with 5 of 7 peaks indexed and 96.6% of the observed area explained, indicating a high‑quality fit.
+- **PDF**: The PDF fit Rw is 0.08912, well below the good‑fit threshold of 0.25, and the particle size estimates from XRD (sphere diameter 4.542 nm) and PDF (psize 4.364 nm) agree with a relative difference of 0.041.
+- **EXAFS**: No EXAFS data are currently available; virtual XAFS predicts that measuring the Pt L₃ edge to k ≥ 12 Å⁻¹ would discriminate PtNi from Pt₃Co.
+- **XANES**: XANES data were not collected, so oxidation‑state validation is pending.
 
 ## Cross-technique checks
 
@@ -28,11 +28,11 @@ Concord analysis of the PtNi sample combining XRD and PDF data.
 | C4 Oxidation state (XANES vs bond-valence sum) | skip | needs XANES and a PDF-refined structure |
 | C5 Disorder (EXAFS σ² vs PDF pair width) | skip | needs EXAFS and PDF |
 | C6 Size (XRD vs PDF) | pass | XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter. |
-| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | PtNi has the best joint score (margin 0.049). |
+| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | PtNi has the best joint score (margin 0.048). |
 
 ## Virtual XAFS — PREDICTED, NOT MEASURED
 
-Pt L3 EXAFS computed with FEFF from the PDF-refined model (Pt3Co, PtNi; 24 ensemble members, Debye temperature 259–283 K). Measure the Pt L3 edge to k ≥ 12 Å⁻¹. The prediction is least certain near R ≈ 3.3 Å (band ±66 % of the median |χ(R)|); the measurement would discriminate the PDF-equivalent phases Pt3Co, PtNi.
+Pt L3 EXAFS computed with FEFF from the PDF-refined model (Pt3Co, PtNi; 24 ensemble members, Debye temperature 258–281 K). Measure the Pt L3 edge to k ≥ 12 Å⁻¹. The prediction is least certain near R ≈ 1.2 Å (band ±79 % of the median |χ(R)|); the measurement would discriminate the PDF-equivalent phases Pt3Co, PtNi.
 
 ## Literature priors (other samples: context, not constraints)
 
@@ -45,15 +45,14 @@ Pt L3 EXAFS computed with FEFF from the PDF-refined model (Pt3Co, PtNi; 24 ensem
 
 ## Claims
 
-0. The sample is identified as the PtNi phase. _(evidence: sample, check.C1, xrd.ranking, pdf.best)_
-1. XRD fitting yields a high score of 0.9693 and profile correlation of 0.9712, indicating an excellent fit. _(evidence: xrd.ranking, fitting.xrd, check.C1)_
-2. PDF fitting yields a low Rw of 0.08845, well below the good‑fit threshold of 0.25. _(evidence: pdf.fit.PtNi, fitting.pdf, check.C1)_
-3. The refined lattice parameters are a = b = c = 3.785 Å, matching the reference values. _(evidence: pdf.fit.PtNi)_
-4. Particle size from XRD (sphere diameter 4.542 nm) and PDF (particle size 4.37 nm) agree, with a relative difference of 0.039. _(evidence: xrd.size, pdf.fit.PtNi, check.C6)_
-5. Joint simulation score selects PtNi as the best candidate (score 0.0586) with a margin of 0.0485 over the next best candidate. _(evidence: check.C7)_
-6. Virtual XAFS predicts that measuring the Pt L3 edge to k ≥ 12 Å⁻¹ would discriminate PtNi from the PDF‑equivalent Pt3Co phase. _(evidence: virtual_xafs)_
-7. The measured particle size values (4.542 nm from XRD and 4.37 nm from PDF) lie within the literature range (2–8.3 nm) for PtNi nanoparticles. _(evidence: xrd.size, pdf.fit.PtNi, prior.2, prior.4)_
-8. Visual inspection of the XRD data was accepted (gpt-oss judge) and the PDF data was accepted (eye). _(evidence: vision.xrd, vision.pdf)_
+0. The PtNi phase has the highest XRD score (0.969) and the lowest PDF Rw (0.089), indicating it is the best candidate. _(evidence: sample, xrd.ranking, pdf.best, check.C1)_
+1. XRD fit score is 0.969, with 5 of 7 peaks indexed and 96.6% of observed area explained, showing a high‑quality fit. _(evidence: fitting.xrd, xrd.ranking, xrd.size)_
+2. PDF fit Rw is 0.089, well below the good‑fit threshold of 0.25, confirming a strong agreement between model and data. _(evidence: fitting.pdf, pdf.fit.PtNi, check.C1)_
+3. XRD and PDF size estimates agree: XRD sphere diameter 4.54 nm, PDF particle size 4.36 nm, with a relative difference of 0.041. _(evidence: xrd.size, pdf.fit.PtNi, check.C6)_
+4. Joint simulation score favors PtNi (score 0.059) over Pt3Co (score 0.1073) and PtO2 (score 0.9893), with a margin of 0.0483, making PtNi the best overall candidate. _(evidence: check.C7)_
+5. Visual inspection of both XRD and PDF data was accepted. _(evidence: vision.xrd, vision.pdf)_
+6. No EXAFS data are currently available; virtual XAFS predicts that measuring the Pt L₃ edge to k ≥ 12 Å⁻¹ would discriminate PtNi from Pt₃Co. _(evidence: virtual_xafs)_
+7. The derived particle size (~4.4–4.5 nm) lies within literature ranges for PtNi nanoparticles (2–8.3 nm). _(evidence: xrd.size, pdf.fit.PtNi, prior.2, prior.4, prior.5, prior.6)_
 
 ## Objections and resolutions
 
@@ -61,5 +60,5 @@ The critic raised no objections.
 
 ## Limitations
 
-- EXAFS and XANES measurements are missing, so bond‑length, coordination‑number, oxidation‑state, and disorder checks could not be performed.
-- The joint simulation score (0.0586) selects PtNi as best candidate with a margin of 0.0485, but this relies on simulated rather than measured XAFS data.
+- EXAFS and XANES measurements are missing, limiting validation of local bonding and oxidation state.
+- Further improvement of the XRD fit (>2% score increase) or PDF Rw reduction is unlikely given the current high quality of the fits.
