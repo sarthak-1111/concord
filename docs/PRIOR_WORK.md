@@ -48,12 +48,13 @@ changes the boundary.
 | `concord/tools/virtual_xafs.py` | virtual EXAFS from the PDF model: ensemble band, PREDICTED, NOT MEASURED label, measurement recommendation, scoring against hidden or measured spectra |
 | `concord/analysis.py` | deterministic runner: input autodetection, all techniques, bond-valence sums with self-calibrated R0, virtual XAFS, checks |
 | `concord/checks.py` | cross-technique checks C1–C7 with tolerances from `config.yaml` |
-| `concord/agents/` | evidence bundle with citable ids and number guard; re-run actions that settle objections; ADK pipeline (analysis → visual inspection → generator–critic–resolver loop → reporter) |
+| `concord/agents/` | evidence bundle with citable ids and number guard; re-run actions that settle objections; ADK pipeline (analysis → fitting agents → visual inspection → generator–critic–resolver loop → reporter) |
 | `concord/vision/` | deterministic fit plots (XRD with reflection ticks, PDF, EXAFS in k and R, zoom on the largest misfit), residual features calibrated on the dev split (Durbin–Watson on independent points, structured and concentrated misfit, grouped unexplained diffraction peaks), physicality checks, eye-module adapter, open fallback judge, acceptance rule, fix loop (a menu of deterministic re-fits, kept only when confirmed and not worse, otherwise reverted) |
 | `concord/literature.py` | paper miner: OpenAlex, Crossref and arXiv; abstracts split into sentences, local embeddings, FAISS; fixed-pattern extraction of bond lengths, coordination numbers, oxidation states and sizes, each with DOI and sentence; cached |
 | `concord/evaluate.py`, `eval/config.yaml` | `make eval`: metrics, registered thresholds, `results/eval.{json,md}` |
 | `concord/cli.py` | `concord analyze <folder> [--fast]`, `concord priors`, `concord eval`, `concord health` |
 | `concord/data_builder/`, `scripts/validate_dataset.py`, `data/` | dataset builder from open structures (COD; Materials Project, JARVIS, OQMD as fallbacks), nanoparticle models, XRD/PDF/XAFS simulation with planted faults, validator, structure manifest |
+| `concord/agents/fitter.py` | fitting agents: one gpt-oss agent per technique (XRD, PDF, EXAFS) chooses the next settings or accepts; `concord.tweak.refit` computes every number; guardrails in code (ranges, at most 3 refits, window at least 70 % of its default span, keep only on a 2 % metric gain, PDF lattice drift at most 3 %, Qdamp never fitted); kept settings re-run the analysis |
 | `concord/agents/chat.py` | questions about one sample answered from its evidence bundle: cited evidence ids, number guard with one rewrite, a suggested follow-up run |
 | `concord/upload_inspect.py` | technique detection from file content (with the file name as a hint), previews, absorption edge from a μ(E) energy range; used to rewrite CSV and text-header uploads as plain columns |
 | `concord/planner.py` | measurement planner: candidate phases simulated with Concord's XRD, PDF and FEFF code, pairwise separation per technique, separation over instrument noise when a realism model is given |
@@ -80,6 +81,12 @@ follows `pdf_frontend`'s idea of choosing a sample's elements from a periodic ta
 amount per picked element). `web/src/components/PeriodicTable.tsx` and `web/src/lib/elements.ts` are new code: the
 grid positions are computed from the atomic number, names come from pymatgen, and a dot marks elements with library
 candidates (`GET /api/elements`), which the reference does not do.
+
+**Idea referenced, code written fresh: the fitting agents.** `concord/agents/fitter.py` follows the idea of
+`pdf_backend/app/modules/agent/refinement.py`: the order of steps and the guardrails live in code, and the model makes
+the judgment calls (which region or candidate to try next, whether a stage's result is physically acceptable, when
+nothing is left worth trying). Its 3 % lattice drift limit is reused as a guardrail. No code was copied: Concord's
+agent covers XRD and EXAFS as well as PDF, and every refit is done by Concord's own `concord.tweak.refit`.
 
 They were cloned after Concord's pipeline was built (up to d2441bb), so its design does not come from them. Their
 preprocessing (raw data to S(Q) and G(r), PARA files, XAFS normalisation) was deliberately not used for ideas.

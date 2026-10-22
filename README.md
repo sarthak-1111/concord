@@ -54,8 +54,8 @@ make ui     # http://127.0.0.1:3000/console#s0031
 ```
 
 Your own data in the UI: press **Analyse your own data** in the sidebar (or the upload button in the composer), give
-the composition and drop up to three files. Concord reads each one and works out from its content whether it is an XRD
-pattern, a PDF, μ(E) or χ(k), shows a preview and the reading it chose (changeable), and finds the absorption edge
+the composition and drop up to four files. Concord reads each one and works out from its content whether it is an XRD
+pattern, a PDF, raw I(Q), μ(E) or χ(k), shows a preview and the reading it chose (changeable), and finds the absorption edge
 from the energy range of a μ(E) scan. CSV files and files with a text header row are rewritten as plain columns. The
 tools run at once and the critic is one click away. Without data: **Try an example** opens an analysed sample, and
 **Plan a measurement** (below) tells you what to measure. Values missing from the file headers are assumed and listed. For the XANES valence, put μ(E) of at least
@@ -99,7 +99,9 @@ sample folder ─► XRD   peaks, phase ranking, Scherrer/WH size (Voigt, instru
                ► EXAFS first-shell fit on FEFF paths of the PDF model (+ probe shells)
                ► XANES valence (standards), bond-valence sum of the refined structure
                ► virtual EXAFS from the PDF model (PREDICTED, NOT MEASURED)
-               ► checks C1–C7 ─► visual inspection of each fit ─► generator ⇄ critic (≤ 3 rounds) ─► report
+               ► checks C1–C7
+               ─► fitting agents: XRD, PDF, EXAFS (refit, keep or revert, re-run the analysis)
+               ─► visual inspection of each fit ─► generator ⇄ critic (≤ 3 rounds) ─► report
 ```
 
 | Check | Compares |
@@ -115,6 +117,13 @@ sample folder ─► XRD   peaks, phase ranking, Scherrer/WH size (Voigt, instru
 - **Virtual XAFS.** When XAFS is missing, an ensemble of PDF-equivalent models (lattice, displacement, size and
   equally good candidates) is run through FEFF; the spread is shown as a band, labelled PREDICTED, NOT MEASURED,
   with a measurement recommendation. When XAFS was measured, the prediction is a consistency check.
+- **Fitting agents.** One gpt-oss agent per technique drives its fit (`concord/agents/fitter.py`). Each turn it tries
+  at most two new settings (XRD 2θ window, baseline stiffness, peak thresholds; PDF candidate phase, r window,
+  nanoparticle envelope; EXAFS k window, R max, k-weight, light-neighbour probe shell) or accepts. A tested,
+  deterministic refit computes every number. Guardrails in code: values clipped to their ranges, at most 3 refits per
+  technique, no data window below 70 % of its default span, a refit kept only if its metric (PDF Rw, EXAFS R-factor,
+  XRD score) improves by at least 2 %, PDF lattice drift at most 3 %, Qdamp never fitted. The kept settings re-run the
+  whole analysis before visual inspection; the steps are shown under each fit plot.
 - **Generator–critic loop.** The critic has its own prompt, high thinking and only the evidence. Every objection
   must cite evidence ids; it can ask for one of seven re-runs (another PDF candidate, envelope on/off, a probe shell,
   a k-range scan, size from the strongest peak, a second XRD phase, a zoomed visual inspection), and the re-run
@@ -169,8 +178,9 @@ the eye, the open fallback judges every fit; everything else is the same.
   quantity. On s0031 the analyst quoted the C5 ratio 0.276 next to the wrong PDF σ², and the critic let it pass.
 - The critic picks the re-run itself. On s0024 it rightly objected that C7 passes, then asked for a PDF re-fit that
   does not test that, so the log marks the objection refuted.
-- The eye judges PDF fits only; XRD and EXAFS use the open judge. The 19 saved critic runs in `results/runs/` were
-  made before the eye was connected, so their PDF verdicts come from the open judge.
+- The eye judges PDF fits only; XRD and EXAFS use the open judge. Of the 19 saved critic runs in `results/runs/`,
+  s0031 was re-run with the eye; the other 18 were made before it was connected, so their PDF verdicts come from the
+  open judge.
 
 ## Licence
 

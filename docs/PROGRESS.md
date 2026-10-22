@@ -70,6 +70,11 @@ Times below are JST on 2026-10-22.
   An `rm -rf` with an empty variable in a manual test deleted `results/runs/` and `uploads/` (empty at the time). The
   19 critic reviews came back from git; the analyses were rebuilt from the deterministic tools (no visual fix had
   been kept in any run) and all 19 views match their reviews again. The runs' trace logs were lost.
+- [x] **05:40 Fitting agents.** One gpt-oss agent per technique (`concord/agents/fitter.py`, XRD, PDF, EXAFS) now
+  drives its fit: each turn it tries at most two new settings or accepts, and `concord.tweak.refit` computes every
+  number. Guardrails in code: values clipped to ranges, at most 3 refits, no window below 70 % of its default span,
+  a refit kept only on a 2 % metric gain, PDF lattice drift at most 3 %, Qdamp never fitted. Kept settings re-run the
+  analysis before visual inspection and the critic; steps saved in `agents.json` and shown under each fit plot.
 
 ## Agent runs (`make eval-agents`, test + faults)
 
