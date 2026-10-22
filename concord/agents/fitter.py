@@ -19,7 +19,7 @@ LABEL = {"xrd": "XRD", "pdf": "PDF", "exafs": "EXAFS"}
 METRIC = {"xrd": ("score", 1), "pdf": ("rw", -1), "exafs": ("rfactor", -1)}  # (metric, +1 when higher is better)
 FREE = {"xrd": {"two_theta_min", "two_theta_max", "baseline_log10_lambda", "peak_height", "peak_prominence"},
         "pdf": {"candidate", "rmin", "rmax", "envelope"},  # qdamp is the instrument's calibration: never fitted here
-        "exafs": {"kmin", "kmax", "rmax", "kweight", "probe", "probe_neighbor"}}
+        "exafs": {"kmin", "kmax", "rmax", "probe", "probe_neighbor"}}  # not kweight: the R-factor is not comparable across k-weights
 MAX_STEPS, MAX_CHANGES = 3, 2
 MIN_GAIN = 0.02  # relative improvement a refit needs to be kept
 MIN_SPAN = 0.7  # a data window may not shrink below this share of its default span
