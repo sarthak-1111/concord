@@ -189,7 +189,10 @@ def run_virtual_xafs(folder: Path, meta: dict, fits: list[dict], absorber: str, 
     s02, kmax = float(xa.get("s02", 0.9)), min(12.0, float(xa.get("kmax", 12.0)))
     pred = virtual_xafs.predict_exafs(fits, absorber, edge, s02=s02, kmax=kmax)
     measured = folder / "xafs_chi.k"
-    if measured.exists():
+    if xa.get("edge") and xa["edge"].split()[0] != absorber:  # never score against another element's spectrum
+        pred["recommendation"] = (f"The measured {xa['edge']} edge belongs to an element the refined model does not contain, so this "
+                                  f"is the model's own {absorber} {edge} edge. " + pred["recommendation"])
+    elif measured.exists():
         k, chi = np.loadtxt(measured, unpack=True)
         pred["vs_measured"] = virtual_xafs.score_against(pred, k, chi)
         pred["recommendation"] = "This edge was measured, so the prediction serves as a consistency check against the measurement."
@@ -207,6 +210,9 @@ def bond_valence(refined: Structure, reference: Structure, absorber: str, rcut: 
     """Bond-valence sum of `absorber` in the refined structure. R0 is calibrated on the database structure so
     that it carries its charge-balance valence; the result is the valence implied by the refined bond lengths.
     Without anion neighbours (metals, alloys) the valence is 0."""
+    if absorber not in {e.symbol for e in refined.composition.elements}:  # not a metal: the label or the edge is wrong
+        return {"valence": 0.0, "formal_valence": 0.0, "absent": True,
+                "method": f"{absorber} is not in the refined model {refined.composition.reduced_formula}"}
     guess = reference.composition.oxi_state_guesses()
     formal = float(guess[0].get(absorber, 0.0)) if guess else 0.0
 
@@ -249,9 +255,10 @@ def analyze(folder: str | Path, references: str | Path | None = None, compositio
     n_res = step("xanes", run_xanes, folder, meta, references) if absorber else None
     b_res = step("bvs", bond_valence, best["structure"], cands[best["candidate"]], absorber) if absorber and best else None
     v_res = None
-    if best:  # virtual XAFS for every sample: at the stated edge, else the heaviest cation's L3 or K edge
+    if best:  # virtual XAFS for every sample: at the stated edge if the model has its element, else the heaviest cation's L3 or K edge
         heavy = max(_cations(best["structure"].composition.reduced_formula), key=lambda e: Element(e).Z)
-        v_abs, v_edge = edge_meta if len(edge_meta) == 2 else (heavy, default_edge(heavy))
+        in_model = {e.symbol for e in best["structure"].composition.elements}
+        v_abs, v_edge = edge_meta if len(edge_meta) == 2 and edge_meta[0] in in_model else (heavy, default_edge(heavy))
         v_res = step("virtual_xafs", run_virtual_xafs, folder, meta, p_res["fits"], v_abs, v_edge)
     out.update(xrd=x_res, pdf=p_res, exafs=e_res, xanes=n_res, bvs=b_res, virtual_xafs=v_res)
     out["checks"] = run_checks(out)

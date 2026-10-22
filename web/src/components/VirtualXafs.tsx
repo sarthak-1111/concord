@@ -1,12 +1,12 @@
 import { API, type VirtualXafs as V } from "@/lib/api";
 import { fmt } from "@/components/Value";
 
-export default function VirtualXafs({ v, plot }: { v: V | null; plot?: string }) {
+export default function VirtualXafs({ v, plot, reason }: { v: V | null; plot?: string; reason?: string }) {
   if (!v) {
     return (
       <section className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900">Virtual XAFS</h2>
-        No prediction: it needs a PDF-refined model that contains the absorbing element.
+        No prediction: {reason ?? "it needs a PDF-refined model"}.
       </section>
     );
   }

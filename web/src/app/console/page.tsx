@@ -128,7 +128,7 @@ export default function Workbench() {
             <CheckPanel checks={view.checks} />
             <div className="grid items-start gap-5 2xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
               <TechniqueTabs key={view.sample_id} view={view} />
-              <VirtualXafs v={view.virtual_xafs} plot={view.plots.virtual_xafs} />
+              <VirtualXafs v={view.virtual_xafs} plot={view.plots.virtual_xafs} reason={view.errors.virtual_xafs} />
             </div>
             <CriticLog view={view} />
             <Priors sid={view.sample_id} priors={view.priors} onMined={() => mutate()} />

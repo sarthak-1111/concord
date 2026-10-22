@@ -125,6 +125,9 @@ def c4_oxidation(xanes: dict | None, bvs: dict | None) -> dict:
     name = "Oxidation state (XANES vs bond-valence sum)"
     if not xanes or not bvs:
         return skip("C4", name, "needs XANES and a PDF-refined structure")
+    if bvs.get("absent"):  # XANES sees an element the structural model lacks
+        return result("C4", name, "fail", {"xanes_valence": round(xanes["valence"], 2), "absorber_in_model": False}, tol,
+                      f"XANES measures valence {xanes['valence']:.2f}, but {bvs['method']}: the sample label or the measured edge is wrong.")
     formal, metal = bvs["formal_valence"], bvs["formal_valence"] == 0
     d = xanes["valence"] - bvs["valence"]
     status = _grade(d, *((tol["metal_warn_abs"], tol["metal_fail_abs"]) if metal else (tol["warn_abs"], tol["fail_abs"])))
