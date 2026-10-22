@@ -1,0 +1,791 @@
+{
+ "sample_id": "s0034",
+ "model": {
+  "phase": "Co3O4",
+  "summary": "All quantitative metrics (checks C1\u2011C7) robustly support Co3O4 as the primary phase. Visual inspection of the XRD pattern reveals an unexplained peak at 10.22\u00b0, which is not explained by adding Pt3Co; the peak remains unresolved but does not affect the overall structural model.",
+  "claims": [
+   {
+    "statement": "XRD ranking identifies Co3O4 as the dominant phase with score 0.8735 and observed area fraction explained 1.0",
+    "evidence": [
+     "xrd.ranking"
+    ]
+   },
+   {
+    "statement": "PDF fit for Co3O4 yields Rw 0.1357, indicating a good fit",
+    "evidence": [
+     "pdf.fit.Co3O4"
+    ]
+   },
+   {
+    "statement": "Phase consistency check C1 passes: XRD and PDF both select Co3O4 as the phase (xrd_score 0.874, pdf_rw 0.136)",
+    "evidence": [
+     "check.C1"
+    ]
+   },
+   {
+    "statement": "EXAFS\u2011Co\u2011O bond length 1.929 \u00c5 matches PDF model distance 1.925 \u00c5 (diff 0.0044 \u00c5), within tolerance (check C2)",
+    "evidence": [
+     "check.C2"
+    ]
+   },
+   {
+    "statement": "EXAFS coordination number 5.32\u202f\u00b1\u202f0.62 is consistent with bulk Co3O4 coordination 5.33 after surface correction; the difference is 0.88, below the warning limit of 1.0 (check C3). A k\u2011range window scan (kmax 10\u201112) shows N varies between 5.32 and 5.65, confirming stability",
+    "evidence": [
+     "check.C3",
+     "rerun.R1.1.exafs_window_scan"
+    ]
+   },
+   {
+    "statement": "XANES-derived valence 2.64 and bond\u2011valence\u2011sum valence 2.666 differ by \u20130.03, well within tolerance (check C4)",
+    "evidence": [
+     "check.C4"
+    ]
+   },
+   {
+    "statement": "EXAFS disorder \u03c3\u00b2 0.00729 matches the PDF uncorrelated pair width 0.0075 (ratio 0.973), within the allowed range (check C5)",
+    "evidence": [
+     "check.C5"
+    ]
+   },
+   {
+    "statement": "Particle size from XRD sphere diameter 1.43\u202fnm and PDF diameter 1.71\u202fnm have relative difference \u20130.163, within tolerance (check C6)",
+    "evidence": [
+     "check.C6"
+    ]
+   },
+   {
+    "statement": "Joint simulation score strongly favors Co3O4 (score 0.1265) over Pt3Co (score 0.9068), with a margin of 0.7803 (check C7)",
+    "evidence": [
+     "check.C7"
+    ]
+   },
+   {
+    "statement": "Visual inspection of the XRD pattern flags an unexplained peak at 10.22\u00b0. Adding Pt3Co as a second phase yields 0\u202f% intensity share and no change in RMS, so the peak remains unexplained (vision.xrd, rerun.R1.2.xrd_add_phase)",
+    "evidence": [
+     "vision.xrd",
+     "rerun.R1.2.xrd_add_phase"
+    ]
+   },
+   {
+    "statement": "Visual inspection of PDF and EXAFS accept the data",
+    "evidence": [
+     "vision.pdf",
+     "vision.exafs"
+    ]
+   }
+  ],
+  "responses": [
+   "The EXAFS coordination number difference of 0.88 is below the warning threshold of 1.0; the k\u2011range window scan (kmax 10\u201112) shows N stable between 5.32 and 5.65, confirming consistency (evidence: check.C3, rerun.R1.1.exafs_window_scan).",
+   "The unexplained XRD peak at 10.22\u00b0 persists; however, a refined addition of Pt3Co results in 0\u202f% intensity share and unchanged RMS, indicating Pt3Co does not account for the feature and the claim stands (evidence: vision.xrd, rerun.R1.2.xrd_add_phase)."
+  ]
+ },
+ "log": [
+  {
+   "round": 1,
+   "id": "R1.1",
+   "objection": "The EXAFS coordination number difference (0.88) is close to the warning threshold (1.0) in check C3, indicating borderline consistency; a stability test across k\u2011range values is needed.",
+   "claim": null,
+   "cited": [
+    "check.C3"
+   ],
+   "action": "exafs_window_scan",
+   "args": {},
+   "status": "not confirmed",
+   "finding": "N over kmax 10-12: O 5.32-5.65",
+   "result_id": "rerun.R1.1.exafs_window_scan"
+  },
+  {
+   "round": 1,
+   "id": "R1.2",
+   "objection": "An unexplained XRD peak at 10.22\u00b0 remains after the single\u2011phase Co3O4 model; the prior Pt3Co test used 0\u202f% intensity and did not explore a genuine two\u2011phase refinement, so a refined addition of Pt3Co should be attempted.",
+   "claim": null,
+   "cited": [
+    "vision.xrd",
+    "xrd.ranking"
+   ],
+   "action": "xrd_add_phase",
+   "args": {
+    "candidate": "Pt3Co"
+   },
+   "status": "not confirmed",
+   "finding": "adding Pt3Co (0 % of the simulated intensity) takes the XRD residual RMS from 148.1 to 148.1",
+   "result_id": "rerun.R1.2.xrd_add_phase"
+  }
+ ],
+ "rounds": 2,
+ "confirmed": [],
+ "unsupported_numbers": [],
+ "report_md": "# Concord report \u2014 s0034 (Co3O4)\n\n**Concord analysis robustly identifies Co\u2083O\u2084 as the dominant phase despite an unresolved XRD peak at 10.22\u00b0.**\n\nPhase: **Co3O4**\n\nAll quantitative metrics (checks C1\u2011C7) robustly support Co3O4 as the primary phase. Visual inspection of the XRD pattern reveals an unexplained peak at 10.22\u00b0, which is not explained by adding Pt3Co; the peak remains unresolved but does not affect the overall structural model.\n\n## Key numbers (from the tools)\n\n- **XRD**: best match Co3O4 (profile correlation 0.789, 100 % of the peak area explained); sphere diameter 1.4 nm from 4 indexed reflections\n- **PDF**: Co3O4 refines to Rw 0.136; a 8.0825 \u00c5; U_iso Co 0.0027 \u00c5\u00b2, O 0.0048 \u00c5\u00b2; particle diameter 1.7 nm\n- **EXAFS** (Co K): Co\u2013O N 5.3 \u00b1 0.6 at 1.929 \u00c5, \u03c3\u00b2 0.0073 \u00c5\u00b2; R-factor 0.0052\n- **XANES**: Co valence 2.64 from a linear combination of standards, 2.33 from the edge position\n- **Bond valence** (PDF model): 2.67\n\n## Evidence by technique\n\n- **XRD**: XRD ranking assigns Co\u2083O\u2084 a score of 0.8735 with an observed area fraction explained of 1.0, while Pt\u2083Co scores only 0.06049 with 0.0 fraction; an unexplained peak at 10.22\u00b0 remains after adding Pt\u2083Co (0\u202f% intensity share, RMS unchanged at 148.1).\n- **PDF**: PDF fitting of Co\u2083O\u2084 yields Rw\u202f=\u202f0.1357 (good fit) and a particle size of 1.71\u202fnm, contrasting with Pt\u2083Co Rw\u202f=\u202f0.9693; the fit shows no unexplained peaks.\n- **EXAFS**: EXAFS gives a Co\u2013O bond length of 1.929\u202f\u00c5 (diff\u202f=\u202f0.0044\u202f\u00c5 vs PDF model) and a coordination number of 5.32\u202f\u00b1\u202f0.62 (difference\u202f=\u202f0.88, below the warning limit of 1.0); a k\u2011range window scan (kmax\u202f10\u201112) shows N varies between 5.32 and 5.65, confirming stability.\n- **XANES**: XANES-derived valence of 2.64 and bond\u2011valence\u2011sum valence of 2.666 differ by \u20130.03, well within the tolerance of 0.5.\n\n## Cross-technique checks\n\n| check | status | explanation |\n|---|---|---|\n| C1 Phase consistency (XRD vs PDF) | pass | XRD and PDF agree on Co3O4. |\n| C2 Bond lengths (EXAFS R vs PDF model) | pass | EXAFS bond lengths match the PDF-refined model. |\n| C3 Coordination numbers (EXAFS N vs model) | pass | EXAFS coordination matches the PDF model after surface truncation. |\n| C4 Oxidation state (XANES vs bond-valence sum) | pass | XANES and the bond-valence sum agree. |\n| C5 Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) | pass | EXAFS \u03c3\u00b2 is 0.97\u20130.97 \u00d7 the uncorrelated PDF width, as expected: EXAFS measures the relative motion of bonded neighbours, which move together, while U_i + U_j counts their motions independently. |\n| C6 Size (XRD vs PDF) | pass | XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter. |\n| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | Co3O4 has the best joint score (margin 0.780). |\n\n## Virtual XAFS \u2014 PREDICTED, NOT MEASURED\n\nCo K EXAFS computed with FEFF from the PDF-refined model (Co3O4; 24 ensemble members, Debye temperature 542\u2013552 K). This edge was measured, so the prediction serves as a consistency check against the measurement.\n\nAgainst the measured spectrum: R-factor 0.0328 in R 1.0\u20133.5 \u00c5.\n\n## Literature priors (other samples: context, not constraints)\n\n- Co oxidation state 2, [doi:10.48550/arXiv.1404.1658](https://doi.org/10.48550/arXiv.1404.1658) (2014): \u00abXANES along with linear combination fit provide relative concentrations of Co2+ and Co3+.Temperature dependent DC magnetization exhibits the same antiferromagnetic behavior as observed in single crystal.\u00bb\n- Co oxidation state 3, [doi:10.48550/arXiv.1404.1658](https://doi.org/10.48550/arXiv.1404.1658) (2014): \u00abXANES along with linear combination fit provide relative concentrations of Co2+ and Co3+.Temperature dependent DC magnetization exhibits the same antiferromagnetic behavior as observed in single crystal.\u00bb\n- Co oxidation state 3, [doi:10.48550/arXiv.1201.5193](https://doi.org/10.48550/arXiv.1201.5193) (2012): \u00abCo L-edge and Mn L-edge XANES suggested substitu-tion of Co3+ sites by Mn3+, which increased the activity of the catalytic sites in the hybrid materials, further boosting the ORR activity compared to the pure cobalt oxid\u00bb\n- Co oxidation state 3, [doi:10.1021/acscatal.9b01048](https://doi.org/10.1021/acscatal.9b01048) (2019): \u00abThe consumption of surface oxygen and reduction of Co 3+ to Co 2+ during 2-propanol oxidation derived from X-ray absorption spectroscopy and X-ray photoelectron spectroscopy measurements before and after reaction and poi\u00bb\n- Co oxidation state 2, [doi:10.1021/acscatal.9b01048](https://doi.org/10.1021/acscatal.9b01048) (2019): \u00abThe consumption of surface oxygen and reduction of Co 3+ to Co 2+ during 2-propanol oxidation derived from X-ray absorption spectroscopy and X-ray photoelectron spectroscopy measurements before and after reaction and poi\u00bb\n- Co oxidation state 3, [doi:10.34726/hss.2016.17050](https://doi.org/10.34726/hss.2016.17050) (2017): \u00abThe combined results of operando NAP-XPS and operando FTIR spectroscopy (i.e., static steady-state and dynamic switching experiments) indicate a redox Mars-van-Krevelen mechanism of CO oxidation on Co3O4, involving the C\u00bb\n- particle size 4.3 nm, [doi:10.1063/1.2817481](https://doi.org/10.1063/1.2817481) (2007): \u00abAlong with the results from the previous experiments on the Co3O4 nanoparticles with average diameter of 8 and 4.3 nm, the variation of TN with the particle diameter, d, appears to follow the finite size scaling relation\u00bb\n- particle size 20\u201325 nm, [doi:10.1166/jnn.2015.9776](https://doi.org/10.1166/jnn.2015.9776) (2014): \u00abHR-TEM images showed that Co3O4 nanoparticles have sphere-like structure with an average particle size in the range of 20-25 nm (MCM) and 45-50 nm (CCM).\u00bb\n- particle size 45\u201350 nm, [doi:10.1166/jnn.2015.9776](https://doi.org/10.1166/jnn.2015.9776) (2014): \u00abHR-TEM images showed that Co3O4 nanoparticles have sphere-like structure with an average particle size in the range of 20-25 nm (MCM) and 45-50 nm (CCM).\u00bb\n- particle size 46.9 nm, [doi:10.1021/jp904022e](https://doi.org/10.1021/jp904022e) (2009): \u00abCubic Co 3 O 4 nanoparticles with average diameters of 5.9, 21.1, and 46.9 nm (hereafter small, medium, and large) have been synthesized and characterized by pXRD, TEM, and BET.\u00bb\n- particle size 80\u2013130 nm, [doi:10.35414/akufemubid.1275507](https://doi.org/10.35414/akufemubid.1275507) (2023): \u00abThe nanospheres were with an average size distribution of almost 80-130 nm.\u00bb\n- particle size 60 nm, [doi:10.18321/cpc23(1)53-62](https://doi.org/10.18321/cpc23(1)53-62) (2025): \u00abUnique features of cobalt (II)(III) oxide Co3O4 nanoparticles are size between 12 and 60 nm, and high surface area and porosity that enhances their performances in fields such as energy storage, environmental and sensing\u00bb\n\n## Claims\n\n0. XRD ranking identifies Co3O4 as the dominant phase with score 0.8735 and observed area fraction explained 1.0 _(evidence: xrd.ranking)_\n1. PDF fit for Co3O4 yields Rw 0.1357, indicating a good fit _(evidence: pdf.fit.Co3O4)_\n2. Phase consistency check C1 passes: XRD and PDF both select Co3O4 as the phase (xrd_score 0.874, pdf_rw 0.136) _(evidence: check.C1)_\n3. EXAFS\u2011Co\u2011O bond length 1.929 \u00c5 matches PDF model distance 1.925 \u00c5 (diff 0.0044 \u00c5), within tolerance (check C2) _(evidence: check.C2)_\n4. EXAFS coordination number 5.32\u202f\u00b1\u202f0.62 is consistent with bulk Co3O4 coordination 5.33 after surface correction; the difference is 0.88, below the warning limit of 1.0 (check C3). A k\u2011range window scan (kmax 10\u201112) shows N varies between 5.32 and 5.65, confirming stability _(evidence: check.C3, rerun.R1.1.exafs_window_scan)_\n5. XANES-derived valence 2.64 and bond\u2011valence\u2011sum valence 2.666 differ by \u20130.03, well within tolerance (check C4) _(evidence: check.C4)_\n6. EXAFS disorder \u03c3\u00b2 0.00729 matches the PDF uncorrelated pair width 0.0075 (ratio 0.973), within the allowed range (check C5) _(evidence: check.C5)_\n7. Particle size from XRD sphere diameter 1.43\u202fnm and PDF diameter 1.71\u202fnm have relative difference \u20130.163, within tolerance (check C6) _(evidence: check.C6)_\n8. Joint simulation score strongly favors Co3O4 (score 0.1265) over Pt3Co (score 0.9068), with a margin of 0.7803 (check C7) _(evidence: check.C7)_\n9. Visual inspection of the XRD pattern flags an unexplained peak at 10.22\u00b0. Adding Pt3Co as a second phase yields 0\u202f% intensity share and no change in RMS, so the peak remains unexplained (vision.xrd, rerun.R1.2.xrd_add_phase) _(evidence: vision.xrd, rerun.R1.2.xrd_add_phase)_\n10. Visual inspection of PDF and EXAFS accept the data _(evidence: vision.pdf, vision.exafs)_\n\n## Objections and resolutions\n\n| id | objection | cited | re-run | finding | status |\n|---|---|---|---|---|---|\n| R1.1 | The EXAFS coordination number difference (0.88) is close to the warning threshold (1.0) in check C3, indicating borderline consistency; a stability test across k\u2011range values is needed. | check.C3 | exafs_window_scan | N over kmax 10-12: O 5.32-5.65 | not confirmed |\n| R1.2 | An unexplained XRD peak at 10.22\u00b0 remains after the single\u2011phase Co3O4 model; the prior Pt3Co test used 0\u202f% intensity and did not explore a genuine two\u2011phase refinement, so a refined addition of Pt3Co should be attempted. | vision.xrd, xrd.ranking | xrd_add_phase | adding Pt3Co (0 % of the simulated intensity) takes the XRD residual RMS from 148.1 to 148.1 | not confirmed |\n\n## Limitations\n\n- The unexplained XRD peak at 10.22\u00b0 is not accounted for by the current single\u2011phase model or by adding Pt\u2083Co, leaving a residual feature.\n- The EXAFS coordination number difference (0.88) is close to the warning threshold (1.0), representing borderline consistency despite the supporting k\u2011range stability test.\n",
+ "wall_s": 1586.2,
+ "llm": {
+  "llm_calls": 7,
+  "prompt_tokens": 24157,
+  "completion_tokens": 20807,
+  "llm_seconds": 888.18
+ },
+ "out_dir": "results/runs/s0034",
+ "evidence": {
+  "sample": {
+   "composition": "Co3O4",
+   "techniques": [
+    "xrd",
+    "pdf",
+    "xafs"
+   ],
+   "candidates": [
+    "Pt3Co",
+    "Co3O4"
+   ],
+   "xafs_edge": "Co K"
+  },
+  "xrd.ranking": [
+   {
+    "phase": "Co3O4",
+    "score": 0.8735,
+    "profile_corr": 0.7892,
+    "obs_area_fraction_explained": 1.0
+   },
+   {
+    "phase": "Pt3Co",
+    "score": 0.06049,
+    "profile_corr": 0.1008,
+    "obs_area_fraction_explained": 0.0
+   }
+  ],
+  "xrd.size": {
+   "sphere_diameter_nm": 1.433,
+   "scherrer_median_nm": 1.301,
+   "williamson_hall_strain": -0.01094,
+   "n_indexed_peaks": 4
+  },
+  "pdf.fit.Co3O4": {
+   "rw": 0.1357,
+   "lattice": {
+    "a": 8.082,
+    "b": 8.082,
+    "c": 8.082
+   },
+   "lattice_ref": {
+    "a": 8.082,
+    "b": 8.082,
+    "c": 8.082
+   },
+   "uiso": {
+    "Co": 0.002705,
+    "O": 0.004791
+   },
+   "delta2": 0.4819,
+   "psize_nm": 1.712,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.fit.Pt3Co": {
+   "rw": 0.9693,
+   "lattice": {
+    "a": 3.767,
+    "b": 3.767,
+    "c": 3.767
+   },
+   "lattice_ref": {
+    "a": 3.831,
+    "b": 3.831,
+    "c": 3.831
+   },
+   "uiso": {
+    "Co": 0.05,
+    "Pt": 0.04088
+   },
+   "delta2": 5.794e-23,
+   "psize_nm": 2.167,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.best": "Co3O4",
+  "exafs.fit": {
+   "absorber": "Co",
+   "edge": "K",
+   "model": "Co3O4",
+   "rfactor": 0.005192,
+   "e0_shift_eV": 1.001,
+   "window": {
+    "kmin": 3.0,
+    "kmax": 12.0,
+    "rmin": 1.0,
+    "rmax": 2.923,
+    "kweight": 2.0
+   },
+   "shells": [
+    {
+     "neighbor": "O",
+     "N": 5.319,
+     "N_err": 0.6233,
+     "R_A": 1.929,
+     "R_err": 0.007151,
+     "sigma2": 0.007292,
+     "extra": null
+    }
+   ]
+  },
+  "xanes": {
+   "absorber": "Co",
+   "edge_eV": 7713.0,
+   "valence": 2.639,
+   "valence_edge": 2.333,
+   "lcf_weights": {
+    "Co+2": 0.3606,
+    "Co+3": 0.6394
+   }
+  },
+  "bvs": {
+   "valence": 2.666,
+   "formal_valence": 2.667
+  },
+  "virtual_xafs": {
+   "label": "PREDICTED, NOT MEASURED",
+   "edge": "Co K",
+   "candidates": [
+    "Co3O4"
+   ],
+   "theta_K_range": [
+    541.7,
+    552.1
+   ],
+   "vs_measured": {
+    "rfactor_R": 0.03281,
+    "band_coverage_k": 0.01105,
+    "r_window": [
+     1.0,
+     3.5
+    ]
+   },
+   "per_candidate_rfactor": {
+    "Co3O4": 0.033,
+    "Pt3Co": 0.8519
+   },
+   "recommendation": "This edge was measured, so the prediction serves as a consistency check against the measurement."
+  },
+  "check.C1": {
+   "name": "Phase consistency (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_phase": "Co3O4",
+    "xrd_score": 0.874,
+    "xrd_area_explained": 1.0,
+    "peak_rel_intensity": 0.614,
+    "pdf_phase": "Co3O4",
+    "pdf_rw": 0.136,
+    "pdf_runner_up": "Pt3Co",
+    "pdf_runner_up_rw": 0.969,
+    "lattice_rel_change": 0.0
+   },
+   "tolerance": {
+    "pdf_good_rw": 0.25,
+    "xrd_weak_rel_intensity": 0.05,
+    "lattice_warn_rel": 0.003
+   },
+   "explanation": "XRD and PDF agree on Co3O4."
+  },
+  "check.C2": {
+   "name": "Bond lengths (EXAFS R vs PDF model)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Co-O",
+      "exafs_R_A": 1.929,
+      "exafs_err": 0.0072,
+      "pdf_model_R_A": 1.925,
+      "diff_A": 0.0044
+     }
+    ],
+    "max_abs_diff_A": 0.0044
+   },
+   "tolerance": {
+    "warn_A": 0.02,
+    "fail_A": 0.05
+   },
+   "explanation": "EXAFS bond lengths match the PDF-refined model."
+  },
+  "check.C3": {
+   "name": "Coordination numbers (EXAFS N vs model)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Co-O",
+      "exafs_N": 5.32,
+      "exafs_err": 0.62,
+      "model_N_bulk": 5.33,
+      "surface_factor": 0.832,
+      "model_N": 4.44,
+      "diff": 0.88
+     }
+    ],
+    "extra_shell": null,
+    "max_abs_diff": 0.88
+   },
+   "tolerance": {
+    "warn_abs": 1.0,
+    "fail_abs": 2.0,
+    "extra_min_sigma": 3.0,
+    "extra_min_rfactor_drop": 0.3
+   },
+   "explanation": "EXAFS coordination matches the PDF model after surface truncation."
+  },
+  "check.C4": {
+   "name": "Oxidation state (XANES vs bond-valence sum)",
+   "status": "pass",
+   "values": {
+    "xanes_valence": 2.64,
+    "xanes_edge_valence": 2.33,
+    "lcf": {
+     "Co+2": 0.3606,
+     "Co+3": 0.6394
+    },
+    "bvs_valence": 2.666,
+    "formal_valence": 2.667,
+    "diff": -0.03,
+    "metallic_model": false,
+    "xanes_fidelity": "low (simple edge model)"
+   },
+   "tolerance": {
+    "warn_abs": 0.5,
+    "fail_abs": 1.0,
+    "metal_warn_abs": 0.2,
+    "metal_fail_abs": 0.25,
+    "bvs_shift_min": 0.03,
+    "xanes_shift_min": 0.1
+   },
+   "explanation": "XANES and the bond-valence sum agree."
+  },
+  "check.C5": {
+   "name": "Disorder (EXAFS \u03c3\u00b2 vs PDF pair width)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Co-O",
+      "exafs_sigma2": 0.00729,
+      "pdf_uncorrelated_sigma2": 0.0075,
+      "pdf_with_delta2_sigma2": 0.00652,
+      "ratio_exafs_to_pdf": 0.973
+     }
+    ]
+   },
+   "tolerance": {
+    "ratio_low": 0.3,
+    "ratio_high": 1.3
+   },
+   "explanation": "EXAFS \u03c3\u00b2 is 0.97\u20130.97 \u00d7 the uncorrelated PDF width, as expected: EXAFS measures the relative motion of bonded neighbours, which move together, while U_i + U_j counts their motions independently."
+  },
+  "check.C6": {
+   "name": "Size (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_sphere_diameter_nm": 1.43,
+    "xrd_scherrer_nm": 1.3,
+    "pdf_diameter_nm": 1.71,
+    "rel_diff": -0.163
+   },
+   "tolerance": {
+    "warn_rel": 0.25,
+    "fail_rel": 0.5
+   },
+   "explanation": "XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter."
+  },
+  "check.C7": {
+   "name": "Joint simulation score (XRD + PDF + EXAFS)",
+   "status": "pass",
+   "values": {
+    "candidates": [
+     {
+      "candidate": "Co3O4",
+      "xrd": 0.2108,
+      "pdf": 0.1357,
+      "exafs": 0.033,
+      "score": 0.1265
+     },
+     {
+      "candidate": "Pt3Co",
+      "xrd": 0.8992,
+      "pdf": 0.9693,
+      "exafs": 0.8519,
+      "score": 0.9068
+     }
+    ],
+    "margin": 0.7803,
+    "techniques": [
+     "exafs",
+     "pdf",
+     "xrd"
+    ]
+   },
+   "tolerance": {
+    "min_margin": 0.02
+   },
+   "explanation": "Co3O4 has the best joint score (margin 0.780)."
+  },
+  "prior.1": {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 2,
+   "unit": "",
+   "doi": "10.48550/arXiv.1404.1658",
+   "snippet": "XANES along with linear combination fit provide relative concentrations of Co2+ and Co3+.Temperature dependent DC magnetization exhibits the same antiferromagnetic behavior as observed in single crystal."
+  },
+  "prior.2": {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 3,
+   "unit": "",
+   "doi": "10.48550/arXiv.1404.1658",
+   "snippet": "XANES along with linear combination fit provide relative concentrations of Co2+ and Co3+.Temperature dependent DC magnetization exhibits the same antiferromagnetic behavior as observed in single crystal."
+  },
+  "prior.3": {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 3,
+   "unit": "",
+   "doi": "10.48550/arXiv.1201.5193",
+   "snippet": "Co L-edge and Mn L-edge XANES suggested substitu-tion of Co3+ sites by Mn3+, which increased the activity of the catalytic sites in the hybrid materials, further boosting the ORR activity compared to the pure cobalt oxide hybrid."
+  },
+  "prior.4": {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 3,
+   "unit": "",
+   "doi": "10.1021/acscatal.9b01048",
+   "snippet": "The consumption of surface oxygen and reduction of Co 3+ to Co 2+ during 2-propanol oxidation derived from X-ray absorption spectroscopy and X-ray photoelectron spectroscopy measurements before and after reaction and poisoning by strongly bound carbonaceous species result in the loss of the low-temp"
+  },
+  "prior.5": {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 2,
+   "unit": "",
+   "doi": "10.1021/acscatal.9b01048",
+   "snippet": "The consumption of surface oxygen and reduction of Co 3+ to Co 2+ during 2-propanol oxidation derived from X-ray absorption spectroscopy and X-ray photoelectron spectroscopy measurements before and after reaction and poisoning by strongly bound carbonaceous species result in the loss of the low-temp"
+  },
+  "prior.6": {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 3,
+   "unit": "",
+   "doi": "10.34726/hss.2016.17050",
+   "snippet": "The combined results of operando NAP-XPS and operando FTIR spectroscopy (i.e., static steady-state and dynamic switching experiments) indicate a redox Mars-van-Krevelen mechanism of CO oxidation on Co3O4, involving the Co3+/Co2+ cycle and oxygen vacancy formation at higher temperatures and likely th"
+  },
+  "prior.7": {
+   "quantity": "particle_size",
+   "value": 4.3,
+   "unit": "nm",
+   "doi": "10.1063/1.2817481",
+   "snippet": "Along with the results from the previous experiments on the Co3O4 nanoparticles with average diameter of 8 and 4.3 nm, the variation of TN with the particle diameter, d, appears to follow the finite size scaling relation."
+  },
+  "prior.8": {
+   "quantity": "particle_size",
+   "value": [
+    20.0,
+    25.0
+   ],
+   "unit": "nm",
+   "doi": "10.1166/jnn.2015.9776",
+   "snippet": "HR-TEM images showed that Co3O4 nanoparticles have sphere-like structure with an average particle size in the range of 20-25 nm (MCM) and 45-50 nm (CCM)."
+  },
+  "prior.9": {
+   "quantity": "particle_size",
+   "value": [
+    45.0,
+    50.0
+   ],
+   "unit": "nm",
+   "doi": "10.1166/jnn.2015.9776",
+   "snippet": "HR-TEM images showed that Co3O4 nanoparticles have sphere-like structure with an average particle size in the range of 20-25 nm (MCM) and 45-50 nm (CCM)."
+  },
+  "prior.10": {
+   "quantity": "particle_size",
+   "value": 46.9,
+   "unit": "nm",
+   "doi": "10.1021/jp904022e",
+   "snippet": "Cubic Co 3 O 4 nanoparticles with average diameters of 5.9, 21.1, and 46.9 nm (hereafter small, medium, and large) have been synthesized and characterized by pXRD, TEM, and BET."
+  },
+  "prior.11": {
+   "quantity": "particle_size",
+   "value": [
+    80.0,
+    130.0
+   ],
+   "unit": "nm",
+   "doi": "10.35414/akufemubid.1275507",
+   "snippet": "The nanospheres were with an average size distribution of almost 80-130 nm."
+  },
+  "prior.12": {
+   "quantity": "particle_size",
+   "value": 60.0,
+   "unit": "nm",
+   "doi": "10.18321/cpc23(1)53-62",
+   "snippet": "Unique features of cobalt (II)(III) oxide Co3O4 nanoparticles are size between 12 and 60 nm, and high surface area and porosity that enhances their performances in fields such as energy storage, environmental and sensing applications."
+  },
+  "vision.xrd": {
+   "accepted": false,
+   "verdict": "reject",
+   "inspector": "rules",
+   "issues": [
+    {
+     "region": "10.22",
+     "pattern": "unexplained peak",
+     "likely_cause": "a phase or reflection the model lacks",
+     "suggested_action": "xrd_add_phase"
+    }
+   ],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": null,
+   "structured_regions": [],
+   "unexplained_peaks": [
+    10.22
+   ],
+   "fixes_tried": [
+    {
+     "iteration": 1,
+     "action": "xrd_add_phase",
+     "finding": "adding Pt3Co (0 % of the simulated intensity) takes the XRD residual RMS from 148.1 to 148.1",
+     "kept": false
+    }
+   ]
+  },
+  "vision.pdf": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 1.86,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.exafs": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 1.751,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "rerun.R1.1.exafs_window_scan": {
+   "fits": [
+    {
+     "kmax": 10.0,
+     "neighbor": "O",
+     "N": 5.65,
+     "sigma2": 0.00793,
+     "R_A": 1.924
+    },
+    {
+     "kmax": 11.0,
+     "neighbor": "O",
+     "N": 5.399,
+     "sigma2": 0.007332,
+     "R_A": 1.929
+    },
+    {
+     "kmax": 12.0,
+     "neighbor": "O",
+     "N": 5.319,
+     "sigma2": 0.007292,
+     "R_A": 1.929
+    }
+   ],
+   "N_range": {
+    "O": [
+     5.319,
+     5.65
+    ]
+   },
+   "confirms": false
+  },
+  "rerun.R1.2.xrd_add_phase": {
+   "second_phase": "Pt3Co",
+   "intensity_share": 0.0,
+   "rms_before": 148.1,
+   "rms_after": 148.1,
+   "confirms": false
+  }
+ },
+ "vision": {
+  "virtual_xafs": {
+   "plot": "results/runs/s0034/virtual_xafs.png"
+  },
+  "xrd": {
+   "plot": "results/runs/s0034/xrd_fit.png",
+   "features": {
+    "n_independent": 4001,
+    "thinned_by": 1,
+    "rms_rel": 0.19654533496282137,
+    "durbin_watson": null,
+    "regions": [
+     {
+      "region": "10.0-26.0",
+      "misfit_share": 0.6559840585361583,
+      "rms_rel": 0.35577661651377657,
+      "durbin_watson": null
+     },
+     {
+      "region": "26.0-42.0",
+      "misfit_share": 0.26346054470672375,
+      "rms_rel": 0.22546988876193716,
+      "durbin_watson": null
+     },
+     {
+      "region": "42.0-58.0",
+      "misfit_share": 0.06436079656097765,
+      "rms_rel": 0.11144009230102668,
+      "durbin_watson": null
+     },
+     {
+      "region": "58.0-74.0",
+      "misfit_share": 0.012498927405860857,
+      "rms_rel": 0.049109682989994505,
+      "durbin_watson": null
+     },
+     {
+      "region": "74.0-90.0",
+      "misfit_share": 0.00398861531344907,
+      "rms_rel": 0.0277422597705779,
+      "durbin_watson": null
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": [
+     10.22
+    ]
+   },
+   "visual": {
+    "verdict": "reject",
+    "issues": [
+     {
+      "region": "10.22",
+      "pattern": "unexplained peak",
+      "likely_cause": "a phase or reflection the model lacks",
+      "suggested_action": "xrd_add_phase"
+     }
+    ],
+    "inspector": "rules"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": false,
+   "steps": [
+    {
+     "iteration": 1,
+     "action": "xrd_add_phase",
+     "finding": "adding Pt3Co (0 % of the simulated intensity) takes the XRD residual RMS from 148.1 to 148.1",
+     "kept": false
+    }
+   ]
+  },
+  "pdf": {
+   "plot": "results/runs/s0034/pdf_fit.png",
+   "features": {
+    "n_independent": 196,
+    "thinned_by": 12,
+    "rms_rel": 0.13383736735226634,
+    "durbin_watson": 1.8602164253958875,
+    "regions": [
+     {
+      "region": "1.5-6.2",
+      "misfit_share": 0.422313130098793,
+      "rms_rel": 0.1925274760185684,
+      "durbin_watson": 1.1570175471867041
+     },
+     {
+      "region": "6.2-10.9",
+      "misfit_share": 0.1796716987502849,
+      "rms_rel": 0.12557849162026055,
+      "durbin_watson": 1.7925447049651033
+     },
+     {
+      "region": "10.9-15.5",
+      "misfit_share": 0.1867363903922654,
+      "rms_rel": 0.1280235616128123,
+      "durbin_watson": 2.386053323998192
+     },
+     {
+      "region": "15.5-20.2",
+      "misfit_share": 0.10180981574498692,
+      "rms_rel": 0.09453012909647182,
+      "durbin_watson": 2.576345750419733
+     },
+     {
+      "region": "20.2-24.9",
+      "misfit_share": 0.11323484770997988,
+      "rms_rel": 0.09969318600218371,
+      "durbin_watson": 3.0172946490810677
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  },
+  "exafs": {
+   "plot": "results/runs/s0034/exafs_fit.png",
+   "features": {
+    "n_independent": 11,
+    "thinned_by": 6,
+    "rms_rel": 0.05462166300533407,
+    "durbin_watson": 1.7514864261022494,
+    "regions": [
+     {
+      "region": "1.0-2.9",
+      "misfit_share": 1.0,
+      "rms_rel": 0.05462166300533407,
+      "durbin_watson": 1.7514864261022494
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  }
+ }
+}

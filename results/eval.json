@@ -4,7 +4,7 @@
   "test",
   "faults"
  ],
- "wall_s": 134.5,
+ "wall_s": 4580.4,
  "metrics": {
   "n_clean": 10,
   "n_faults": 9,
@@ -21,9 +21,15 @@
   "virtual_xafs_rfactor_median": 0.021892434358169125,
   "virtual_xafs_n": 10,
   "virtual_xafs_hidden_rfactor_median": 0.01097670969326888,
-  "runtime_s_mean": 25.07947368421053,
-  "runtime_s_max": 53.28,
-  "llm_tokens_per_sample": 0,
+  "runtime_s_mean": 25.82842105263158,
+  "runtime_s_max": 58.04,
+  "llm_tokens_per_sample": 39491.38888888889,
+  "agent_wall_s_mean": 1537.5777777777778,
+  "agent_rounds_mean": 1.7222222222222223,
+  "fault_detection_rate_agents": 0.625,
+  "false_alarm_rate_agents": 0.0,
+  "unsupported_numbers_total": 0,
+  "agent_errors": 1,
   "size_rel_mae_xrd": 0.09892335234634506,
   "size_n_xrd": 8,
   "size_rel_mae_pdf": 0.038457766992854345,
@@ -92,7 +98,7 @@
    "pass": true
   },
   "runtime_s_mean": {
-   "value": 25.07947368421053,
+   "value": 25.82842105263158,
    "max": 120,
    "pass": true
   },
@@ -122,7 +128,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 5.35,
+   "runtime_s": 5.59,
    "errors": {},
    "exafs": [
     {
@@ -144,6 +150,17 @@
      1.0,
      3.5
     ]
+   },
+   "agents": {
+    "rounds": 1,
+    "confirmed": [],
+    "objections": 0,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 20877,
+    "llm_calls": 6,
+    "wall_s": 532.4,
+    "phase": "CeO2"
    }
   },
   {
@@ -164,7 +181,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 28.55,
+   "runtime_s": 28.11,
    "errors": {},
    "exafs": [
     {
@@ -190,6 +207,17 @@
     "xrd": 0.23991180580235238,
     "pdf": 0.013678414779421172,
     "exafs": -0.2655040692020897
+   },
+   "agents": {
+    "rounds": 1,
+    "confirmed": [],
+    "objections": 0,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 19932,
+    "llm_calls": 6,
+    "wall_s": 411.9,
+    "phase": "Pt"
    }
   },
   {
@@ -210,7 +238,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 15.78,
+   "runtime_s": 15.76,
    "errors": {},
    "exafs": [
     {
@@ -236,6 +264,17 @@
    "size_rel_err": {
     "xrd": 0.013556936752551488,
     "pdf": 0.015919408456485266
+   },
+   "agents": {
+    "rounds": 1,
+    "confirmed": [],
+    "objections": 0,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 24677,
+    "llm_calls": 6,
+    "wall_s": 546.3,
+    "phase": "TiO2-anatase"
    }
   },
   {
@@ -256,7 +295,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 36.39,
+   "runtime_s": 35.59,
    "errors": {},
    "exafs": [
     {
@@ -288,6 +327,17 @@
     "xrd": 0.16086377655297968,
     "pdf": 0.006142843599181328,
     "exafs": 0.6654211152930627
+   },
+   "agents": {
+    "rounds": 3,
+    "confirmed": [],
+    "objections": 2,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 65258,
+    "llm_calls": 10,
+    "wall_s": 2306.1,
+    "phase": "Pt3Co"
    }
   },
   {
@@ -308,7 +358,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 40.46,
+   "runtime_s": 39.76,
    "errors": {},
    "pdf_R_err": [
     0.00011968553204955157,
@@ -326,6 +376,17 @@
    "size_rel_err": {
     "xrd": 0.05331480426967954,
     "pdf": 0.013345663583654426
+   },
+   "agents": {
+    "rounds": 1,
+    "confirmed": [],
+    "objections": 0,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 17176,
+    "llm_calls": 5,
+    "wall_s": 1087.0,
+    "phase": "PtNi"
    }
   },
   {
@@ -346,7 +407,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 24.13,
+   "runtime_s": 24.12,
    "errors": {},
    "exafs": [
     {
@@ -372,6 +433,17 @@
    "size_rel_err": {
     "xrd": -0.21807625282943627,
     "pdf": -0.06582255239541447
+   },
+   "agents": {
+    "rounds": 2,
+    "confirmed": [],
+    "objections": 2,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 44964,
+    "llm_calls": 7,
+    "wall_s": 1586.2,
+    "phase": "Co3O4"
    }
   },
   {
@@ -392,7 +464,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 20.17,
+   "runtime_s": 19.91,
    "errors": {},
    "exafs": [
     {
@@ -418,6 +490,17 @@
    "size_rel_err": {
     "xrd": 0.010345558418863308,
     "pdf": 0.1128225598330094
+   },
+   "agents": {
+    "rounds": 1,
+    "confirmed": [],
+    "objections": 0,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 22566,
+    "llm_calls": 6,
+    "wall_s": 1127.1,
+    "phase": "PtO2"
    }
   },
   {
@@ -438,7 +521,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 10.8,
+   "runtime_s": 10.73,
    "errors": {},
    "exafs": [
     {
@@ -464,6 +547,17 @@
    "size_rel_err": {
     "xrd": 0.022493807784000418,
     "pdf": -0.06765150892281026
+   },
+   "agents": {
+    "rounds": 3,
+    "confirmed": [],
+    "objections": 2,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 62275,
+    "llm_calls": 10,
+    "wall_s": 2184.3,
+    "phase": "IrO2"
    }
   },
   {
@@ -484,7 +578,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 5.88,
+   "runtime_s": 5.7,
    "errors": {},
    "exafs": [
     {
@@ -506,6 +600,17 @@
      1.0,
      3.5
     ]
+   },
+   "agents": {
+    "rounds": 1,
+    "confirmed": [],
+    "objections": 0,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 23493,
+    "llm_calls": 5,
+    "wall_s": 1862.6,
+    "phase": "CeO2"
    }
   },
   {
@@ -526,7 +631,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 19.11,
+   "runtime_s": 20.02,
    "errors": {},
    "exafs": [
     {
@@ -552,6 +657,17 @@
     "xrd": 0.0728238763608973,
     "pdf": 0.012279184372858399,
     "exafs": -0.1546853480632555
+   },
+   "agents": {
+    "rounds": 1,
+    "confirmed": [],
+    "objections": 0,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 26215,
+    "llm_calls": 6,
+    "wall_s": 817.1,
+    "phase": "Pt"
    }
   },
   {
@@ -574,7 +690,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 36.72,
+   "runtime_s": 39.85,
    "errors": {},
    "exafs": [
     {
@@ -600,6 +716,9 @@
    "size_rel_err": {
     "xrd": -0.2979400314908497,
     "pdf": -0.27514132492118104
+   },
+   "agents": {
+    "error": "ChunkedEncodingError: Response ended prematurely"
    }
   },
   {
@@ -622,7 +741,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 21.0,
+   "runtime_s": 22.5,
    "errors": {},
    "exafs": [
     {
@@ -648,6 +767,17 @@
     "xrd": -0.005325343897532335,
     "pdf": 0.15098785805189338,
     "exafs": 0.624279691078689
+   },
+   "agents": {
+    "rounds": 1,
+    "confirmed": [],
+    "objections": 0,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 15881,
+    "llm_calls": 6,
+    "wall_s": 634.4,
+    "phase": "Pt"
    }
   },
   {
@@ -670,7 +800,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 4.14,
+   "runtime_s": 4.54,
    "errors": {},
    "exafs": [
     {
@@ -696,6 +826,17 @@
    "size_rel_err": {
     "xrd": 0.026333304755966166,
     "pdf": -0.09372522075648153
+   },
+   "agents": {
+    "rounds": 3,
+    "confirmed": [],
+    "objections": 2,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 77766,
+    "llm_calls": 10,
+    "wall_s": 2035.1,
+    "phase": "CeO2"
    }
   },
   {
@@ -718,7 +859,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 53.28,
+   "runtime_s": 58.04,
    "errors": {},
    "exafs": [
     {
@@ -744,6 +885,17 @@
     "xrd": 0.14774296768239314,
     "pdf": -0.34021884611414505,
     "exafs": -0.5769924685967378
+   },
+   "agents": {
+    "rounds": 2,
+    "confirmed": [],
+    "objections": 1,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 55403,
+    "llm_calls": 8,
+    "wall_s": 2616.5,
+    "phase": null
    }
   },
   {
@@ -766,7 +918,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 42.49,
+   "runtime_s": 46.0,
    "errors": {},
    "exafs": [
     {
@@ -791,6 +943,17 @@
    "size_rel_err": {
     "xrd": -0.22793070576732802,
     "pdf": -0.5320566212129277
+   },
+   "agents": {
+    "rounds": 1,
+    "confirmed": [],
+    "objections": 0,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 27531,
+    "llm_calls": 6,
+    "wall_s": 1793.4,
+    "phase": null
    }
   },
   {
@@ -813,7 +976,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 18.33,
+   "runtime_s": 20.11,
    "errors": {},
    "exafs": [
     {
@@ -839,6 +1002,17 @@
     "xrd": 0.062214294704686805,
     "pdf": 0.06876741806594794,
     "exafs": 0.3687017482903655
+   },
+   "agents": {
+    "rounds": 3,
+    "confirmed": [],
+    "objections": 3,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 68021,
+    "llm_calls": 9,
+    "wall_s": 3480.8,
+    "phase": "Pt"
    }
   },
   {
@@ -861,7 +1035,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 16.93,
+   "runtime_s": 19.3,
    "errors": {
     "exafs": "ValueError: absorber Ce is not in the refined model TiO2",
     "virtual_xafs": "ValueError: Ce is not in the refined model"
@@ -871,6 +1045,17 @@
    "size_rel_err": {
     "xrd": 0.17801449807634628,
     "pdf": -0.10818474744034473
+   },
+   "agents": {
+    "rounds": 3,
+    "confirmed": [],
+    "objections": 4,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 61567,
+    "llm_calls": 10,
+    "wall_s": 1814.7,
+    "phase": null
    }
   },
   {
@@ -893,7 +1078,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 45.8,
+   "runtime_s": 45.75,
    "errors": {},
    "exafs": [
     {
@@ -919,6 +1104,17 @@
    "size_rel_err": {
     "xrd": 0.20003513747472046,
     "pdf": 0.35337037826925544
+   },
+   "agents": {
+    "rounds": 2,
+    "confirmed": [],
+    "objections": 1,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 52024,
+    "llm_calls": 9,
+    "wall_s": 1722.4,
+    "phase": null
    }
   },
   {
@@ -941,7 +1137,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 31.2,
+   "runtime_s": 29.36,
    "errors": {},
    "exafs": [
     {
@@ -972,6 +1168,17 @@
    "size_rel_err": {
     "xrd": 0.08168505288904555,
     "pdf": -0.07811425794477224
+   },
+   "agents": {
+    "rounds": 1,
+    "confirmed": [],
+    "objections": 0,
+    "discarded": 0,
+    "unsupported_numbers": [],
+    "tokens": 25219,
+    "llm_calls": 6,
+    "wall_s": 1118.1,
+    "phase": "Pt3Co"
    }
   }
  ]

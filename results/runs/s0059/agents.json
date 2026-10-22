@@ -1,0 +1,700 @@
+{
+ "sample_id": "s0059",
+ "model": {
+  "phase": "Pt3Co",
+  "summary": "All three techniques (XRD, PDF, EXAFS) agree that the sample is Pt3Co.",
+  "claims": [
+   {
+    "statement": "Phase consistency (XRD vs PDF) \u2013 both identify Pt3Co as the dominant phase.",
+    "evidence": [
+     "check.C1",
+     "xrd.ranking",
+     "pdf.best",
+     "pdf.fit.Pt3Co"
+    ]
+   },
+   {
+    "statement": "Lattice parameters of the Pt3Co phase are a = b = c = 3.832 \u00c5.",
+    "evidence": [
+     "pdf.fit.Pt3Co"
+    ]
+   },
+   {
+    "statement": "Particle size from XRD (sphere diameter 3.39\u202fnm, Scherrer 2.76\u202fnm) agrees with PDF size (2.89\u202fnm) within 0.173 relative difference.",
+    "evidence": [
+     "check.C6"
+    ]
+   },
+   {
+    "statement": "Bond lengths from EXAFS match the PDF\u2011refined model: Pt\u2011Co = 2.712\u202f\u00c5 (PDF 2.709\u202f\u00c5, \u0394 = 0.0023\u202f\u00c5); Pt\u2011Pt = 2.708\u202f\u00c5 (PDF 2.709\u202f\u00c5, \u0394 = \u20130.0016\u202f\u00c5).",
+    "evidence": [
+     "check.C2"
+    ]
+   },
+   {
+    "statement": "EXAFS coordination numbers differ from bulk model values (Pt\u2011Co diff = 0.56, Pt\u2011Pt diff = 1.57; max absolute diff = 1.57). This suggests surface segregation, vacancies, or a disordered surface.",
+    "evidence": [
+     "check.C3"
+    ]
+   },
+   {
+    "statement": "Oxidation state: XANES valence 0.07, bond\u2011valence sum 0.0, formal valence 0.0 \u2013 consistent with a metallic Pt3Co phase.",
+    "evidence": [
+     "check.C4"
+    ]
+   },
+   {
+    "statement": "Disorder: EXAFS \u03c3\u00b2 values are 0.977 (Pt\u2011Co) and 0.795 (Pt\u2011Pt) times the uncorrelated PDF widths, as expected for correlated atomic motion.",
+    "evidence": [
+     "check.C5"
+    ]
+   },
+   {
+    "statement": "Joint simulation score: Pt3Co has the lowest combined score (0.0347) with a margin of 0.0474 over the next candidate.",
+    "evidence": [
+     "check.C7"
+    ]
+   },
+   {
+    "statement": "Visual inspection: XRD, PDF, and EXAFS data all accepted by the gpt\u2011oss judge.",
+    "evidence": [
+     "vision.xrd",
+     "vision.pdf",
+     "vision.exafs"
+    ]
+   }
+  ],
+  "responses": []
+ },
+ "log": [],
+ "rounds": 1,
+ "confirmed": [],
+ "unsupported_numbers": [],
+ "report_md": "# Concord report \u2014 s0059 (Pt3Co)\n\n**All three techniques (XRD, PDF, EXAFS) agree that the sample is Pt\u2083Co.**\n\nPhase: **Pt3Co**\n\nAll three techniques (XRD, PDF, EXAFS) agree that the sample is Pt3Co.\n\n## Key numbers (from the tools)\n\n- **XRD**: best match Pt3Co (profile correlation 0.958, 91 % of the peak area explained); sphere diameter 3.4 nm from 7 indexed reflections\n- **PDF**: Pt3Co refines to Rw 0.054; a 3.8315 \u00c5; U_iso Co 0.0054 \u00c5\u00b2, Pt 0.0032 \u00c5\u00b2; particle diameter 2.9 nm\n- **EXAFS** (Pt L3): Pt\u2013Co N 4.0 \u00b1 0.8 at 2.712 \u00c5, \u03c3\u00b2 0.0084 \u00c5\u00b2; Pt\u2013Pt N 8.5 \u00b1 1.1 at 2.708 \u00c5, \u03c3\u00b2 0.0051 \u00c5\u00b2; R-factor 0.0034\n- **XANES**: Pt valence 0.07 from a linear combination of standards, 0.16 from the edge position\n- **Bond valence** (PDF model): 0.00\n\n## Evidence by technique\n\n- **XRD**: XRD identifies Pt\u2083Co as the dominant phase with a score of 0.9393, profile correlation 0.9579 and explains 91.15% of the observed area; the particle\u2011size analysis yields a sphere diameter of 3.388\u202fnm (Scherrer median 2.755\u202fnm).\n- **PDF**: PDF fitting selects Pt\u2083Co as the best candidate (rw\u202f=\u202f0.05376) with lattice parameters a\u202f=\u202fb\u202f=\u202fc\u202f=\u202f3.832\u202f\u00c5 and a refined particle size of 2.887\u202fnm, consistent with the XRD size (relative difference 0.173).\n- **EXAFS**: EXAFS fit to a CoPt\u2083 model gives Pt\u2011Co bond length 2.712\u202f\u00c5 (\u0394\u202f=\u202f0.0023\u202f\u00c5) and Pt\u2011Pt bond length 2.708\u202f\u00c5 (\u0394\u202f=\u202f\u20110.0016\u202f\u00c5), coordination numbers 4.0 (Pt\u2011Co) and 8.45 (Pt\u2011Pt) with warnings for deviations up to 1.57, and \u03c3\u00b2 values 0.977 and 0.795 times the uncorrelated PDF widths, as expected for correlated motion.\n- **XANES**: XANES analysis yields a Pt valence of 0.0735, matching the bond\u2011valence\u2011sum and formal valence of 0.0, indicating a metallic Pt\u2083Co phase.\n\n## Cross-technique checks\n\n| check | status | explanation |\n|---|---|---|\n| C1 Phase consistency (XRD vs PDF) | pass | XRD and PDF agree on Pt3Co. |\n| C2 Bond lengths (EXAFS R vs PDF model) | pass | EXAFS bond lengths match the PDF-refined model. |\n| C3 Coordination numbers (EXAFS N vs model) | **warn** | EXAFS coordination differs from the model by up to 1.6: segregation, vacancies or a disordered surface. |\n| C4 Oxidation state (XANES vs bond-valence sum) | pass | XANES and the bond-valence sum agree. |\n| C5 Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) | pass | EXAFS \u03c3\u00b2 is 0.80\u20130.98 \u00d7 the uncorrelated PDF width, as expected: EXAFS measures the relative motion of bonded neighbours, which move together, while U_i + U_j counts their motions independently. |\n| C6 Size (XRD vs PDF) | pass | XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter. |\n| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | Pt3Co has the best joint score (margin 0.047). |\n\n## Virtual XAFS \u2014 PREDICTED, NOT MEASURED\n\nPt L3 EXAFS computed with FEFF from the PDF-refined model (Pt3Co; 24 ensemble members, Debye temperature 267\u2013269 K). This edge was measured, so the prediction serves as a consistency check against the measurement.\n\nAgainst the measured spectrum: R-factor 0.0081 in R 1.0\u20133.5 \u00c5.\n\n## Literature priors (other samples: context, not constraints)\n\n- particle size 3.9 nm, [doi:10.1002/adfm.202408383](https://doi.org/10.1002/adfm.202408383) (2024): \u00abThe average size of well\u2010dispersed Pt3Co i\u2010NPs (\u22483.9 nm) on Te\u2500C is considerably smaller than that of Pt3Co i\u2010NPs (\u22489.1 nm) on commercial carbon.\u00bb\n- particle size 9.1 nm, [doi:10.1002/adfm.202408383](https://doi.org/10.1002/adfm.202408383) (2024): \u00abThe average size of well\u2010dispersed Pt3Co i\u2010NPs (\u22483.9 nm) on Te\u2500C is considerably smaller than that of Pt3Co i\u2010NPs (\u22489.1 nm) on commercial carbon.\u00bb\n- particle size 15 nm, [doi:10.1080/15533174.2013.831452](https://doi.org/10.1080/15533174.2013.831452) (2014): \u00abXRD analysis confirmed the average size of Pt3Co@Pt nanocomposites around 15 nm, which allowed the assumption of the role of PBE surfactant.\u00bb\n- particle size 5 nm, [doi:10.1149/2.0531514jes](https://doi.org/10.1149/2.0531514jes) (2015): \u00abThe ASAXS data, as well as data from aqueous dissolution, X-ray absorption spectroscopy, individual particle energy-dispersive spectroscopy, X-ray fluorescence spectrometry, and kinetic Monte Carlo calculations support a\u00bb\n- particle size 5 nm, [doi:10.1149/1945-7111/abfcd9](https://doi.org/10.1149/1945-7111/abfcd9) (2021): \u00abComparison of Pt3Co/C and Pt/C with similar mean particle sizes (4.9 vs 5.0 nm) and particle size distributions reveals that the Pt3Co/C has a higher potentiostatic dissolution rate (4\u20135 times), a higher steady state con\u00bb\n- particle size 4.5 nm, [doi:10.26434/chemrxiv.15007168/v1](https://doi.org/10.26434/chemrxiv.15007168/v1) (2026): \u00abParticles with 66% ordered Pt 3 Co and 4.5 nm size could be synthesized by annealing for 2h at 1000\u00b0C followed by 50 h at 600\u00b0C, under 80% CO in N 2 atmosphere.\u00bb\n\n## Claims\n\n0. Phase consistency (XRD vs PDF) \u2013 both identify Pt3Co as the dominant phase. _(evidence: check.C1, xrd.ranking, pdf.best, pdf.fit.Pt3Co)_\n1. Lattice parameters of the Pt3Co phase are a = b = c = 3.832 \u00c5. _(evidence: pdf.fit.Pt3Co)_\n2. Particle size from XRD (sphere diameter 3.39\u202fnm, Scherrer 2.76\u202fnm) agrees with PDF size (2.89\u202fnm) within 0.173 relative difference. _(evidence: check.C6)_\n3. Bond lengths from EXAFS match the PDF\u2011refined model: Pt\u2011Co = 2.712\u202f\u00c5 (PDF 2.709\u202f\u00c5, \u0394 = 0.0023\u202f\u00c5); Pt\u2011Pt = 2.708\u202f\u00c5 (PDF 2.709\u202f\u00c5, \u0394 = \u20130.0016\u202f\u00c5). _(evidence: check.C2)_\n4. EXAFS coordination numbers differ from bulk model values (Pt\u2011Co diff = 0.56, Pt\u2011Pt diff = 1.57; max absolute diff = 1.57). This suggests surface segregation, vacancies, or a disordered surface. _(evidence: check.C3)_\n5. Oxidation state: XANES valence 0.07, bond\u2011valence sum 0.0, formal valence 0.0 \u2013 consistent with a metallic Pt3Co phase. _(evidence: check.C4)_\n6. Disorder: EXAFS \u03c3\u00b2 values are 0.977 (Pt\u2011Co) and 0.795 (Pt\u2011Pt) times the uncorrelated PDF widths, as expected for correlated atomic motion. _(evidence: check.C5)_\n7. Joint simulation score: Pt3Co has the lowest combined score (0.0347) with a margin of 0.0474 over the next candidate. _(evidence: check.C7)_\n8. Visual inspection: XRD, PDF, and EXAFS data all accepted by the gpt\u2011oss judge. _(evidence: vision.xrd, vision.pdf, vision.exafs)_\n\n## Objections and resolutions\n\nThe critic raised no objections.\n\n## Limitations\n\n- Coordination numbers from EXAFS differ from bulk model values (max absolute diff\u202f=\u202f1.57), suggesting possible surface segregation, vacancies, or disorder.\n- The XANES fit has low fidelity (simple edge model) and the oxidation\u2011state tolerance is tight (metal_warn_abs\u202f=\u202f0.2).\n- No objections were logged, but the analysis relies on model assumptions (e.g., spherical particles, correlated motion) that could affect size and disorder estimates.\n",
+ "wall_s": 1118.1,
+ "llm": {
+  "llm_calls": 6,
+  "prompt_tokens": 13475,
+  "completion_tokens": 11744,
+  "llm_seconds": 497.02
+ },
+ "out_dir": "results/runs/s0059",
+ "evidence": {
+  "sample": {
+   "composition": "Pt3Co",
+   "techniques": [
+    "xrd",
+    "pdf",
+    "xafs"
+   ],
+   "candidates": [
+    "Pt",
+    "Pt3Co",
+    "PtNi",
+    "PtO2",
+    "Co3O4"
+   ],
+   "xafs_edge": "Pt L3"
+  },
+  "xrd.ranking": [
+   {
+    "phase": "Pt3Co",
+    "score": 0.9393,
+    "profile_corr": 0.9579,
+    "obs_area_fraction_explained": 0.9115
+   },
+   {
+    "phase": "PtNi",
+    "score": 0.6517,
+    "profile_corr": 0.8895,
+    "obs_area_fraction_explained": 0.295
+   },
+   {
+    "phase": "Pt",
+    "score": 0.4929,
+    "profile_corr": 0.8214,
+    "obs_area_fraction_explained": 0.0
+   }
+  ],
+  "xrd.size": {
+   "sphere_diameter_nm": 3.388,
+   "scherrer_median_nm": 2.755,
+   "williamson_hall_strain": -0.008066,
+   "n_indexed_peaks": 7
+  },
+  "pdf.fit.Pt3Co": {
+   "rw": 0.05376,
+   "lattice": {
+    "a": 3.832,
+    "b": 3.832,
+    "c": 3.832
+   },
+   "lattice_ref": {
+    "a": 3.831,
+    "b": 3.831,
+    "c": 3.831
+   },
+   "uiso": {
+    "Co": 0.005377,
+    "Pt": 0.003194
+   },
+   "delta2": 0.436,
+   "psize_nm": 2.887,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.fit.PtNi": {
+   "rw": 0.09346,
+   "lattice": {
+    "a": 3.832,
+    "b": 3.832,
+    "c": 3.832
+   },
+   "lattice_ref": {
+    "a": 3.785,
+    "b": 3.785,
+    "c": 3.785
+   },
+   "uiso": {
+    "Pt": 0.003266
+   },
+   "delta2": 0.2523,
+   "psize_nm": 2.841,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.fit.Pt": {
+   "rw": 0.09346,
+   "lattice": {
+    "a": 3.832,
+    "b": 3.832,
+    "c": 3.832
+   },
+   "lattice_ref": {
+    "a": 3.922,
+    "b": 3.922,
+    "c": 3.922
+   },
+   "uiso": {
+    "Pt": 0.003266
+   },
+   "delta2": 0.2523,
+   "psize_nm": 2.841,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.best": "Pt3Co",
+  "exafs.fit": {
+   "absorber": "Pt",
+   "edge": "L3",
+   "model": "CoPt3",
+   "rfactor": 0.003364,
+   "e0_shift_eV": -0.3933,
+   "window": {
+    "kmin": 3.0,
+    "kmax": 12.0,
+    "rmin": 1.0,
+    "rmax": 3.709,
+    "kweight": 2.0
+   },
+   "shells": [
+    {
+     "neighbor": "Co",
+     "N": 3.996,
+     "N_err": 0.7522,
+     "R_A": 2.712,
+     "R_err": 0.007547,
+     "sigma2": 0.00837,
+     "extra": null
+    },
+    {
+     "neighbor": "Pt",
+     "N": 8.451,
+     "N_err": 1.137,
+     "R_A": 2.708,
+     "R_err": 0.003363,
+     "sigma2": 0.005078,
+     "extra": null
+    }
+   ]
+  },
+  "exafs.extra_shell": {
+   "pair": "Pt-O",
+   "N": 0.2301,
+   "N_err": 0.2161,
+   "R_A": 1.987,
+   "sigma2": 0.001,
+   "rfactor_without": 0.003364,
+   "rfactor_with": 0.001406,
+   "significant": false
+  },
+  "xanes": {
+   "absorber": "Pt",
+   "edge_eV": 11560.0,
+   "valence": 0.07351,
+   "valence_edge": 0.1583,
+   "lcf_weights": {
+    "Pt+0": 0.9816,
+    "Pt+2": 0.0,
+    "Pt+4": 0.01838
+   }
+  },
+  "bvs": {
+   "valence": 0.0,
+   "formal_valence": 0.0
+  },
+  "virtual_xafs": {
+   "label": "PREDICTED, NOT MEASURED",
+   "edge": "Pt L3",
+   "candidates": [
+    "Pt3Co"
+   ],
+   "theta_K_range": [
+    266.6,
+    268.8
+   ],
+   "vs_measured": {
+    "rfactor_R": 0.008082,
+    "band_coverage_k": 0.01105,
+    "r_window": [
+     1.0,
+     3.5
+    ]
+   },
+   "per_candidate_rfactor": {
+    "Pt3Co": 0.008132,
+    "PtNi": 0.0424,
+    "Pt": 0.08259
+   },
+   "recommendation": "This edge was measured, so the prediction serves as a consistency check against the measurement."
+  },
+  "check.C1": {
+   "name": "Phase consistency (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_phase": "Pt3Co",
+    "xrd_score": 0.939,
+    "xrd_area_explained": 0.911,
+    "peak_rel_intensity": 0.843,
+    "pdf_phase": "Pt3Co",
+    "pdf_rw": 0.054,
+    "pdf_runner_up": "PtNi",
+    "pdf_runner_up_rw": 0.093,
+    "lattice_rel_change": 0.0001
+   },
+   "tolerance": {
+    "pdf_good_rw": 0.25,
+    "xrd_weak_rel_intensity": 0.05,
+    "lattice_warn_rel": 0.003
+   },
+   "explanation": "XRD and PDF agree on Pt3Co."
+  },
+  "check.C2": {
+   "name": "Bond lengths (EXAFS R vs PDF model)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Pt-Co",
+      "exafs_R_A": 2.712,
+      "exafs_err": 0.0075,
+      "pdf_model_R_A": 2.709,
+      "diff_A": 0.0023
+     },
+     {
+      "pair": "Pt-Pt",
+      "exafs_R_A": 2.708,
+      "exafs_err": 0.0034,
+      "pdf_model_R_A": 2.709,
+      "diff_A": -0.0016
+     }
+    ],
+    "max_abs_diff_A": 0.0023
+   },
+   "tolerance": {
+    "warn_A": 0.02,
+    "fail_A": 0.05
+   },
+   "explanation": "EXAFS bond lengths match the PDF-refined model."
+  },
+  "check.C3": {
+   "name": "Coordination numbers (EXAFS N vs model)",
+   "status": "warn",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Pt-Co",
+      "exafs_N": 4.0,
+      "exafs_err": 0.75,
+      "model_N_bulk": 4.0,
+      "surface_factor": 0.86,
+      "model_N": 3.44,
+      "diff": 0.56
+     },
+     {
+      "pair": "Pt-Pt",
+      "exafs_N": 8.45,
+      "exafs_err": 1.14,
+      "model_N_bulk": 8.0,
+      "surface_factor": 0.86,
+      "model_N": 6.88,
+      "diff": 1.57
+     }
+    ],
+    "extra_shell": null,
+    "max_abs_diff": 1.57
+   },
+   "tolerance": {
+    "warn_abs": 1.0,
+    "fail_abs": 2.0,
+    "extra_min_sigma": 3.0,
+    "extra_min_rfactor_drop": 0.3
+   },
+   "explanation": "EXAFS coordination differs from the model by up to 1.6: segregation, vacancies or a disordered surface."
+  },
+  "check.C4": {
+   "name": "Oxidation state (XANES vs bond-valence sum)",
+   "status": "pass",
+   "values": {
+    "xanes_valence": 0.07,
+    "xanes_edge_valence": 0.16,
+    "lcf": {
+     "Pt+0": 0.9816,
+     "Pt+2": 0.0,
+     "Pt+4": 0.01838
+    },
+    "bvs_valence": 0.0,
+    "formal_valence": 0.0,
+    "diff": 0.07,
+    "metallic_model": true,
+    "xanes_fidelity": "low (simple edge model)"
+   },
+   "tolerance": {
+    "warn_abs": 0.5,
+    "fail_abs": 1.0,
+    "metal_warn_abs": 0.2,
+    "metal_fail_abs": 0.25,
+    "bvs_shift_min": 0.03,
+    "xanes_shift_min": 0.1
+   },
+   "explanation": "XANES and the bond-valence sum agree."
+  },
+  "check.C5": {
+   "name": "Disorder (EXAFS \u03c3\u00b2 vs PDF pair width)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Pt-Co",
+      "exafs_sigma2": 0.00837,
+      "pdf_uncorrelated_sigma2": 0.00857,
+      "pdf_with_delta2_sigma2": 0.00806,
+      "ratio_exafs_to_pdf": 0.977
+     },
+     {
+      "pair": "Pt-Pt",
+      "exafs_sigma2": 0.00508,
+      "pdf_uncorrelated_sigma2": 0.00639,
+      "pdf_with_delta2_sigma2": 0.00601,
+      "ratio_exafs_to_pdf": 0.795
+     }
+    ]
+   },
+   "tolerance": {
+    "ratio_low": 0.3,
+    "ratio_high": 1.3
+   },
+   "explanation": "EXAFS \u03c3\u00b2 is 0.80\u20130.98 \u00d7 the uncorrelated PDF width, as expected: EXAFS measures the relative motion of bonded neighbours, which move together, while U_i + U_j counts their motions independently."
+  },
+  "check.C6": {
+   "name": "Size (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_sphere_diameter_nm": 3.39,
+    "xrd_scherrer_nm": 2.76,
+    "pdf_diameter_nm": 2.89,
+    "rel_diff": 0.173
+   },
+   "tolerance": {
+    "warn_rel": 0.25,
+    "fail_rel": 0.5
+   },
+   "explanation": "XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter."
+  },
+  "check.C7": {
+   "name": "Joint simulation score (XRD + PDF + EXAFS)",
+   "status": "pass",
+   "values": {
+    "candidates": [
+     {
+      "candidate": "Pt3Co",
+      "xrd": 0.0421,
+      "pdf": 0.0538,
+      "exafs": 0.0081,
+      "score": 0.0347
+     },
+     {
+      "candidate": "PtNi",
+      "xrd": 0.1105,
+      "pdf": 0.0935,
+      "exafs": 0.0424,
+      "score": 0.0821
+     },
+     {
+      "candidate": "Pt",
+      "xrd": 0.1786,
+      "pdf": 0.0935,
+      "exafs": 0.0826,
+      "score": 0.1182
+     }
+    ],
+    "margin": 0.0474,
+    "techniques": [
+     "exafs",
+     "pdf",
+     "xrd"
+    ]
+   },
+   "tolerance": {
+    "min_margin": 0.02
+   },
+   "explanation": "Pt3Co has the best joint score (margin 0.047)."
+  },
+  "prior.1": {
+   "quantity": "particle_size",
+   "value": 3.9,
+   "unit": "nm",
+   "doi": "10.1002/adfm.202408383",
+   "snippet": "The average size of well\u2010dispersed Pt3Co i\u2010NPs (\u22483.9 nm) on Te\u2500C is considerably smaller than that of Pt3Co i\u2010NPs (\u22489.1 nm) on commercial carbon."
+  },
+  "prior.2": {
+   "quantity": "particle_size",
+   "value": 9.1,
+   "unit": "nm",
+   "doi": "10.1002/adfm.202408383",
+   "snippet": "The average size of well\u2010dispersed Pt3Co i\u2010NPs (\u22483.9 nm) on Te\u2500C is considerably smaller than that of Pt3Co i\u2010NPs (\u22489.1 nm) on commercial carbon."
+  },
+  "prior.3": {
+   "quantity": "particle_size",
+   "value": 15.0,
+   "unit": "nm",
+   "doi": "10.1080/15533174.2013.831452",
+   "snippet": "XRD analysis confirmed the average size of Pt3Co@Pt nanocomposites around 15 nm, which allowed the assumption of the role of PBE surfactant."
+  },
+  "prior.4": {
+   "quantity": "particle_size",
+   "value": 5.0,
+   "unit": "nm",
+   "doi": "10.1149/2.0531514jes",
+   "snippet": "The ASAXS data, as well as data from aqueous dissolution, X-ray absorption spectroscopy, individual particle energy-dispersive spectroscopy, X-ray fluorescence spectrometry, and kinetic Monte Carlo calculations support a loss mechanism of increased Pt dissolution from Pt 3 Co versus Pt due to destab"
+  },
+  "prior.5": {
+   "quantity": "particle_size",
+   "value": 5.0,
+   "unit": "nm",
+   "doi": "10.1149/1945-7111/abfcd9",
+   "snippet": "Comparison of Pt3Co/C and Pt/C with similar mean particle sizes (4.9 vs 5.0 nm) and particle size distributions reveals that the Pt3Co/C has a higher potentiostatic dissolution rate (4\u20135 times), a higher steady state concentration of dissolved Pt (\u223c2 times), and a larger change in electrochemically-"
+  },
+  "prior.6": {
+   "quantity": "particle_size",
+   "value": 4.5,
+   "unit": "nm",
+   "doi": "10.26434/chemrxiv.15007168/v1",
+   "snippet": "Particles with 66% ordered Pt 3 Co and 4.5 nm size could be synthesized by annealing for 2h at 1000\u00b0C followed by 50 h at 600\u00b0C, under 80% CO in N 2 atmosphere."
+  },
+  "vision.xrd": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": null,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.pdf": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 2.082,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.exafs": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 1.387,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  }
+ },
+ "vision": {
+  "virtual_xafs": {
+   "plot": "results/runs/s0059/virtual_xafs.png"
+  },
+  "xrd": {
+   "plot": "results/runs/s0059/xrd_fit.png",
+   "features": {
+    "n_independent": 4001,
+    "thinned_by": 1,
+    "rms_rel": 0.09304780842523783,
+    "durbin_watson": null,
+    "regions": [
+     {
+      "region": "10.0-26.0",
+      "misfit_share": 0.24280474834005986,
+      "rms_rel": 0.10247141988922515,
+      "durbin_watson": null
+     },
+     {
+      "region": "26.0-42.0",
+      "misfit_share": 0.4333504803092555,
+      "rms_rel": 0.1368969610226786,
+      "durbin_watson": null
+     },
+     {
+      "region": "42.0-58.0",
+      "misfit_share": 0.1504040077204177,
+      "rms_rel": 0.08064990693839917,
+      "durbin_watson": null
+     },
+     {
+      "region": "58.0-74.0",
+      "misfit_share": 0.07860330743378031,
+      "rms_rel": 0.05830349327336212,
+      "durbin_watson": null
+     },
+     {
+      "region": "74.0-90.0",
+      "misfit_share": 0.09525096993534521,
+      "rms_rel": 0.06418135320957194,
+      "durbin_watson": null
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  },
+  "pdf": {
+   "plot": "results/runs/s0059/pdf_fit.png",
+   "features": {
+    "n_independent": 196,
+    "thinned_by": 12,
+    "rms_rel": 0.053680490222086895,
+    "durbin_watson": 2.0815499271252116,
+    "regions": [
+     {
+      "region": "1.5-6.2",
+      "misfit_share": 0.36876608238136155,
+      "rms_rel": 0.07215891560275157,
+      "durbin_watson": 1.3958273682540132
+     },
+     {
+      "region": "6.2-10.9",
+      "misfit_share": 0.18171726852190953,
+      "rms_rel": 0.050653867886236825,
+      "durbin_watson": 1.7729318238777343
+     },
+     {
+      "region": "10.9-15.5",
+      "misfit_share": 0.13267505920413727,
+      "rms_rel": 0.04328218313846472,
+      "durbin_watson": 2.566359816068188
+     },
+     {
+      "region": "15.5-20.2",
+      "misfit_share": 0.15261219372255447,
+      "rms_rel": 0.04642042698218459,
+      "durbin_watson": 2.852546185781135
+     },
+     {
+      "region": "20.2-24.9",
+      "misfit_share": 0.17048319956704974,
+      "rms_rel": 0.049063136357161356,
+      "durbin_watson": 2.74993980691658
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  },
+  "exafs": {
+   "plot": "results/runs/s0059/exafs_fit.png",
+   "features": {
+    "n_independent": 15,
+    "thinned_by": 6,
+    "rms_rel": 0.04180993553899257,
+    "durbin_watson": 1.3865158536952038,
+    "regions": [
+     {
+      "region": "1.0-3.6",
+      "misfit_share": 1.0,
+      "rms_rel": 0.04180993553899257,
+      "durbin_watson": 1.3865158536952038
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  }
+ }
+}

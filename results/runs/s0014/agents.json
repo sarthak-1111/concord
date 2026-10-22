@@ -1,0 +1,651 @@
+{
+ "sample_id": "s0014",
+ "model": {
+  "phase": "TiO2-anatase",
+  "summary": "Combined analysis of XRD, PDF and XAFS data indicates that the sample is TiO2\u2011anatase. All technical checks pass except a warning on the oxidation state, which is physically interpretable as surface reduction or mixed valence not captured by the bulk model.",
+  "claims": [
+   {
+    "statement": "Phase consistency (XRD vs PDF) \u2013 TiO2\u2011anatase is the common phase.",
+    "evidence": [
+     "check.C1",
+     "xrd.ranking",
+     "pdf.best"
+    ]
+   },
+   {
+    "statement": "Bond lengths (EXAFS R vs PDF model) \u2013 Ti\u2011O distance from EXAFS (1.947\u202f\u00c5) matches the PDF\u2011refined Ti\u2011O distance (1.953\u202f\u00c5) with a max absolute difference of 0.0056\u202f\u00c5.",
+    "evidence": [
+     "check.C2",
+     "exafs.fit",
+     "pdf.fit.TiO2-anatase"
+    ]
+   },
+   {
+    "statement": "Coordination numbers (EXAFS N vs model) \u2013 EXAFS Ti\u2011O coordination (6.62) is close to the surface\u2011adjusted model value (5.75), derived from bulk coordination (6.0) and surface factor (0.959); the difference is 0.87, below the warning threshold.",
+    "evidence": [
+     "check.C3",
+     "exafs.fit",
+     "pdf.fit.TiO2-anatase"
+    ]
+   },
+   {
+    "statement": "Oxidation state (XANES vs bond\u2011valence sum) \u2013 XANES linear\u2011combination fit yields a mixed valence (\u22483.5) whereas the bond\u2011valence sum gives 4.008; the difference of -0.51 exceeds the warn limit (0.5) and suggests surface reduction or vacancies.",
+    "evidence": [
+     "check.C4",
+     "xanes",
+     "bvs"
+    ]
+   },
+   {
+    "statement": "Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) \u2013 EXAFS \u03c3\u00b2 for Ti\u2011O (0.00763\u202f\u00c5\u00b2) is 1.124\u202f\u00d7 the uncorrelated PDF width (0.00678\u202f\u00c5\u00b2), within the acceptable ratio range (0.3\u20131.3).",
+    "evidence": [
+     "check.C5",
+     "exafs.fit",
+     "pdf.fit.TiO2-anatase"
+    ]
+   },
+   {
+    "statement": "Size (XRD vs PDF) \u2013 XRD\u2011derived sphere diameter (7.15\u202fnm) and PDF\u2011derived particle size (7.17\u202fnm) differ by -0.002, well within the tolerance.",
+    "evidence": [
+     "check.C6",
+     "xrd.size",
+     "pdf.fit.TiO2-anatase"
+    ]
+   },
+   {
+    "statement": "Joint simulation score (XRD + PDF + EXAFS) \u2013 TiO2\u2011anatase has the best overall score (0.0874) versus rutile (0.6965) with a margin of 0.609, exceeding the required minimum margin (0.02).",
+    "evidence": [
+     "check.C7"
+    ]
+   }
+  ],
+  "responses": []
+ },
+ "log": [],
+ "rounds": 1,
+ "confirmed": [],
+ "unsupported_numbers": [],
+ "report_md": "# Concord report \u2014 s0014 (TiO2)\n\n**TiO2\u2011anatase identified as the consistent phase across XRD, PDF, and XAFS analyses.**\n\nPhase: **TiO2-anatase**\n\nCombined analysis of XRD, PDF and XAFS data indicates that the sample is TiO2\u2011anatase. All technical checks pass except a warning on the oxidation state, which is physically interpretable as surface reduction or mixed valence not captured by the bulk model.\n\n## Key numbers (from the tools)\n\n- **XRD**: best match TiO2-anatase (profile correlation 0.981, 100 % of the peak area explained); sphere diameter 7.1 nm from 8 indexed reflections\n- **PDF**: TiO2-anatase refines to Rw 0.240; a 3.7825 \u00c5, c 9.5218 \u00c5; U_iso O 0.0048 \u00c5\u00b2, Ti 0.0020 \u00c5\u00b2; particle diameter 7.2 nm\n- **EXAFS** (Ti K): Ti\u2013O N 6.6 \u00b1 0.7 at 1.947 \u00c5, \u03c3\u00b2 0.0076 \u00c5\u00b2; R-factor 0.0077\n- **XANES**: Ti valence 3.50 from a linear combination of standards, 4.02 from the edge position\n- **Bond valence** (PDF model): 4.01\n\n## Evidence by technique\n\n- **XRD**: The XRD ranking gives TiO2\u2011anatase a score of 0.9866 and explains 99.52\u202f% of the observed area, matching the PDF phase and passing the phase\u2011consistency check (C1).\n- **PDF**: PDF refinement of TiO2\u2011anatase yields a low Rw of 0.2397 and a particle size of 7.166\u202fnm, consistent with the XRD sphere diameter of 7.15\u202fnm (check C6).\n- **EXAFS**: EXAFS fitting reports a Ti\u2013O distance of 1.947\u202f\u00c5 (\u0394\u202f=\u202f\u20110.0056\u202f\u00c5 vs PDF model) and a \u03c3\u00b2 of 0.00763\u202f\u00c5\u00b2, a ratio of 1.124 to the PDF pair width, both within tolerances (checks C2, C5).\n- **XANES**: XANES linear\u2011combination fitting yields an average Ti valence of ~3.5, which differs by \u20110.51 from the bond\u2011valence sum of 4.008, triggering a warning on oxidation state (check C4).\n\n## Cross-technique checks\n\n| check | status | explanation |\n|---|---|---|\n| C1 Phase consistency (XRD vs PDF) | pass | XRD and PDF agree on TiO2-anatase. |\n| C2 Bond lengths (EXAFS R vs PDF model) | pass | EXAFS bond lengths match the PDF-refined model. |\n| C3 Coordination numbers (EXAFS N vs model) | pass | EXAFS coordination matches the PDF model after surface truncation. |\n| C4 Oxidation state (XANES vs bond-valence sum) | **warn** | XANES says 3.5, the refined structure implies 4.0: mixed valence, a surface phase or vacancies the average structure misses. |\n| C5 Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) | pass | EXAFS \u03c3\u00b2 is 1.12\u20131.12 \u00d7 the uncorrelated PDF width, as expected: EXAFS measures the relative motion of bonded neighbours, which move together, while U_i + U_j counts their motions independently. |\n| C6 Size (XRD vs PDF) | pass | XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter. |\n| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | TiO2-anatase has the best joint score (margin 0.609). |\n\n## Virtual XAFS \u2014 PREDICTED, NOT MEASURED\n\nTi K EXAFS computed with FEFF from the PDF-refined model (TiO2-anatase; 24 ensemble members, Debye temperature 719\u2013733 K). This edge was measured, so the prediction serves as a consistency check against the measurement.\n\nAgainst the measured spectrum: R-factor 0.0035 in R 1.0\u20133.5 \u00c5.\n\n## Literature priors (other samples: context, not constraints)\n\n- Ti\u2013O bond length 1.93 \u00b1 0.01 \u00c5, [doi:10.1515/zna-1981-1110](https://doi.org/10.1515/zna-1981-1110) (1981): \u00abUsing the theoretical phases, Ti-O bond distances of 1.93(1) \u00c5 were derived both for rutile and anatase, as compared to the crystallographic values of 1.948 - 1.980(1) \u00c5 (rutile) and 1.934-1.980(1) \u00c5 (anatase).\u00bb\n- Ti oxidation state 4, [doi:10.1088/2053-1591/ab4e3f](https://doi.org/10.1088/2053-1591/ab4e3f) (2019): \u00abAnal.At.Spectrom.29 736] coordination environment and Ti 4+ oxidation state was observed with 0.02 and 0.04 O 2 partial pressures, respectively.\u00bb\n- Ti oxidation state 3, [doi:10.1021/jp048567f](https://doi.org/10.1021/jp048567f) (2004): \u00abSurface sensitive reflection mode XAFS indicates that intercalation leads to a 3\u22124 nm surface region characterized by an effective Ti oxidation state close to 3+.\u00bb\n- Ti oxidation state 3, [doi:10.2139/ssrn.6544703](https://doi.org/10.2139/ssrn.6544703) (2026): \u00abEPR spectroscopy identified stabilized Ti3+ centers and oxygen-centered radicals, enhanced under UV illumination, indicating sulfate-induced oxygen vacancies and charge localization.\u00bb\n- particle size 5\u201313 nm, [doi:10.1007/s40089-014-0111-x](https://doi.org/10.1007/s40089-014-0111-x) (2014): \u00abThe sizes of synthesized particles were in the range 5\u201313 nm, i.e. 9 nm on an average and with a regular shape.\u00bb\n- particle size 9 nm, [doi:10.1007/s40089-014-0111-x](https://doi.org/10.1007/s40089-014-0111-x) (2014): \u00abThe sizes of synthesized particles were in the range 5\u201313 nm, i.e. 9 nm on an average and with a regular shape.\u00bb\n- particle size 46 nm, [doi:10.4236/snl.2012.24014](https://doi.org/10.4236/snl.2012.24014) (2012): \u00abWe found that the average size of samples was changed from 30 to 46 nm with changing temperature from 450\u2103 to 650\u2103 and at fixed temperature (450\u2103) with changing of calcination times from 1 to 3 hours, the size was change\u00bb\n- particle size 58 nm, [doi:10.4236/snl.2012.24014](https://doi.org/10.4236/snl.2012.24014) (2012): \u00abWe found that the average size of samples was changed from 30 to 46 nm with changing temperature from 450\u2103 to 650\u2103 and at fixed temperature (450\u2103) with changing of calcination times from 1 to 3 hours, the size was change\u00bb\n- particle size 13.8 \u00b1 5.5 nm, [doi:10.1590/1516-1439.301914](https://doi.org/10.1590/1516-1439.301914) (2015): \u00abThe TiO2 elongated nanoparticles having a length of 13.8 \u00b1 5.5 nm and a diameter of 9.0 \u00b11.2 nm were characterized by powder X-Ray diffraction, transmission electron microscopy, selected area diffraction, BET surface are\u00bb\n- particle size 9 \u00b1 1.2 nm, [doi:10.1590/1516-1439.301914](https://doi.org/10.1590/1516-1439.301914) (2015): \u00abThe TiO2 elongated nanoparticles having a length of 13.8 \u00b1 5.5 nm and a diameter of 9.0 \u00b11.2 nm were characterized by powder X-Ray diffraction, transmission electron microscopy, selected area diffraction, BET surface are\u00bb\n\n## Claims\n\n0. Phase consistency (XRD vs PDF) \u2013 TiO2\u2011anatase is the common phase. _(evidence: check.C1, xrd.ranking, pdf.best)_\n1. Bond lengths (EXAFS R vs PDF model) \u2013 Ti\u2011O distance from EXAFS (1.947\u202f\u00c5) matches the PDF\u2011refined Ti\u2011O distance (1.953\u202f\u00c5) with a max absolute difference of 0.0056\u202f\u00c5. _(evidence: check.C2, exafs.fit, pdf.fit.TiO2-anatase)_\n2. Coordination numbers (EXAFS N vs model) \u2013 EXAFS Ti\u2011O coordination (6.62) is close to the surface\u2011adjusted model value (5.75), derived from bulk coordination (6.0) and surface factor (0.959); the difference is 0.87, below the warning threshold. _(evidence: check.C3, exafs.fit, pdf.fit.TiO2-anatase)_\n3. Oxidation state (XANES vs bond\u2011valence sum) \u2013 XANES linear\u2011combination fit yields a mixed valence (\u22483.5) whereas the bond\u2011valence sum gives 4.008; the difference of -0.51 exceeds the warn limit (0.5) and suggests surface reduction or vacancies. _(evidence: check.C4, xanes, bvs)_\n4. Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) \u2013 EXAFS \u03c3\u00b2 for Ti\u2011O (0.00763\u202f\u00c5\u00b2) is 1.124\u202f\u00d7 the uncorrelated PDF width (0.00678\u202f\u00c5\u00b2), within the acceptable ratio range (0.3\u20131.3). _(evidence: check.C5, exafs.fit, pdf.fit.TiO2-anatase)_\n5. Size (XRD vs PDF) \u2013 XRD\u2011derived sphere diameter (7.15\u202fnm) and PDF\u2011derived particle size (7.17\u202fnm) differ by -0.002, well within the tolerance. _(evidence: check.C6, xrd.size, pdf.fit.TiO2-anatase)_\n6. Joint simulation score (XRD + PDF + EXAFS) \u2013 TiO2\u2011anatase has the best overall score (0.0874) versus rutile (0.6965) with a margin of 0.609, exceeding the required minimum margin (0.02). _(evidence: check.C7)_\n\n## Objections and resolutions\n\nThe critic raised no objections.\n\n## Limitations\n\n- The oxidation\u2011state discrepancy (\u20110.51 exceeds the warn limit of 0.5) suggests surface reduction or vacancy effects not captured by the bulk model.\n- No objections were raised in the objection log, but the XANES fidelity is reported as low, indicating limited confidence in the exact valence determination.\n",
+ "wall_s": 546.3,
+ "llm": {
+  "llm_calls": 6,
+  "prompt_tokens": 13790,
+  "completion_tokens": 10887,
+  "llm_seconds": 448.39
+ },
+ "out_dir": "results/runs/s0014",
+ "evidence": {
+  "sample": {
+   "composition": "TiO2",
+   "techniques": [
+    "xrd",
+    "pdf",
+    "xafs"
+   ],
+   "candidates": [
+    "TiO2-anatase",
+    "TiO2-rutile"
+   ],
+   "xafs_edge": "Ti K"
+  },
+  "xrd.ranking": [
+   {
+    "phase": "TiO2-anatase",
+    "score": 0.9866,
+    "profile_corr": 0.9808,
+    "obs_area_fraction_explained": 0.9952
+   },
+   {
+    "phase": "TiO2-rutile",
+    "score": 0.1949,
+    "profile_corr": 0.1528,
+    "obs_area_fraction_explained": 0.258
+   }
+  ],
+  "xrd.size": {
+   "sphere_diameter_nm": 7.15,
+   "scherrer_median_nm": 5.4,
+   "williamson_hall_strain": 0.000852,
+   "n_indexed_peaks": 8
+  },
+  "pdf.fit.TiO2-anatase": {
+   "rw": 0.2397,
+   "lattice": {
+    "a": 3.782,
+    "b": 3.782,
+    "c": 9.522
+   },
+   "lattice_ref": {
+    "a": 3.785,
+    "b": 3.785,
+    "c": 9.52
+   },
+   "uiso": {
+    "O": 0.004782,
+    "Ti": 0.002003
+   },
+   "delta2": 6.303e-19,
+   "psize_nm": 7.166,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.fit.TiO2-rutile": {
+   "rw": 0.9404,
+   "lattice": {
+    "a": 4.648,
+    "b": 4.648,
+    "c": 2.956
+   },
+   "lattice_ref": {
+    "a": 4.589,
+    "b": 4.589,
+    "c": 2.958
+   },
+   "uiso": {
+    "O": 0.05,
+    "Ti": 0.009191
+   },
+   "delta2": 3.872,
+   "psize_nm": 37.73,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.best": "TiO2-anatase",
+  "exafs.fit": {
+   "absorber": "Ti",
+   "edge": "K",
+   "model": "TiO2",
+   "rfactor": 0.007655,
+   "e0_shift_eV": -1.004,
+   "window": {
+    "kmin": 3.0,
+    "kmax": 12.0,
+    "rmin": 1.0,
+    "rmax": 2.929,
+    "kweight": 2.0
+   },
+   "shells": [
+    {
+     "neighbor": "O",
+     "N": 6.62,
+     "N_err": 0.7003,
+     "R_A": 1.947,
+     "R_err": 0.01022,
+     "sigma2": 0.007627,
+     "extra": null
+    }
+   ]
+  },
+  "xanes": {
+   "absorber": "Ti",
+   "edge_eV": 4972.0,
+   "valence": 3.503,
+   "valence_edge": 4.02,
+   "lcf_weights": {
+    "Ti+3": 0.4974,
+    "Ti+4": 0.5026
+   }
+  },
+  "bvs": {
+   "valence": 4.008,
+   "formal_valence": 4.0
+  },
+  "virtual_xafs": {
+   "label": "PREDICTED, NOT MEASURED",
+   "edge": "Ti K",
+   "candidates": [
+    "TiO2-anatase"
+   ],
+   "theta_K_range": [
+    718.8,
+    732.6
+   ],
+   "vs_measured": {
+    "rfactor_R": 0.003486,
+    "band_coverage_k": 0.01657,
+    "r_window": [
+     1.0,
+     3.5
+    ]
+   },
+   "per_candidate_rfactor": {
+    "TiO2-anatase": 0.00343,
+    "TiO2-rutile": 0.3018
+   },
+   "recommendation": "This edge was measured, so the prediction serves as a consistency check against the measurement."
+  },
+  "check.C1": {
+   "name": "Phase consistency (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_phase": "TiO2-anatase",
+    "xrd_score": 0.987,
+    "xrd_area_explained": 0.995,
+    "peak_rel_intensity": 0.936,
+    "pdf_phase": "TiO2-anatase",
+    "pdf_rw": 0.24,
+    "pdf_runner_up": "TiO2-rutile",
+    "pdf_runner_up_rw": 0.94,
+    "lattice_rel_change": 0.0007
+   },
+   "tolerance": {
+    "pdf_good_rw": 0.25,
+    "xrd_weak_rel_intensity": 0.05,
+    "lattice_warn_rel": 0.003
+   },
+   "explanation": "XRD and PDF agree on TiO2-anatase."
+  },
+  "check.C2": {
+   "name": "Bond lengths (EXAFS R vs PDF model)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ti-O",
+      "exafs_R_A": 1.947,
+      "exafs_err": 0.0102,
+      "pdf_model_R_A": 1.953,
+      "diff_A": -0.0056
+     }
+    ],
+    "max_abs_diff_A": 0.0056
+   },
+   "tolerance": {
+    "warn_A": 0.02,
+    "fail_A": 0.05
+   },
+   "explanation": "EXAFS bond lengths match the PDF-refined model."
+  },
+  "check.C3": {
+   "name": "Coordination numbers (EXAFS N vs model)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ti-O",
+      "exafs_N": 6.62,
+      "exafs_err": 0.7,
+      "model_N_bulk": 6.0,
+      "surface_factor": 0.959,
+      "model_N": 5.75,
+      "diff": 0.87
+     }
+    ],
+    "extra_shell": null,
+    "max_abs_diff": 0.87
+   },
+   "tolerance": {
+    "warn_abs": 1.0,
+    "fail_abs": 2.0,
+    "extra_min_sigma": 3.0,
+    "extra_min_rfactor_drop": 0.3
+   },
+   "explanation": "EXAFS coordination matches the PDF model after surface truncation."
+  },
+  "check.C4": {
+   "name": "Oxidation state (XANES vs bond-valence sum)",
+   "status": "warn",
+   "values": {
+    "xanes_valence": 3.5,
+    "xanes_edge_valence": 4.02,
+    "lcf": {
+     "Ti+3": 0.4974,
+     "Ti+4": 0.5026
+    },
+    "bvs_valence": 4.008,
+    "formal_valence": 4.0,
+    "diff": -0.51,
+    "metallic_model": false,
+    "xanes_fidelity": "low (simple edge model)"
+   },
+   "tolerance": {
+    "warn_abs": 0.5,
+    "fail_abs": 1.0,
+    "metal_warn_abs": 0.2,
+    "metal_fail_abs": 0.25,
+    "bvs_shift_min": 0.03,
+    "xanes_shift_min": 0.1
+   },
+   "explanation": "XANES says 3.5, the refined structure implies 4.0: mixed valence, a surface phase or vacancies the average structure misses."
+  },
+  "check.C5": {
+   "name": "Disorder (EXAFS \u03c3\u00b2 vs PDF pair width)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ti-O",
+      "exafs_sigma2": 0.00763,
+      "pdf_uncorrelated_sigma2": 0.00678,
+      "pdf_with_delta2_sigma2": 0.00678,
+      "ratio_exafs_to_pdf": 1.124
+     }
+    ]
+   },
+   "tolerance": {
+    "ratio_low": 0.3,
+    "ratio_high": 1.3
+   },
+   "explanation": "EXAFS \u03c3\u00b2 is 1.12\u20131.12 \u00d7 the uncorrelated PDF width, as expected: EXAFS measures the relative motion of bonded neighbours, which move together, while U_i + U_j counts their motions independently."
+  },
+  "check.C6": {
+   "name": "Size (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_sphere_diameter_nm": 7.15,
+    "xrd_scherrer_nm": 5.4,
+    "pdf_diameter_nm": 7.17,
+    "rel_diff": -0.002
+   },
+   "tolerance": {
+    "warn_rel": 0.25,
+    "fail_rel": 0.5
+   },
+   "explanation": "XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter."
+  },
+  "check.C7": {
+   "name": "Joint simulation score (XRD + PDF + EXAFS)",
+   "status": "pass",
+   "values": {
+    "candidates": [
+     {
+      "candidate": "TiO2-anatase",
+      "xrd": 0.0192,
+      "pdf": 0.2397,
+      "exafs": 0.0034,
+      "score": 0.0874
+     },
+     {
+      "candidate": "TiO2-rutile",
+      "xrd": 0.8472,
+      "pdf": 0.9404,
+      "exafs": 0.3018,
+      "score": 0.6965
+     }
+    ],
+    "margin": 0.6091,
+    "techniques": [
+     "exafs",
+     "pdf",
+     "xrd"
+    ]
+   },
+   "tolerance": {
+    "min_margin": 0.02
+   },
+   "explanation": "TiO2-anatase has the best joint score (margin 0.609)."
+  },
+  "prior.1": {
+   "quantity": "bond_length",
+   "pair": "Ti\u2013O",
+   "value": 1.93,
+   "uncertainty": 0.01,
+   "unit": "\u00c5",
+   "doi": "10.1515/zna-1981-1110",
+   "snippet": "Using the theoretical phases, Ti-O bond distances of 1.93(1) \u00c5 were derived both for rutile and anatase, as compared to the crystallographic values of 1.948 - 1.980(1) \u00c5 (rutile) and 1.934-1.980(1) \u00c5 (anatase)."
+  },
+  "prior.2": {
+   "quantity": "oxidation_state",
+   "element": "Ti",
+   "value": 4,
+   "unit": "",
+   "doi": "10.1088/2053-1591/ab4e3f",
+   "snippet": "Anal.At.Spectrom.29 736] coordination environment and Ti 4+ oxidation state was observed with 0.02 and 0.04 O 2 partial pressures, respectively."
+  },
+  "prior.3": {
+   "quantity": "oxidation_state",
+   "element": "Ti",
+   "value": 3.0,
+   "unit": "",
+   "doi": "10.1021/jp048567f",
+   "snippet": "Surface sensitive reflection mode XAFS indicates that intercalation leads to a 3\u22124 nm surface region characterized by an effective Ti oxidation state close to 3+."
+  },
+  "prior.4": {
+   "quantity": "oxidation_state",
+   "element": "Ti",
+   "value": 3,
+   "unit": "",
+   "doi": "10.2139/ssrn.6544703",
+   "snippet": "EPR spectroscopy identified stabilized Ti3+ centers and oxygen-centered radicals, enhanced under UV illumination, indicating sulfate-induced oxygen vacancies and charge localization."
+  },
+  "prior.5": {
+   "quantity": "particle_size",
+   "value": [
+    5.0,
+    13.0
+   ],
+   "unit": "nm",
+   "doi": "10.1007/s40089-014-0111-x",
+   "snippet": "The sizes of synthesized particles were in the range 5\u201313 nm, i.e. 9 nm on an average and with a regular shape."
+  },
+  "prior.6": {
+   "quantity": "particle_size",
+   "value": 9.0,
+   "unit": "nm",
+   "doi": "10.1007/s40089-014-0111-x",
+   "snippet": "The sizes of synthesized particles were in the range 5\u201313 nm, i.e. 9 nm on an average and with a regular shape."
+  },
+  "prior.7": {
+   "quantity": "particle_size",
+   "value": 46.0,
+   "unit": "nm",
+   "doi": "10.4236/snl.2012.24014",
+   "snippet": "We found that the average size of samples was changed from 30 to 46 nm with changing temperature from 450\u2103 to 650\u2103 and at fixed temperature (450\u2103) with changing of calcination times from 1 to 3 hours, the size was changed from 30 to 58 nm."
+  },
+  "prior.8": {
+   "quantity": "particle_size",
+   "value": 58.0,
+   "unit": "nm",
+   "doi": "10.4236/snl.2012.24014",
+   "snippet": "We found that the average size of samples was changed from 30 to 46 nm with changing temperature from 450\u2103 to 650\u2103 and at fixed temperature (450\u2103) with changing of calcination times from 1 to 3 hours, the size was changed from 30 to 58 nm."
+  },
+  "prior.9": {
+   "quantity": "particle_size",
+   "value": 13.8,
+   "uncertainty": 5.5,
+   "unit": "nm",
+   "doi": "10.1590/1516-1439.301914",
+   "snippet": "The TiO2 elongated nanoparticles having a length of 13.8 \u00b1 5.5 nm and a diameter of 9.0 \u00b11.2 nm were characterized by powder X-Ray diffraction, transmission electron microscopy, selected area diffraction, BET surface area analyzer and FT-IR spectroscopy."
+  },
+  "prior.10": {
+   "quantity": "particle_size",
+   "value": 9.0,
+   "uncertainty": 1.2,
+   "unit": "nm",
+   "doi": "10.1590/1516-1439.301914",
+   "snippet": "The TiO2 elongated nanoparticles having a length of 13.8 \u00b1 5.5 nm and a diameter of 9.0 \u00b11.2 nm were characterized by powder X-Ray diffraction, transmission electron microscopy, selected area diffraction, BET surface area analyzer and FT-IR spectroscopy."
+  },
+  "vision.xrd": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": null,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.pdf": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 1.702,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.exafs": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 1.169,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  }
+ },
+ "vision": {
+  "virtual_xafs": {
+   "plot": "results/runs/s0014/virtual_xafs.png"
+  },
+  "xrd": {
+   "plot": "results/runs/s0014/xrd_fit.png",
+   "features": {
+    "n_independent": 4001,
+    "thinned_by": 1,
+    "rms_rel": 0.062391576950353925,
+    "durbin_watson": null,
+    "regions": [
+     {
+      "region": "10.0-26.0",
+      "misfit_share": 0.41818594875167037,
+      "rms_rel": 0.09017345257851357,
+      "durbin_watson": null
+     },
+     {
+      "region": "26.0-42.0",
+      "misfit_share": 0.41328885117586933,
+      "rms_rel": 0.08964391708225998,
+      "durbin_watson": null
+     },
+     {
+      "region": "42.0-58.0",
+      "misfit_share": 0.11320657438335244,
+      "rms_rel": 0.04691695358092393,
+      "durbin_watson": null
+     },
+     {
+      "region": "58.0-74.0",
+      "misfit_share": 0.03905771440148883,
+      "rms_rel": 0.027557980782727833,
+      "durbin_watson": null
+     },
+     {
+      "region": "74.0-90.0",
+      "misfit_share": 0.021914183050873018,
+      "rms_rel": 0.020642230475443408,
+      "durbin_watson": null
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  },
+  "pdf": {
+   "plot": "results/runs/s0014/pdf_fit.png",
+   "features": {
+    "n_independent": 157,
+    "thinned_by": 15,
+    "rms_rel": 0.23804035714221924,
+    "durbin_watson": 1.7016234497034977,
+    "regions": [
+     {
+      "region": "1.5-6.2",
+      "misfit_share": 0.07327657537208151,
+      "rms_rel": 0.14272761616765353,
+      "durbin_watson": 1.6151222197145934
+     },
+     {
+      "region": "6.2-10.9",
+      "misfit_share": 0.11051908042303146,
+      "rms_rel": 0.178089454574396,
+      "durbin_watson": 1.6790806705176806
+     },
+     {
+      "region": "10.9-15.5",
+      "misfit_share": 0.18118784601335064,
+      "rms_rel": 0.22802586060995084,
+      "durbin_watson": 1.9467520361411437
+     },
+     {
+      "region": "15.5-20.2",
+      "misfit_share": 0.3085517879903685,
+      "rms_rel": 0.297566204940922,
+      "durbin_watson": 1.4405022514614618
+     },
+     {
+      "region": "20.2-24.9",
+      "misfit_share": 0.326464710201168,
+      "rms_rel": 0.3012614425857469,
+      "durbin_watson": 1.7849577943017387
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  },
+  "exafs": {
+   "plot": "results/runs/s0014/exafs_fit.png",
+   "features": {
+    "n_independent": 11,
+    "thinned_by": 6,
+    "rms_rel": 0.06069032533943129,
+    "durbin_watson": 1.1692332569295523,
+    "regions": [
+     {
+      "region": "1.0-2.9",
+      "misfit_share": 1.0,
+      "rms_rel": 0.06069032533943129,
+      "durbin_watson": 1.1692332569295523
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  }
+ }
+}

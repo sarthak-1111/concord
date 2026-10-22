@@ -7,7 +7,7 @@ Times below are JST on 2026-10-22.
 
 | # | Goal | Status |
 |---|---|---|
-| 1 | Fork runs, references cloned, `EYE_MODULE_PATH` set, docs, health and tests pass | Fork, docs, health and tests done (42 tests). References and eye module **blocked**, see "Blocked" |
+| 1 | Fork runs, references cloned, `EYE_MODULE_PATH` set, docs, health and tests pass | Fork, docs, health and tests done (47 tests). References and eye module **blocked**, see "Blocked" |
 | 2 | Dataset v1 valid | Done: 60 samples (31 train, 10 val, 10 test, 9 faults), validator 1149/1149 checks |
 | 3 | `make eval` end to end with C1–C6 | Done, passes every threshold (C7 added) |
 | 4 | UI shows cross-check panel, critic log and virtual XAFS for every test sample; `make eval` still passes | UI done; agent runs for the 19 test and fault samples in progress |
@@ -29,7 +29,35 @@ Times below are JST on 2026-10-22.
 - [x] **10:17 Visual loop.** Fix menu with keep-or-revert, zoom, physicality, calibrated residual rules;
   PDF-uncertainty and C7 fixes.
 - [x] **10:20 Priors** for all nine test materials.
+- [x] **10:28 Upload.** *Analyse your own data* in the UI: composition, XRD/PDF/XAFS files and optional instrument
+  values, checked at the API (element symbols, edge element in the composition, 20 MiB, three files), then the tools
+  run at once. The report lists assumed values and what could not be analysed.
+- [x] **14:38 Agent-run fixes** (see "Agent runs").
 - [ ] **Agent runs** for all test and fault samples (`make eval-agents`), `docs/DEMO.md`.
+
+## Agent runs (`make eval-agents`, test + faults)
+
+First batch (4.2 h, ended 14:12): 14 of 19 samples complete, 0 unsupported numbers in the reports, 1.6 critic
+rounds and 37k tokens per sample, mean 23 min per sample (the endpoint answered a health probe in up to 130 s). The
+critic's objections were settled by re-runs on s0017, s0019, s0034, s0038 and s0044. Five fault samples failed:
+
+- **4 × `KeyError: 'phase'`** (s0003, s0024, s0045, s0052): when no candidate fits, the generator's `phase` is null
+  and ADK 1.12 drops null fields from saved agent output. Fields are now read with `.get` (bd942be).
+- **1 × endpoint gave up** (s0031) after four attempts: Cloudflare returns 524 when a request has waited 100 s at the origin.
+  A busy endpoint now gets five attempts with a 15 s × 2ⁿ back-off, and a run that loses the endpoint midway keeps
+  what the finished agents produced, marked incomplete in the report and the UI (bd942be).
+- A re-run the critic asked for failed when the LLM passed an argument the action does not take (`optional`); the
+  resolver now drops such arguments (26cb34d).
+
+The five were re-run with `--reuse-agents`, which keeps a complete run whose check statuses match the recomputed
+analysis (14:37–15:53). s0024, s0031, s0045 and s0052 completed; s0024 got through five Cloudflare 524s on the new
+back-off. s0003 failed again with `ChunkedEncodingError: Response ended prematurely`: the tunnel cut a streamed reply,
+and that exception escaped the retry loop. The client now retries it (4ad1557) and s0003 was run once more.
+
+Three saved objections whose re-run could not run were labelled "not confirmed", which the UI showed as refuted:
+s0038 R1.1 and s0044 R1.1 (the `optional` argument) and s0045 R1.1 (Ce is not in the TiO2 model of the mislabelled
+sample). Since 1e6fd90 such an objection is `failed`, shown as not settled, and the three were relabelled. No metric
+counts them.
 
 ## `make eval` history (v1, test + faults)
 

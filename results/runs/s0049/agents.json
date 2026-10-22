@@ -1,0 +1,634 @@
+{
+ "sample_id": "s0049",
+ "model": {
+  "phase": "CeO2",
+  "summary": "All three techniques (XRD, PDF, EXAFS) are mutually consistent and support a single CeO2 phase with bulk-like structure, oxidation state, and coordination.",
+  "claims": [
+   {
+    "statement": "Phase consistency between XRD and PDF: both identify CeO2 with high agreement.",
+    "evidence": [
+     "check.C1",
+     "xrd.ranking",
+     "pdf.fit.CeO2"
+    ]
+   },
+   {
+    "statement": "XRD ranking score 0.9906, profile correlation 0.9844, area explained 1.0, peak relative intensity 0.693 indicate excellent fit.",
+    "evidence": [
+     "xrd.ranking",
+     "check.C1"
+    ]
+   },
+   {
+    "statement": "PDF fit goodness rw=0.06439 and lattice parameters a=b=c=5.409 \u00c5 (reference 5.41 \u00c5) show good agreement with expected CeO2 structure.",
+    "evidence": [
+     "pdf.fit.CeO2"
+    ]
+   },
+   {
+    "statement": "EXAFS bond length Ce-O = 2.342 \u00c5 (\u00b10.0033 \u00c5) matches PDF model value 2.342 \u00c5 within 0.0001 \u00c5.",
+    "evidence": [
+     "exafs.fit",
+     "pdf.fit.CeO2",
+     "check.C2"
+    ]
+   },
+   {
+    "statement": "EXAFS coordination number Ce-O = 7.936 (\u00b10.3279) is consistent with bulk coordination 8.0 (diff -0.06).",
+    "evidence": [
+     "exafs.fit",
+     "check.C3"
+    ]
+   },
+   {
+    "statement": "XANES LCF weights Ce+4=1.0, Ce+3=0.0 give Ce valence 4.0; bond-valence sum valence 4.001 matches formal valence 4.0.",
+    "evidence": [
+     "xanes",
+     "bvs",
+     "check.C4"
+    ]
+   },
+   {
+    "statement": "Disorder: EXAFS \u03c3\u00b2=0.007819 \u00c5\u00b2, PDF uncorrelated \u03c3\u00b2=0.01416 \u00c5\u00b2, ratio 0.552, as expected for correlated motion.",
+    "evidence": [
+     "exafs.fit",
+     "pdf.fit.CeO2",
+     "check.C5"
+    ]
+   },
+   {
+    "statement": "Joint simulation score: CeO2 best with xrd=0.0156, pdf=0.0644, exafs=0.002, total score=0.0273.",
+    "evidence": [
+     "check.C7"
+    ]
+   },
+   {
+    "statement": "XRD size analysis yields sphere diameter 91.44 nm, Scherrer median 78.92 nm, strain -0.0002022, indexed peaks 9.",
+    "evidence": [
+     "xrd.size"
+    ]
+   },
+   {
+    "statement": "Virtual XAFS prediction matches measured EXAFS with rfactor_R=0.001878, band coverage k=0.05298, per\u2011candidate rfactor for CeO2=0.002015.",
+    "evidence": [
+     "virtual_xafs"
+    ]
+   }
+  ],
+  "responses": []
+ },
+ "log": [],
+ "rounds": 1,
+ "confirmed": [],
+ "unsupported_numbers": [],
+ "report_md": "# Concord report \u2014 s0049 (CeO2)\n\n**All techniques confirm a single bulk\u2011like CeO\u2082 phase with the expected structure, oxidation state, and coordination.**\n\nPhase: **CeO2**\n\nAll three techniques (XRD, PDF, EXAFS) are mutually consistent and support a single CeO2 phase with bulk-like structure, oxidation state, and coordination.\n\n## Key numbers (from the tools)\n\n- **XRD**: best match CeO2 (profile correlation 0.984, 100 % of the peak area explained); sphere diameter 91.4 nm from 9 indexed reflections\n- **PDF**: CeO2 refines to Rw 0.064; a 5.4094 \u00c5; U_iso Ce 0.0015 \u00c5\u00b2, O 0.0126 \u00c5\u00b2; no finite-size envelope (bulk)\n- **EXAFS** (Ce L3): Ce\u2013O N 7.9 \u00b1 0.3 at 2.342 \u00c5, \u03c3\u00b2 0.0078 \u00c5\u00b2; R-factor 0.0014\n- **XANES**: Ce valence 4.00 from a linear combination of standards, 4.07 from the edge position\n- **Bond valence** (PDF model): 4.00\n\n## Evidence by technique\n\n- **XRD**: The XRD ranking score is 0.9906 with a profile correlation of 0.9844, observed area fraction explained 1.0 and peak relative intensity 0.693, indicating an excellent fit; size analysis yields a sphere diameter of 91.44\u202fnm, a Scherrer median of 78.92\u202fnm, a strain of -0.0002022, and 9 indexed peaks.\n- **PDF**: The PDF fit gives a goodness\u2011of\u2011fit rw\u202f=\u202f0.06439 and lattice parameters a\u202f=\u202fb\u202f=\u202fc\u202f=\u202f5.409\u202f\u00c5 (reference 5.41\u202f\u00c5), confirming the CeO\u2082 crystal structure.\n- **EXAFS**: EXAFS analysis shows a Ce\u2013O bond length of 2.342\u202f\u00c5 (\u00b10.0033\u202f\u00c5) matching the PDF model, a coordination number of 7.936 (\u00b10.3279) close to the bulk value 8.0, and a Debye\u2011Waller factor \u03c3\u00b2\u202f=\u202f0.007819\u202f\u00c5\u00b2.\n- **XANES**: XANES linear combination fitting gives Ce\u2074\u207a weight\u202f=\u202f1.0, Ce\u00b3\u207a weight\u202f=\u202f0.0, yielding a valence of 4.0; the bond\u2011valence sum calculation gives 4.001, matching the formal valence.\n\n## Cross-technique checks\n\n| check | status | explanation |\n|---|---|---|\n| C1 Phase consistency (XRD vs PDF) | pass | XRD and PDF agree on CeO2. |\n| C2 Bond lengths (EXAFS R vs PDF model) | pass | EXAFS bond lengths match the PDF-refined model. |\n| C3 Coordination numbers (EXAFS N vs model) | pass | EXAFS coordination matches the PDF model after surface truncation. |\n| C4 Oxidation state (XANES vs bond-valence sum) | pass | XANES and the bond-valence sum agree. |\n| C5 Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) | pass | EXAFS \u03c3\u00b2 is 0.55\u20130.55 \u00d7 the uncorrelated PDF width, as expected: EXAFS measures the relative motion of bonded neighbours, which move together, while U_i + U_j counts their motions independently. |\n| C6 Size (XRD vs PDF) | skip | needs an XRD size and a nanoparticle PDF fit |\n| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | CeO2 has the best joint score. |\n\n## Virtual XAFS \u2014 PREDICTED, NOT MEASURED\n\nCe L3 EXAFS computed with FEFF from the PDF-refined model (CeO2; 24 ensemble members, Debye temperature 465\u2013475 K). This edge was measured, so the prediction serves as a consistency check against the measurement.\n\nAgainst the measured spectrum: R-factor 0.0019 in R 1.0\u20133.5 \u00c5.\n\n## Literature priors (other samples: context, not constraints)\n\n- Ce oxidation state 4, [doi:10.1002/cctc.202001829](https://doi.org/10.1002/cctc.202001829) (2021): \u00abThe Cu K\u2010edge and Ce L3\u2010edge XANES and EXAFS analyses revealed the dynamic and crucial role of Cu2+/Cu+ and Ce4+/Ce3+ ionic pairs during the catalytic reaction.\u00bb\n- Ce oxidation state 3, [doi:10.1002/cctc.202001829](https://doi.org/10.1002/cctc.202001829) (2021): \u00abThe Cu K\u2010edge and Ce L3\u2010edge XANES and EXAFS analyses revealed the dynamic and crucial role of Cu2+/Cu+ and Ce4+/Ce3+ ionic pairs during the catalytic reaction.\u00bb\n- Ce oxidation state 3, [doi:10.1039/c1jm14251h](https://doi.org/10.1039/c1jm14251h) (2011): \u00abThe specific Ce3+/Ce4+ ratio was also qualitatively determined by fitting the Ce LIII-edge XANES spectra.\u00bb\n- Ce oxidation state 4, [doi:10.1039/c1jm14251h](https://doi.org/10.1039/c1jm14251h) (2011): \u00abThe specific Ce3+/Ce4+ ratio was also qualitatively determined by fitting the Ce LIII-edge XANES spectra.\u00bb\n- Ce oxidation state 4, [doi:10.1021/acs.jpcc.8b03596](https://doi.org/10.1021/acs.jpcc.8b03596) (2018): \u00abIn situ TR-XRD and AP-XPS characterization showed significant changes in the chemical state of the catalysts under reaction conditions, with the copper being fully reduced and a partial Ce 4+ \u2192 Ce 3+ transformation occur\u00bb\n- Ce oxidation state 3, [doi:10.1021/acs.jpcc.8b03596](https://doi.org/10.1021/acs.jpcc.8b03596) (2018): \u00abIn situ TR-XRD and AP-XPS characterization showed significant changes in the chemical state of the catalysts under reaction conditions, with the copper being fully reduced and a partial Ce 4+ \u2192 Ce 3+ transformation occur\u00bb\n- particle size 14.46 nm, [doi:10.1063/1.4946479](https://doi.org/10.1063/1.4946479) (2016): \u00abThe average crystallite size was found to be 14.46 nm to 21.57 nm.\u00bb\n- particle size 21.57 nm, [doi:10.1063/1.4946479](https://doi.org/10.1063/1.4946479) (2016): \u00abThe average crystallite size was found to be 14.46 nm to 21.57 nm.\u00bb\n- particle size 10 nm, [doi:10.17780/ksujes.1369994](https://doi.org/10.17780/ksujes.1369994) (2024): \u00abThe calculated crystallite particle size utilizing the Scherrer equation was 10 nm.\u00bb\n- particle size 5.2 nm, [doi:10.1371/journal.pone.0122989](https://doi.org/10.1371/journal.pone.0122989) (2015): \u00abThe average crystalline domain diameter was found to be 5.2 nm, with a very narrow size distribution.\u00bb\n- particle size 19 nm, [doi:10.21203/rs.3.rs-8722013/v1](https://doi.org/10.21203/rs.3.rs-8722013/v1) (2026): \u00abA high-resolution transmission electron microscope (HTEM) was used to analyze the morphology of the particles, which have a size range of 8 to 19 nm at different temperatures such as 300, 400, and 500 0 C.\u00bb\n- particle size 15\u201340 nm, [doi:10.1134/s0020168524701097](https://doi.org/10.1134/s0020168524701097) (2024): \u00abThe material prepared from PC/Ce(NO3)3/NaCl consisted of two types of CeO2 particles: particles 15\u201340 nm in diameter (forming irregularly shaped structures) and particles 1.5\u20132.2 nm in diameter.\u00bb\n\n## Claims\n\n0. Phase consistency between XRD and PDF: both identify CeO2 with high agreement. _(evidence: check.C1, xrd.ranking, pdf.fit.CeO2)_\n1. XRD ranking score 0.9906, profile correlation 0.9844, area explained 1.0, peak relative intensity 0.693 indicate excellent fit. _(evidence: xrd.ranking, check.C1)_\n2. PDF fit goodness rw=0.06439 and lattice parameters a=b=c=5.409 \u00c5 (reference 5.41 \u00c5) show good agreement with expected CeO2 structure. _(evidence: pdf.fit.CeO2)_\n3. EXAFS bond length Ce-O = 2.342 \u00c5 (\u00b10.0033 \u00c5) matches PDF model value 2.342 \u00c5 within 0.0001 \u00c5. _(evidence: exafs.fit, pdf.fit.CeO2, check.C2)_\n4. EXAFS coordination number Ce-O = 7.936 (\u00b10.3279) is consistent with bulk coordination 8.0 (diff -0.06). _(evidence: exafs.fit, check.C3)_\n5. XANES LCF weights Ce+4=1.0, Ce+3=0.0 give Ce valence 4.0; bond-valence sum valence 4.001 matches formal valence 4.0. _(evidence: xanes, bvs, check.C4)_\n6. Disorder: EXAFS \u03c3\u00b2=0.007819 \u00c5\u00b2, PDF uncorrelated \u03c3\u00b2=0.01416 \u00c5\u00b2, ratio 0.552, as expected for correlated motion. _(evidence: exafs.fit, pdf.fit.CeO2, check.C5)_\n7. Joint simulation score: CeO2 best with xrd=0.0156, pdf=0.0644, exafs=0.002, total score=0.0273. _(evidence: check.C7)_\n8. XRD size analysis yields sphere diameter 91.44 nm, Scherrer median 78.92 nm, strain -0.0002022, indexed peaks 9. _(evidence: xrd.size)_\n9. Virtual XAFS prediction matches measured EXAFS with rfactor_R=0.001878, band coverage k=0.05298, per\u2011candidate rfactor for CeO2=0.002015. _(evidence: virtual_xafs)_\n\n## Objections and resolutions\n\nThe critic raised no objections.\n\n## Limitations\n\n- No nanoparticle PDF size refinement was performed, so XRD and PDF size consistency could not be directly compared.\n- The XANES model is low\u2011fidelity (simple edge) and does not capture subtle pre\u2011edge features.\n- Uncertainties are limited to the reported statistical errors; systematic errors (e.g., instrument calibration) are not quantified.\n",
+ "wall_s": 1862.6,
+ "llm": {
+  "llm_calls": 5,
+  "prompt_tokens": 11913,
+  "completion_tokens": 11580,
+  "llm_seconds": 645.71
+ },
+ "out_dir": "results/runs/s0049",
+ "evidence": {
+  "sample": {
+   "composition": "CeO2",
+   "techniques": [
+    "xrd",
+    "pdf",
+    "xafs"
+   ],
+   "candidates": [
+    "CeO2"
+   ],
+   "xafs_edge": "Ce L3"
+  },
+  "xrd.ranking": [
+   {
+    "phase": "CeO2",
+    "score": 0.9906,
+    "profile_corr": 0.9844,
+    "obs_area_fraction_explained": 1.0
+   }
+  ],
+  "xrd.size": {
+   "sphere_diameter_nm": 91.44,
+   "scherrer_median_nm": 78.92,
+   "williamson_hall_strain": -0.0002022,
+   "n_indexed_peaks": 9
+  },
+  "pdf.fit.CeO2": {
+   "rw": 0.06439,
+   "lattice": {
+    "a": 5.409,
+    "b": 5.409,
+    "c": 5.409
+   },
+   "lattice_ref": {
+    "a": 5.41,
+    "b": 5.41,
+    "c": 5.41
+   },
+   "uiso": {
+    "Ce": 0.001513,
+    "O": 0.01265
+   },
+   "delta2": 2.751,
+   "psize_nm": null,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.best": "CeO2",
+  "exafs.fit": {
+   "absorber": "Ce",
+   "edge": "L3",
+   "model": "CeO2",
+   "rfactor": 0.001401,
+   "e0_shift_eV": -0.435,
+   "window": {
+    "kmin": 3.0,
+    "kmax": 10.51,
+    "rmin": 1.0,
+    "rmax": 3.342,
+    "kweight": 2.0
+   },
+   "shells": [
+    {
+     "neighbor": "O",
+     "N": 7.936,
+     "N_err": 0.3279,
+     "R_A": 2.342,
+     "R_err": 0.003274,
+     "sigma2": 0.007819,
+     "extra": null
+    }
+   ]
+  },
+  "xanes": {
+   "absorber": "Ce",
+   "edge_eV": 5727.0,
+   "valence": 4.0,
+   "valence_edge": 4.068,
+   "lcf_weights": {
+    "Ce+3": 0.0,
+    "Ce+4": 1.0
+   }
+  },
+  "bvs": {
+   "valence": 4.001,
+   "formal_valence": 4.0
+  },
+  "virtual_xafs": {
+   "label": "PREDICTED, NOT MEASURED",
+   "edge": "Ce L3",
+   "candidates": [
+    "CeO2"
+   ],
+   "theta_K_range": [
+    464.7,
+    475.2
+   ],
+   "vs_measured": {
+    "rfactor_R": 0.001878,
+    "band_coverage_k": 0.05298,
+    "r_window": [
+     1.0,
+     3.5
+    ]
+   },
+   "per_candidate_rfactor": {
+    "CeO2": 0.002015
+   },
+   "recommendation": "This edge was measured, so the prediction serves as a consistency check against the measurement."
+  },
+  "check.C1": {
+   "name": "Phase consistency (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_phase": "CeO2",
+    "xrd_score": 0.991,
+    "xrd_area_explained": 1.0,
+    "peak_rel_intensity": 0.693,
+    "pdf_phase": "CeO2",
+    "pdf_rw": 0.064,
+    "pdf_runner_up": null,
+    "pdf_runner_up_rw": null,
+    "lattice_rel_change": 0.0001
+   },
+   "tolerance": {
+    "pdf_good_rw": 0.25,
+    "xrd_weak_rel_intensity": 0.05,
+    "lattice_warn_rel": 0.003
+   },
+   "explanation": "XRD and PDF agree on CeO2."
+  },
+  "check.C2": {
+   "name": "Bond lengths (EXAFS R vs PDF model)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ce-O",
+      "exafs_R_A": 2.342,
+      "exafs_err": 0.0033,
+      "pdf_model_R_A": 2.342,
+      "diff_A": 0.0001
+     }
+    ],
+    "max_abs_diff_A": 0.0001
+   },
+   "tolerance": {
+    "warn_A": 0.02,
+    "fail_A": 0.05
+   },
+   "explanation": "EXAFS bond lengths match the PDF-refined model."
+  },
+  "check.C3": {
+   "name": "Coordination numbers (EXAFS N vs model)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ce-O",
+      "exafs_N": 7.94,
+      "exafs_err": 0.33,
+      "model_N_bulk": 8.0,
+      "surface_factor": 1.0,
+      "model_N": 8.0,
+      "diff": -0.06
+     }
+    ],
+    "extra_shell": null,
+    "max_abs_diff": 0.06
+   },
+   "tolerance": {
+    "warn_abs": 1.0,
+    "fail_abs": 2.0,
+    "extra_min_sigma": 3.0,
+    "extra_min_rfactor_drop": 0.3
+   },
+   "explanation": "EXAFS coordination matches the PDF model after surface truncation."
+  },
+  "check.C4": {
+   "name": "Oxidation state (XANES vs bond-valence sum)",
+   "status": "pass",
+   "values": {
+    "xanes_valence": 4.0,
+    "xanes_edge_valence": 4.07,
+    "lcf": {
+     "Ce+3": 0.0,
+     "Ce+4": 1.0
+    },
+    "bvs_valence": 4.001,
+    "formal_valence": 4.0,
+    "diff": -0.0,
+    "metallic_model": false,
+    "xanes_fidelity": "low (simple edge model)"
+   },
+   "tolerance": {
+    "warn_abs": 0.5,
+    "fail_abs": 1.0,
+    "metal_warn_abs": 0.2,
+    "metal_fail_abs": 0.25,
+    "bvs_shift_min": 0.03,
+    "xanes_shift_min": 0.1
+   },
+   "explanation": "XANES and the bond-valence sum agree."
+  },
+  "check.C5": {
+   "name": "Disorder (EXAFS \u03c3\u00b2 vs PDF pair width)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ce-O",
+      "exafs_sigma2": 0.00782,
+      "pdf_uncorrelated_sigma2": 0.01416,
+      "pdf_with_delta2_sigma2": 0.00706,
+      "ratio_exafs_to_pdf": 0.552
+     }
+    ]
+   },
+   "tolerance": {
+    "ratio_low": 0.3,
+    "ratio_high": 1.3
+   },
+   "explanation": "EXAFS \u03c3\u00b2 is 0.55\u20130.55 \u00d7 the uncorrelated PDF width, as expected: EXAFS measures the relative motion of bonded neighbours, which move together, while U_i + U_j counts their motions independently."
+  },
+  "check.C6": {
+   "name": "Size (XRD vs PDF)",
+   "status": "skip",
+   "values": {},
+   "tolerance": {},
+   "explanation": "needs an XRD size and a nanoparticle PDF fit"
+  },
+  "check.C7": {
+   "name": "Joint simulation score (XRD + PDF + EXAFS)",
+   "status": "pass",
+   "values": {
+    "candidates": [
+     {
+      "candidate": "CeO2",
+      "xrd": 0.0156,
+      "pdf": 0.0644,
+      "exafs": 0.002,
+      "score": 0.0273
+     }
+    ],
+    "margin": null,
+    "techniques": [
+     "exafs",
+     "pdf",
+     "xrd"
+    ]
+   },
+   "tolerance": {
+    "min_margin": 0.02
+   },
+   "explanation": "CeO2 has the best joint score."
+  },
+  "prior.1": {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 4,
+   "unit": "",
+   "doi": "10.1002/cctc.202001829",
+   "snippet": "The Cu K\u2010edge and Ce L3\u2010edge XANES and EXAFS analyses revealed the dynamic and crucial role of Cu2+/Cu+ and Ce4+/Ce3+ ionic pairs during the catalytic reaction."
+  },
+  "prior.2": {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 3,
+   "unit": "",
+   "doi": "10.1002/cctc.202001829",
+   "snippet": "The Cu K\u2010edge and Ce L3\u2010edge XANES and EXAFS analyses revealed the dynamic and crucial role of Cu2+/Cu+ and Ce4+/Ce3+ ionic pairs during the catalytic reaction."
+  },
+  "prior.3": {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 3,
+   "unit": "",
+   "doi": "10.1039/c1jm14251h",
+   "snippet": "The specific Ce3+/Ce4+ ratio was also qualitatively determined by fitting the Ce LIII-edge XANES spectra."
+  },
+  "prior.4": {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 4,
+   "unit": "",
+   "doi": "10.1039/c1jm14251h",
+   "snippet": "The specific Ce3+/Ce4+ ratio was also qualitatively determined by fitting the Ce LIII-edge XANES spectra."
+  },
+  "prior.5": {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 4,
+   "unit": "",
+   "doi": "10.1021/acs.jpcc.8b03596",
+   "snippet": "In situ TR-XRD and AP-XPS characterization showed significant changes in the chemical state of the catalysts under reaction conditions, with the copper being fully reduced and a partial Ce 4+ \u2192 Ce 3+ transformation occurring."
+  },
+  "prior.6": {
+   "quantity": "oxidation_state",
+   "element": "Ce",
+   "value": 3,
+   "unit": "",
+   "doi": "10.1021/acs.jpcc.8b03596",
+   "snippet": "In situ TR-XRD and AP-XPS characterization showed significant changes in the chemical state of the catalysts under reaction conditions, with the copper being fully reduced and a partial Ce 4+ \u2192 Ce 3+ transformation occurring."
+  },
+  "prior.7": {
+   "quantity": "particle_size",
+   "value": 14.46,
+   "unit": "nm",
+   "doi": "10.1063/1.4946479",
+   "snippet": "The average crystallite size was found to be 14.46 nm to 21.57 nm."
+  },
+  "prior.8": {
+   "quantity": "particle_size",
+   "value": 21.57,
+   "unit": "nm",
+   "doi": "10.1063/1.4946479",
+   "snippet": "The average crystallite size was found to be 14.46 nm to 21.57 nm."
+  },
+  "prior.9": {
+   "quantity": "particle_size",
+   "value": 10.0,
+   "unit": "nm",
+   "doi": "10.17780/ksujes.1369994",
+   "snippet": "The calculated crystallite particle size utilizing the Scherrer equation was 10 nm."
+  },
+  "prior.10": {
+   "quantity": "particle_size",
+   "value": 5.2,
+   "unit": "nm",
+   "doi": "10.1371/journal.pone.0122989",
+   "snippet": "The average crystalline domain diameter was found to be 5.2 nm, with a very narrow size distribution."
+  },
+  "prior.11": {
+   "quantity": "particle_size",
+   "value": 19.0,
+   "unit": "nm",
+   "doi": "10.21203/rs.3.rs-8722013/v1",
+   "snippet": "A high-resolution transmission electron microscope (HTEM) was used to analyze the morphology of the particles, which have a size range of 8 to 19 nm at different temperatures such as 300, 400, and 500 0 C."
+  },
+  "prior.12": {
+   "quantity": "particle_size",
+   "value": [
+    15.0,
+    40.0
+   ],
+   "unit": "nm",
+   "doi": "10.1134/s0020168524701097",
+   "snippet": "The material prepared from PC/Ce(NO3)3/NaCl consisted of two types of CeO2 particles: particles 15\u201340 nm in diameter (forming irregularly shaped structures) and particles 1.5\u20132.2 nm in diameter."
+  },
+  "vision.xrd": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": null,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.pdf": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 3.111,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.exafs": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "rules",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 2.995,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  }
+ },
+ "vision": {
+  "virtual_xafs": {
+   "plot": "results/runs/s0049/virtual_xafs.png"
+  },
+  "xrd": {
+   "plot": "results/runs/s0049/xrd_fit.png",
+   "features": {
+    "n_independent": 4001,
+    "thinned_by": 1,
+    "rms_rel": 0.09889254368717841,
+    "durbin_watson": null,
+    "regions": [
+     {
+      "region": "10.0-26.0",
+      "misfit_share": 0.0673166216482442,
+      "rms_rel": 0.05734462560838156,
+      "durbin_watson": null
+     },
+     {
+      "region": "26.0-42.0",
+      "misfit_share": 0.66887352162968,
+      "rms_rel": 0.18076051397356374,
+      "durbin_watson": null
+     },
+     {
+      "region": "42.0-58.0",
+      "misfit_share": 0.16805903003534273,
+      "rms_rel": 0.09060715452675079,
+      "durbin_watson": null
+     },
+     {
+      "region": "58.0-74.0",
+      "misfit_share": 0.04963818175182063,
+      "rms_rel": 0.04924243246271465,
+      "durbin_watson": null
+     },
+     {
+      "region": "74.0-90.0",
+      "misfit_share": 0.04625808355314832,
+      "rms_rel": 0.047536300910079585,
+      "durbin_watson": null
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  },
+  "pdf": {
+   "plot": "results/runs/s0049/pdf_fit.png",
+   "features": {
+    "n_independent": 139,
+    "thinned_by": 17,
+    "rms_rel": 0.06414038948361893,
+    "durbin_watson": 3.1109706515057773,
+    "regions": [
+     {
+      "region": "1.5-6.2",
+      "misfit_share": 0.24712928676399235,
+      "rms_rel": 0.07104312965715896,
+      "durbin_watson": 2.5962458679508313
+     },
+     {
+      "region": "6.2-10.9",
+      "misfit_share": 0.1927023502880895,
+      "rms_rel": 0.06273407272089422,
+      "durbin_watson": 2.8759654774380405
+     },
+     {
+      "region": "10.9-15.6",
+      "misfit_share": 0.21537923695239602,
+      "rms_rel": 0.06753968454221251,
+      "durbin_watson": 3.1870006480968063
+     },
+     {
+      "region": "15.6-20.3",
+      "misfit_share": 0.16936349575663387,
+      "rms_rel": 0.05881253264585084,
+      "durbin_watson": 3.583866555625094
+     },
+     {
+      "region": "20.3-25.0",
+      "misfit_share": 0.17542563023888835,
+      "rms_rel": 0.05985583586978342,
+      "durbin_watson": 2.9051890411293617
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  },
+  "exafs": {
+   "plot": "results/runs/s0049/exafs_fit.png",
+   "features": {
+    "n_independent": 11,
+    "thinned_by": 7,
+    "rms_rel": 0.029080390493737906,
+    "durbin_watson": 2.9949830504032446,
+    "regions": [
+     {
+      "region": "1.0-3.2",
+      "misfit_share": 1.0,
+      "rms_rel": 0.029080390493737906,
+      "durbin_watson": 2.9949830504032446
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "rules"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  }
+ }
+}

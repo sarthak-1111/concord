@@ -1,0 +1,495 @@
+{
+ "sample_id": "s0029",
+ "model": {
+  "phase": "PtNi",
+  "summary": "Concord analysis of the PtNi sample combining XRD and PDF data.",
+  "claims": [
+   {
+    "statement": "The sample phase is PtNi, as identified by XRD ranking and PDF best fit.",
+    "evidence": [
+     "xrd.ranking",
+     "pdf.best",
+     "check.C1"
+    ]
+   },
+   {
+    "statement": "Lattice parameters a = b = c = 3.785 \u00c5, matching the PDF refinement for PtNi.",
+    "evidence": [
+     "pdf.fit.PtNi"
+    ]
+   },
+   {
+    "statement": "Particle size from XRD sphere diameter is 4.542 nm; PDF particle size is 4.37 nm; relative difference is 0.039, indicating agreement between techniques.",
+    "evidence": [
+     "xrd.size",
+     "pdf.fit.PtNi",
+     "check.C6"
+    ]
+   },
+   {
+    "statement": "Joint simulation score favors PtNi with combined score 0.0586 and margin 0.0485, better than Pt3Co and PtO2.",
+    "evidence": [
+     "check.C7"
+    ]
+   },
+   {
+    "statement": "Checks C1, C6, and C7 pass, confirming phase consistency, size agreement, and joint score ranking.",
+    "evidence": [
+     "check.C1",
+     "check.C6",
+     "check.C7"
+    ]
+   },
+   {
+    "statement": "Checks C2, C3, C4, and C5 are skipped due to missing EXAFS/XANES data.",
+    "evidence": [
+     "check.C2",
+     "check.C3",
+     "check.C4",
+     "check.C5"
+    ]
+   },
+   {
+    "statement": "Virtual XAFS predicts that measurement of the Pt L3 edge to k \u2265 12 \u00c5\u207b\u00b9 would discriminate PtNi from Pt3Co, especially near R \u2248 3.3 \u00c5.",
+    "evidence": [
+     "virtual_xafs"
+    ]
+   }
+  ],
+  "responses": [
+   "All claims are supported by the provided evidence IDs."
+  ]
+ },
+ "log": [],
+ "rounds": 1,
+ "confirmed": [],
+ "unsupported_numbers": [],
+ "report_md": "# Concord report \u2014 s0029 (PtNi)\n\n**PtNi phase confirmed with concordant XRD and PDF data.**\n\nPhase: **PtNi**\n\nConcord analysis of the PtNi sample combining XRD and PDF data.\n\n## Key numbers (from the tools)\n\n- **XRD**: best match PtNi (profile correlation 0.971, 97 % of the peak area explained); sphere diameter 4.5 nm from 5 indexed reflections\n- **PDF**: PtNi refines to Rw 0.088; a 3.7852 \u00c5; U_iso Pt 0.0029 \u00c5\u00b2; particle diameter 4.4 nm\n\n## Evidence by technique\n\n- **XRD**: The XRD ranking identifies PtNi as the top candidate with a score of 0.9693, profile correlation of 0.9712 and observed area fraction explained of 0.9665.\n- **PDF**: PDF refinement selects PtNi as the best fit (rw\u202f=\u202f0.08845) with lattice parameters a\u202f=\u202fb\u202f=\u202fc\u202f=\u202f3.785\u202f\u00c5 matching the reference.\n- **EXAFS**: EXAFS analysis is unavailable; checks C2\u2011C5 are skipped due to missing EXAFS data.\n- **XANES**: XANES analysis is unavailable; check C4 is skipped due to missing XANES data.\n\n## Cross-technique checks\n\n| check | status | explanation |\n|---|---|---|\n| C1 Phase consistency (XRD vs PDF) | pass | XRD and PDF agree on PtNi. |\n| C2 Bond lengths (EXAFS R vs PDF model) | skip | needs EXAFS and PDF |\n| C3 Coordination numbers (EXAFS N vs model) | skip | needs EXAFS and PDF |\n| C4 Oxidation state (XANES vs bond-valence sum) | skip | needs XANES and a PDF-refined structure |\n| C5 Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) | skip | needs EXAFS and PDF |\n| C6 Size (XRD vs PDF) | pass | XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter. |\n| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | PtNi has the best joint score (margin 0.049). |\n\n## Virtual XAFS \u2014 PREDICTED, NOT MEASURED\n\nPt L3 EXAFS computed with FEFF from the PDF-refined model (Pt3Co, PtNi; 24 ensemble members, Debye temperature 259\u2013283 K). Measure the Pt L3 edge to k \u2265 12 \u00c5\u207b\u00b9. The prediction is least certain near R \u2248 3.3 \u00c5 (band \u00b166 % of the median |\u03c7(R)|); the measurement would discriminate the PDF-equivalent phases Pt3Co, PtNi.\n\n## Literature priors (other samples: context, not constraints)\n\n- particle size 3 nm, [doi:10.1557/proc-1217-y08-03](https://doi.org/10.1557/proc-1217-y08-03) (2009): \u00abThe average grain sizes observed with a TEM were around 3 nm in diameter.\u00bb\n- particle size 2\u20135 nm, [doi:10.3390/catal6120201](https://doi.org/10.3390/catal6120201) (2016): \u00abThe size of PtNi alloy nanoparticles is approximately 2\u20135 nm.\u00bb\n- particle size 2\u201316 nm, [doi:10.1080/17458080.2013.838703](https://doi.org/10.1080/17458080.2013.838703) (2013): \u00abIt was observed that the deposited Pt and PtNi bimetallic nanoparticles on the surface of CNTs had average particle sizes of 2\u201316 nm, when they were prepared from the polyol method.\u00bb\n- particle size 8.3 nm, [doi:10.1149/1.1802135](https://doi.org/10.1149/1.1802135) (2004): \u00abThe carbon-supported PtNi nanoparticles had a mean diameter of 8.3 nm and were obtained by a two-stage process involving the ballmilling of carbon and the precursor and the thermal degradation of the homogenized mixture \u00bb\n- particle size 3.7 nm, [doi:10.1039/c9nr08352a](https://doi.org/10.1039/c9nr08352a) (2019): \u00abThe resulting PtNi alloy nanoparticles have a narrow size distribution with an average diameter of 3.7 nm, which are smaller than those obtained via classical solution growth.\u00bb\n- particle size 2.9\u20135.8 nm, [doi:10.1039/b307040a](https://doi.org/10.1039/b307040a) (2003): \u00abThe average particle size of PtNi prepared by microwave irradiation was the lowest, in the range of 2.9\u20135.8 nm.\u00bb\n\n## Claims\n\n0. The sample phase is PtNi, as identified by XRD ranking and PDF best fit. _(evidence: xrd.ranking, pdf.best, check.C1)_\n1. Lattice parameters a = b = c = 3.785 \u00c5, matching the PDF refinement for PtNi. _(evidence: pdf.fit.PtNi)_\n2. Particle size from XRD sphere diameter is 4.542 nm; PDF particle size is 4.37 nm; relative difference is 0.039, indicating agreement between techniques. _(evidence: xrd.size, pdf.fit.PtNi, check.C6)_\n3. Joint simulation score favors PtNi with combined score 0.0586 and margin 0.0485, better than Pt3Co and PtO2. _(evidence: check.C7)_\n4. Checks C1, C6, and C7 pass, confirming phase consistency, size agreement, and joint score ranking. _(evidence: check.C1, check.C6, check.C7)_\n5. Checks C2, C3, C4, and C5 are skipped due to missing EXAFS/XANES data. _(evidence: check.C2, check.C3, check.C4, check.C5)_\n6. Virtual XAFS predicts that measurement of the Pt L3 edge to k \u2265 12 \u00c5\u207b\u00b9 would discriminate PtNi from Pt3Co, especially near R \u2248 3.3 \u00c5. _(evidence: virtual_xafs)_\n\n## Objections and resolutions\n\nThe critic raised no objections.\n\n## Limitations\n\n- The absence of measured EXAFS and XANES data prevents evaluation of bond lengths, coordination numbers, oxidation state, and disorder (checks C2\u2011C5).\n- Virtual XAFS predictions are unmeasured and only indicate that measuring the Pt\u202fL\u2083 edge to k\u202f\u2265\u202f12\u202f\u00c5\u207b\u00b9, especially near R\u202f\u2248\u202f3.3\u202f\u00c5, would be needed to discriminate PtNi from Pt\u2083Co.\n",
+ "wall_s": 1087.0,
+ "llm": {
+  "llm_calls": 5,
+  "prompt_tokens": 8984,
+  "completion_tokens": 8192,
+  "llm_seconds": 440.03
+ },
+ "out_dir": "results/runs/s0029",
+ "evidence": {
+  "sample": {
+   "composition": "PtNi",
+   "techniques": [
+    "xrd",
+    "pdf"
+   ],
+   "candidates": [
+    "Pt",
+    "Pt3Co",
+    "PtNi",
+    "PtO2"
+   ],
+   "xafs_edge": "Pt L3"
+  },
+  "xrd.ranking": [
+   {
+    "phase": "PtNi",
+    "score": 0.9693,
+    "profile_corr": 0.9712,
+    "obs_area_fraction_explained": 0.9665
+   },
+   {
+    "phase": "Pt3Co",
+    "score": 0.6492,
+    "profile_corr": 0.8892,
+    "obs_area_fraction_explained": 0.2893
+   },
+   {
+    "phase": "Pt",
+    "score": 0.3584,
+    "profile_corr": 0.5028,
+    "obs_area_fraction_explained": 0.1418
+   }
+  ],
+  "xrd.size": {
+   "sphere_diameter_nm": 4.542,
+   "scherrer_median_nm": 3.772,
+   "williamson_hall_strain": -0.008811,
+   "n_indexed_peaks": 5
+  },
+  "pdf.fit.PtNi": {
+   "rw": 0.08845,
+   "lattice": {
+    "a": 3.785,
+    "b": 3.785,
+    "c": 3.785
+   },
+   "lattice_ref": {
+    "a": 3.785,
+    "b": 3.785,
+    "c": 3.785
+   },
+   "uiso": {
+    "Pt": 0.002904
+   },
+   "delta2": 0.6038,
+   "psize_nm": 4.37,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.fit.Pt3Co": {
+   "rw": 0.1033,
+   "lattice": {
+    "a": 3.785,
+    "b": 3.785,
+    "c": 3.785
+   },
+   "lattice_ref": {
+    "a": 3.831,
+    "b": 3.831,
+    "c": 3.831
+   },
+   "uiso": {
+    "Co": 0.0005,
+    "Pt": 0.003382
+   },
+   "delta2": 0.4664,
+   "psize_nm": 4.368,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.fit.PtO2": {
+   "rw": 0.9714,
+   "lattice": {
+    "a": 4.618,
+    "b": 4.662,
+    "c": 3.081
+   },
+   "lattice_ref": {
+    "a": 4.484,
+    "b": 4.538,
+    "c": 3.136
+   },
+   "uiso": {
+    "O": 0.05,
+    "Pt": 0.002573
+   },
+   "delta2": 2.379e-07,
+   "psize_nm": 10.68,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.best": "PtNi",
+  "virtual_xafs": {
+   "label": "PREDICTED, NOT MEASURED",
+   "edge": "Pt L3",
+   "candidates": [
+    "Pt3Co",
+    "PtNi"
+   ],
+   "theta_K_range": [
+    258.6,
+    282.8
+   ],
+   "vs_measured": null,
+   "per_candidate_rfactor": null,
+   "recommendation": "Measure the Pt L3 edge to k \u2265 12 \u00c5\u207b\u00b9. The prediction is least certain near R \u2248 3.3 \u00c5 (band \u00b166 % of the median |\u03c7(R)|); the measurement would discriminate the PDF-equivalent phases Pt3Co, PtNi."
+  },
+  "check.C1": {
+   "name": "Phase consistency (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_phase": "PtNi",
+    "xrd_score": 0.969,
+    "xrd_area_explained": 0.966,
+    "peak_rel_intensity": 0.93,
+    "pdf_phase": "PtNi",
+    "pdf_rw": 0.088,
+    "pdf_runner_up": "Pt3Co",
+    "pdf_runner_up_rw": 0.103,
+    "lattice_rel_change": 0.0
+   },
+   "tolerance": {
+    "pdf_good_rw": 0.25,
+    "xrd_weak_rel_intensity": 0.05,
+    "lattice_warn_rel": 0.003
+   },
+   "explanation": "XRD and PDF agree on PtNi."
+  },
+  "check.C2": {
+   "name": "Bond lengths (EXAFS R vs PDF model)",
+   "status": "skip",
+   "values": {},
+   "tolerance": {},
+   "explanation": "needs EXAFS and PDF"
+  },
+  "check.C3": {
+   "name": "Coordination numbers (EXAFS N vs model)",
+   "status": "skip",
+   "values": {},
+   "tolerance": {},
+   "explanation": "needs EXAFS and PDF"
+  },
+  "check.C4": {
+   "name": "Oxidation state (XANES vs bond-valence sum)",
+   "status": "skip",
+   "values": {},
+   "tolerance": {},
+   "explanation": "needs XANES and a PDF-refined structure"
+  },
+  "check.C5": {
+   "name": "Disorder (EXAFS \u03c3\u00b2 vs PDF pair width)",
+   "status": "skip",
+   "values": {},
+   "tolerance": {},
+   "explanation": "needs EXAFS and PDF"
+  },
+  "check.C6": {
+   "name": "Size (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_sphere_diameter_nm": 4.54,
+    "xrd_scherrer_nm": 3.77,
+    "pdf_diameter_nm": 4.37,
+    "rel_diff": 0.039
+   },
+   "tolerance": {
+    "warn_rel": 0.25,
+    "fail_rel": 0.5
+   },
+   "explanation": "XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter."
+  },
+  "check.C7": {
+   "name": "Joint simulation score (XRD + PDF + EXAFS)",
+   "status": "pass",
+   "values": {
+    "candidates": [
+     {
+      "candidate": "PtNi",
+      "xrd": 0.0288,
+      "pdf": 0.0884,
+      "score": 0.0586
+     },
+     {
+      "candidate": "Pt3Co",
+      "xrd": 0.1108,
+      "pdf": 0.1033,
+      "score": 0.1071
+     },
+     {
+      "candidate": "PtO2",
+      "xrd": 1.0,
+      "pdf": 0.9714,
+      "score": 0.9857
+     }
+    ],
+    "margin": 0.0485,
+    "techniques": [
+     "pdf",
+     "xrd"
+    ]
+   },
+   "tolerance": {
+    "min_margin": 0.02
+   },
+   "explanation": "PtNi has the best joint score (margin 0.049)."
+  },
+  "prior.1": {
+   "quantity": "particle_size",
+   "value": 3.0,
+   "unit": "nm",
+   "doi": "10.1557/proc-1217-y08-03",
+   "snippet": "The average grain sizes observed with a TEM were around 3 nm in diameter."
+  },
+  "prior.2": {
+   "quantity": "particle_size",
+   "value": [
+    2.0,
+    5.0
+   ],
+   "unit": "nm",
+   "doi": "10.3390/catal6120201",
+   "snippet": "The size of PtNi alloy nanoparticles is approximately 2\u20135 nm."
+  },
+  "prior.3": {
+   "quantity": "particle_size",
+   "value": [
+    2.0,
+    16.0
+   ],
+   "unit": "nm",
+   "doi": "10.1080/17458080.2013.838703",
+   "snippet": "It was observed that the deposited Pt and PtNi bimetallic nanoparticles on the surface of CNTs had average particle sizes of 2\u201316 nm, when they were prepared from the polyol method."
+  },
+  "prior.4": {
+   "quantity": "particle_size",
+   "value": 8.3,
+   "unit": "nm",
+   "doi": "10.1149/1.1802135",
+   "snippet": "The carbon-supported PtNi nanoparticles had a mean diameter of 8.3 nm and were obtained by a two-stage process involving the ballmilling of carbon and the precursor and the thermal degradation of the homogenized mixture at 550\u00b0C in a flowing gas mixture."
+  },
+  "prior.5": {
+   "quantity": "particle_size",
+   "value": 3.7,
+   "unit": "nm",
+   "doi": "10.1039/c9nr08352a",
+   "snippet": "The resulting PtNi alloy nanoparticles have a narrow size distribution with an average diameter of 3.7 nm, which are smaller than those obtained via classical solution growth."
+  },
+  "prior.6": {
+   "quantity": "particle_size",
+   "value": [
+    2.9,
+    5.8
+   ],
+   "unit": "nm",
+   "doi": "10.1039/b307040a",
+   "snippet": "The average particle size of PtNi prepared by microwave irradiation was the lowest, in the range of 2.9\u20135.8 nm."
+  },
+  "vision.xrd": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": null,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.pdf": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 3.014,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  }
+ },
+ "vision": {
+  "virtual_xafs": {
+   "plot": "results/runs/s0029/virtual_xafs.png"
+  },
+  "xrd": {
+   "plot": "results/runs/s0029/xrd_fit.png",
+   "features": {
+    "n_independent": 4001,
+    "thinned_by": 1,
+    "rms_rel": 0.06061020482843268,
+    "durbin_watson": null,
+    "regions": [
+     {
+      "region": "10.0-26.0",
+      "misfit_share": 0.29766325768691404,
+      "rms_rel": 0.07390543619213724,
+      "durbin_watson": null
+     },
+     {
+      "region": "26.0-42.0",
+      "misfit_share": 0.39564132242286076,
+      "rms_rel": 0.08520490405318697,
+      "durbin_watson": null
+     },
+     {
+      "region": "42.0-58.0",
+      "misfit_share": 0.1735654080050155,
+      "rms_rel": 0.05643458764598357,
+      "durbin_watson": null
+     },
+     {
+      "region": "58.0-74.0",
+      "misfit_share": 0.07518910573031799,
+      "rms_rel": 0.03714421881667236,
+      "durbin_watson": null
+     },
+     {
+      "region": "74.0-90.0",
+      "misfit_share": 0.05811389501977659,
+      "rms_rel": 0.032655306291338976,
+      "durbin_watson": null
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  },
+  "pdf": {
+   "plot": "results/runs/s0029/pdf_fit.png",
+   "features": {
+    "n_independent": 181,
+    "thinned_by": 13,
+    "rms_rel": 0.08737441748537447,
+    "durbin_watson": 3.014353617314378,
+    "regions": [
+     {
+      "region": "1.5-6.2",
+      "misfit_share": 0.14323485737408917,
+      "rms_rel": 0.07313867339558587,
+      "durbin_watson": 2.3984107050968757
+     },
+     {
+      "region": "6.2-10.9",
+      "misfit_share": 0.15377617682776104,
+      "rms_rel": 0.07578220689119468,
+      "durbin_watson": 3.354410033582408
+     },
+     {
+      "region": "10.9-15.5",
+      "misfit_share": 0.13743422592111484,
+      "rms_rel": 0.07164240708604888,
+      "durbin_watson": 3.1123384041854814
+     },
+     {
+      "region": "15.5-20.2",
+      "misfit_share": 0.21619651425675673,
+      "rms_rel": 0.08985599601990497,
+      "durbin_watson": 3.1229370460267645
+     },
+     {
+      "region": "20.2-24.9",
+      "misfit_share": 0.3570684333840037,
+      "rms_rel": 0.11547778575032015,
+      "durbin_watson": 2.9464361176358698
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  }
+ }
+}

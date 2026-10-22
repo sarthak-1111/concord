@@ -1,0 +1,667 @@
+{
+ "sample_id": "s0044",
+ "model": {
+  "phase": "IrO2",
+  "summary": "All cross\u2011technique checks are satisfied except a disorder warning (C5), which persists after testing EXAFS fits with varied kmax values. The EXAFS/PDF disorder ratio remains low at 0.273, and the EXAFS coordination numbers (5.785\u20135.89) and \u03c3\u00b2 values (0.007273\u20130.007485\u202f\u00c5\u00b2) are stable across kmax\u202f=\u202f10\u201312, indicating static disorder or a split first shell rather than fitting instability. The combined XRD, PDF and EXAFS data support IrO\u2082 as the sole crystalline phase with particle size from XRD sphere diameter 7.8\u202fnm and PDF diameter 7.11\u202fnm, and Ir oxidation state \u22484.",
+  "claims": [
+   {
+    "statement": "Phase consistency between XRD and PDF is confirmed: both identify IrO\u2082 as the sole phase, with high XRD score (0.986) and PDF fit (rw 0.234).",
+    "evidence": [
+     "check.C1"
+    ]
+   },
+   {
+    "statement": "Ir\u2013O bond length from EXAFS (1.982\u202f\u00c5) matches the PDF model (1.986\u202f\u00c5) within 0.0034\u202f\u00c5.",
+    "evidence": [
+     "check.C2"
+    ]
+   },
+   {
+    "statement": "Ir\u2013O coordination number from EXAFS (5.89) agrees with the PDF model after surface truncation (5.75) within 0.14.",
+    "evidence": [
+     "check.C3"
+    ]
+   },
+   {
+    "statement": "Ir oxidation state determined by XANES (\u22483.91) aligns with the bond\u2011valence sum (4.002) and the formal valence (4).",
+    "evidence": [
+     "check.C4"
+    ]
+   },
+   {
+    "statement": "The EXAFS disorder (\u03c3\u00b2 = 0.00748\u202f\u00c5\u00b2) is lower than the PDF pair width (\u03c3\u00b2 \u2248 0.02744\u202f\u00c5\u00b2), giving a ratio of 0.273, below the acceptable range (0.3\u20131.3). This suggests static disorder, a distorted or split first shell, or surface\u2011layer effects that affect the two probes differently. EXAFS fits with kmax 10\u201312 yield coordination numbers 5.785\u20135.89 and \u03c3\u00b2 values 0.007273\u20130.007485\u202f\u00c5\u00b2, confirming the low ratio is not due to fitting instability.",
+    "evidence": [
+     "check.C5",
+     "rerun.R2.1.exafs_window_scan"
+    ]
+   },
+   {
+    "statement": "Particle size from XRD (sphere diameter 7.8\u202fnm, Scherrer median 6.34\u202fnm) agrees with PDF size (7.11\u202fnm) within a relative difference of 0.097.",
+    "evidence": [
+     "check.C6"
+    ]
+   },
+   {
+    "statement": "Joint simulation score for the evaluated candidate IrO\u2082 is 0.1187 (XRD:0.0213, PDF:0.2339, EXAFS:0.101). No alternative candidates were evaluated, so comparative favorability cannot be assessed.",
+    "evidence": [
+     "check.C7"
+    ]
+   },
+   {
+    "statement": "The measured particle size (XRD sphere diameter 7.8\u202fnm, PDF 7.11\u202fnm) falls within literature ranges for IrO\u2082 nanoparticles (1.7\u201310\u202fnm) reported in prior studies.",
+    "evidence": [
+     "prior.2",
+     "prior.3",
+     "prior.4",
+     "prior.5",
+     "prior.6",
+     "prior.7"
+    ]
+   },
+   {
+    "statement": "The oxidation state \u22484 matches expectations for IrO\u2082, contrasting with literature reports of lower Ir oxidation states (e.g., Ir\u00b3\u207a) under different conditions.",
+    "evidence": [
+     "prior.1"
+    ]
+   }
+  ],
+  "responses": []
+ },
+ "log": [
+  {
+   "round": 1,
+   "id": "R1.1",
+   "objection": "The claim that IrO\u2082 is favored over alternative phases in the joint simulation lacks supporting evidence because no alternative candidate phases were evaluated; the evidence only reports the score for IrO\u2082.",
+   "claim": 7,
+   "cited": [
+    "check.C7"
+   ],
+   "action": "xrd_add_phase",
+   "args": {
+    "candidate": "IrO3",
+    "optional": ":false"
+   },
+   "status": "failed",
+   "finding": "re-run xrd_add_phase failed: TypeError",
+   "result_id": "rerun.R1.1.xrd_add_phase"
+  },
+  {
+   "round": 2,
+   "id": "R2.1",
+   "objection": "The disorder warning (C5) suggests static disorder or a split first shell that the current model does not capture. To assess whether the EXAFS coordination number and sigma\u00b2 are stable, a re-fit of the EXAFS data with varied k\u2011max values is required.",
+   "claim": 4,
+   "cited": [
+    "check.C5"
+   ],
+   "action": "exafs_window_scan",
+   "args": {},
+   "status": "not confirmed",
+   "finding": "N over kmax 10-12: O 5.79-5.89",
+   "result_id": "rerun.R2.1.exafs_window_scan"
+  }
+ ],
+ "rounds": 3,
+ "confirmed": [],
+ "unsupported_numbers": [],
+ "report_md": "# Concord report \u2014 s0044 (IrO2)\n\n**IrO\u2082 identified as the sole crystalline phase with ~7\u202fnm particles and near\u2011IV oxidation state, but a low EXAFS/PDF disorder ratio flags static disorder.**\n\nPhase: **IrO2**\n\nAll cross\u2011technique checks are satisfied except a disorder warning (C5), which persists after testing EXAFS fits with varied kmax values. The EXAFS/PDF disorder ratio remains low at 0.273, and the EXAFS coordination numbers (5.785\u20135.89) and \u03c3\u00b2 values (0.007273\u20130.007485\u202f\u00c5\u00b2) are stable across kmax\u202f=\u202f10\u201312, indicating static disorder or a split first shell rather than fitting instability. The combined XRD, PDF and EXAFS data support IrO\u2082 as the sole crystalline phase with particle size from XRD sphere diameter 7.8\u202fnm and PDF diameter 7.11\u202fnm, and Ir oxidation state \u22484.\n\n## Key numbers (from the tools)\n\n- **XRD**: best match IrO2 (profile correlation 0.979, 100 % of the peak area explained); sphere diameter 7.8 nm from 10 indexed reflections\n- **PDF**: IrO2 refines to Rw 0.234; a 4.5038 \u00c5, c 3.1593 \u00c5; U_iso Ir 0.0009 \u00c5\u00b2, O 0.0265 \u00c5\u00b2; particle diameter 7.1 nm\n- **EXAFS** (Ir L3): Ir\u2013O N 5.9 \u00b1 0.6 at 1.983 \u00c5, \u03c3\u00b2 0.0075 \u00c5\u00b2; R-factor 0.0100\n- **XANES**: Ir valence 3.91 from a linear combination of standards, 4.19 from the edge position\n- **Bond valence** (PDF model): 4.00\n\n## Evidence by technique\n\n- **XRD**: XRD yields a high phase score of 0.986 and a sphere diameter of 7.8\u202fnm (Scherrer median 6.34\u202fnm), matching the PDF size of 7.11\u202fnm within a relative difference of 0.097.\n- **PDF**: PDF fit for IrO\u2082 gives rw\u202f=\u202f0.234 and a particle size of 7.11\u202fnm, confirming the XRD\u2011derived phase and size.\n- **EXAFS**: EXAFS shows an Ir\u2013O bond length of 1.983\u202f\u00c5 (\u03c3\u00b2\u202f=\u202f0.007485\u202f\u00c5\u00b2) and coordination numbers ranging 5.785\u20135.89 across kmax\u202f=\u202f10\u201312, stable against window variation.\n- **XANES**: XANES determines an Ir valence of 3.91, consistent with the bond\u2011valence sum of 4.002 and the formal Ir\u2074\u207a state.\n\n## Cross-technique checks\n\n| check | status | explanation |\n|---|---|---|\n| C1 Phase consistency (XRD vs PDF) | pass | XRD and PDF agree on IrO2. |\n| C2 Bond lengths (EXAFS R vs PDF model) | pass | EXAFS bond lengths match the PDF-refined model. |\n| C3 Coordination numbers (EXAFS N vs model) | pass | EXAFS coordination matches the PDF model after surface truncation. |\n| C4 Oxidation state (XANES vs bond-valence sum) | pass | XANES and the bond-valence sum agree. |\n| C5 Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) | **warn** | EXAFS/PDF disorder ratio 0.27\u20130.27 is outside 0.3\u20131.3: static disorder (a distorted or split first shell) or a surface layer seen differently by the two probes. |\n| C6 Size (XRD vs PDF) | pass | XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter. |\n| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | IrO2 has the best joint score. |\n\n## Virtual XAFS \u2014 PREDICTED, NOT MEASURED\n\nIr L3 EXAFS computed with FEFF from the PDF-refined model (IrO2; 24 ensemble members, Debye temperature 513\u2013528 K). This edge was measured, so the prediction serves as a consistency check against the measurement.\n\nAgainst the measured spectrum: R-factor 0.1014 in R 1.0\u20133.5 \u00c5.\n\n## Literature priors (other samples: context, not constraints)\n\n- Ir oxidation state 3, [doi:10.1021/acscatal.5c05765](https://doi.org/10.1021/acscatal.5c05765) (2025): \u00abOur findings reveal two distinct electrochemical regimes, a low potential plateau associated with a nonconductive Ir 3+ state and a linear region where small potential variations induce reversible oxidation state and str\u00bb\n- particle size 2.5 nm, [doi:10.1088/2053-1591/ad30ab](https://doi.org/10.1088/2053-1591/ad30ab) (2024): \u00abThe average particle size of the IrO2 particles on poly(BIAN-thiophene)/TNT was 2.5 nm.\u00bb\n- particle size 10 nm, [doi:10.1149/ma2023-01362023mtgabs](https://doi.org/10.1149/ma2023-01362023mtgabs) (2023): \u00abHere, we demonstrate how nanoparticles below 10 nm can be obtained at high preparation temperatures up to 800 \u00b0C with unprecedented control over particle size and morphology.\u00bb\n- particle size 1.7 \u00b1 0.4 nm, [doi:10.1149/ma2016-02/38/2425](https://doi.org/10.1149/ma2016-02/38/2425) (2016): \u00abChlorine\u2212free iridium oxide nanoparticles are synthesized using the modified Adams fusion method(5), which is capable of producing spherical 1.7 \u00b1 0.4 nm particles with a specific surface area of 150 m2/g using a low tem\u00bb\n- particle size 6.5\u201319 nm, [doi:10.1166/jnn.2007.750](https://doi.org/10.1166/jnn.2007.750) (2007): \u00abNanoparticles of transition metal oxides with metallic properties, RuO2, IrO2, and ReO3 in the ranges 6.5-19 nm, 6-14 nm, and 8.5-32.5 nm, respectively have been prepared by soft chemical routes.\u00bb\n- particle size 6\u201314 nm, [doi:10.1166/jnn.2007.750](https://doi.org/10.1166/jnn.2007.750) (2007): \u00abNanoparticles of transition metal oxides with metallic properties, RuO2, IrO2, and ReO3 in the ranges 6.5-19 nm, 6-14 nm, and 8.5-32.5 nm, respectively have been prepared by soft chemical routes.\u00bb\n- particle size 8.5\u201332.5 nm, [doi:10.1166/jnn.2007.750](https://doi.org/10.1166/jnn.2007.750) (2007): \u00abNanoparticles of transition metal oxides with metallic properties, RuO2, IrO2, and ReO3 in the ranges 6.5-19 nm, 6-14 nm, and 8.5-32.5 nm, respectively have been prepared by soft chemical routes.\u00bb\n\n## Claims\n\n0. Phase consistency between XRD and PDF is confirmed: both identify IrO\u2082 as the sole phase, with high XRD score (0.986) and PDF fit (rw 0.234). _(evidence: check.C1)_\n1. Ir\u2013O bond length from EXAFS (1.982\u202f\u00c5) matches the PDF model (1.986\u202f\u00c5) within 0.0034\u202f\u00c5. _(evidence: check.C2)_\n2. Ir\u2013O coordination number from EXAFS (5.89) agrees with the PDF model after surface truncation (5.75) within 0.14. _(evidence: check.C3)_\n3. Ir oxidation state determined by XANES (\u22483.91) aligns with the bond\u2011valence sum (4.002) and the formal valence (4). _(evidence: check.C4)_\n4. The EXAFS disorder (\u03c3\u00b2 = 0.00748\u202f\u00c5\u00b2) is lower than the PDF pair width (\u03c3\u00b2 \u2248 0.02744\u202f\u00c5\u00b2), giving a ratio of 0.273, below the acceptable range (0.3\u20131.3). This suggests static disorder, a distorted or split first shell, or surface\u2011layer effects that affect the two probes differently. EXAFS fits with kmax 10\u201312 yield coordination numbers 5.785\u20135.89 and \u03c3\u00b2 values 0.007273\u20130.007485\u202f\u00c5\u00b2, confirming the low ratio is not due to fitting instability. _(evidence: check.C5, rerun.R2.1.exafs_window_scan)_\n5. Particle size from XRD (sphere diameter 7.8\u202fnm, Scherrer median 6.34\u202fnm) agrees with PDF size (7.11\u202fnm) within a relative difference of 0.097. _(evidence: check.C6)_\n6. Joint simulation score for the evaluated candidate IrO\u2082 is 0.1187 (XRD:0.0213, PDF:0.2339, EXAFS:0.101). No alternative candidates were evaluated, so comparative favorability cannot be assessed. _(evidence: check.C7)_\n7. The measured particle size (XRD sphere diameter 7.8\u202fnm, PDF 7.11\u202fnm) falls within literature ranges for IrO\u2082 nanoparticles (1.7\u201310\u202fnm) reported in prior studies. _(evidence: prior.2, prior.3, prior.4, prior.5, prior.6, prior.7)_\n8. The oxidation state \u22484 matches expectations for IrO\u2082, contrasting with literature reports of lower Ir oxidation states (e.g., Ir\u00b3\u207a) under different conditions. _(evidence: prior.1)_\n\n## Objections and resolutions\n\n| id | objection | cited | re-run | finding | status |\n|---|---|---|---|---|---|\n| R1.1 | The claim that IrO\u2082 is favored over alternative phases in the joint simulation lacks supporting evidence because no alternative candidate phases were evaluated; the evidence only reports the score for IrO\u2082. | check.C7 | xrd_add_phase | re-run xrd_add_phase failed: TypeError | not confirmed |\n| R2.1 | The disorder warning (C5) suggests static disorder or a split first shell that the current model does not capture. To assess whether the EXAFS coordination number and sigma\u00b2 are stable, a re-fit of the EXAFS data with varied k\u2011max values is required. | check.C5 | exafs_window_scan | N over kmax 10-12: O 5.79-5.89 | not confirmed |\n\n## Limitations\n\n- Disorder warning C5: the EXAFS/PDF \u03c3\u00b2 ratio is 0.273, below the acceptable 0.3\u20131.3 range, indicating static disorder, a split first shell, or surface\u2011layer effects not captured by the current model.\n- Joint simulation limitation: claim C7 lacks comparative evidence because no alternative candidate phases were evaluated; the re\u2011run of xrd_add_phase failed.\n",
+ "wall_s": 2184.3,
+ "llm": {
+  "llm_calls": 10,
+  "prompt_tokens": 29049,
+  "completion_tokens": 33226,
+  "llm_seconds": 1469.1
+ },
+ "out_dir": "results/runs/s0044",
+ "evidence": {
+  "sample": {
+   "composition": "IrO2",
+   "techniques": [
+    "xrd",
+    "pdf",
+    "xafs"
+   ],
+   "candidates": [
+    "IrO2"
+   ],
+   "xafs_edge": "Ir L3"
+  },
+  "xrd.ranking": [
+   {
+    "phase": "IrO2",
+    "score": 0.9861,
+    "profile_corr": 0.9787,
+    "obs_area_fraction_explained": 0.9971
+   }
+  ],
+  "xrd.size": {
+   "sphere_diameter_nm": 7.798,
+   "scherrer_median_nm": 6.339,
+   "williamson_hall_strain": -0.0004333,
+   "n_indexed_peaks": 10
+  },
+  "pdf.fit.IrO2": {
+   "rw": 0.2339,
+   "lattice": {
+    "a": 4.504,
+    "b": 4.504,
+    "c": 3.159
+   },
+   "lattice_ref": {
+    "a": 4.505,
+    "b": 4.505,
+    "c": 3.159
+   },
+   "uiso": {
+    "Ir": 0.0009085,
+    "O": 0.02653
+   },
+   "delta2": 2.934,
+   "psize_nm": 7.11,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.best": "IrO2",
+  "exafs.fit": {
+   "absorber": "Ir",
+   "edge": "L3",
+   "model": "IrO2",
+   "rfactor": 0.009978,
+   "e0_shift_eV": 0.02866,
+   "window": {
+    "kmin": 3.0,
+    "kmax": 12.0,
+    "rmin": 1.0,
+    "rmax": 2.96,
+    "kweight": 2.0
+   },
+   "shells": [
+    {
+     "neighbor": "O",
+     "N": 5.89,
+     "N_err": 0.6055,
+     "R_A": 1.983,
+     "R_err": 0.01007,
+     "sigma2": 0.007485,
+     "extra": null
+    }
+   ]
+  },
+  "xanes": {
+   "absorber": "Ir",
+   "edge_eV": 11220.0,
+   "valence": 3.907,
+   "valence_edge": 4.189,
+   "lcf_weights": {
+    "Ir+0": 0.02328,
+    "Ir+4": 0.9767
+   }
+  },
+  "bvs": {
+   "valence": 4.002,
+   "formal_valence": 4.0
+  },
+  "virtual_xafs": {
+   "label": "PREDICTED, NOT MEASURED",
+   "edge": "Ir L3",
+   "candidates": [
+    "IrO2"
+   ],
+   "theta_K_range": [
+    513.5,
+    528.5
+   ],
+   "vs_measured": {
+    "rfactor_R": 0.1014,
+    "band_coverage_k": 0.01105,
+    "r_window": [
+     1.0,
+     3.5
+    ]
+   },
+   "per_candidate_rfactor": {
+    "IrO2": 0.101
+   },
+   "recommendation": "This edge was measured, so the prediction serves as a consistency check against the measurement."
+  },
+  "check.C1": {
+   "name": "Phase consistency (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_phase": "IrO2",
+    "xrd_score": 0.986,
+    "xrd_area_explained": 0.997,
+    "peak_rel_intensity": 0.941,
+    "pdf_phase": "IrO2",
+    "pdf_rw": 0.234,
+    "pdf_runner_up": null,
+    "pdf_runner_up_rw": null,
+    "lattice_rel_change": 0.0003
+   },
+   "tolerance": {
+    "pdf_good_rw": 0.25,
+    "xrd_weak_rel_intensity": 0.05,
+    "lattice_warn_rel": 0.003
+   },
+   "explanation": "XRD and PDF agree on IrO2."
+  },
+  "check.C2": {
+   "name": "Bond lengths (EXAFS R vs PDF model)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ir-O",
+      "exafs_R_A": 1.982,
+      "exafs_err": 0.0101,
+      "pdf_model_R_A": 1.986,
+      "diff_A": -0.0034
+     }
+    ],
+    "max_abs_diff_A": 0.0034
+   },
+   "tolerance": {
+    "warn_A": 0.02,
+    "fail_A": 0.05
+   },
+   "explanation": "EXAFS bond lengths match the PDF-refined model."
+  },
+  "check.C3": {
+   "name": "Coordination numbers (EXAFS N vs model)",
+   "status": "pass",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ir-O",
+      "exafs_N": 5.89,
+      "exafs_err": 0.61,
+      "model_N_bulk": 6.0,
+      "surface_factor": 0.958,
+      "model_N": 5.75,
+      "diff": 0.14
+     }
+    ],
+    "extra_shell": null,
+    "max_abs_diff": 0.14
+   },
+   "tolerance": {
+    "warn_abs": 1.0,
+    "fail_abs": 2.0,
+    "extra_min_sigma": 3.0,
+    "extra_min_rfactor_drop": 0.3
+   },
+   "explanation": "EXAFS coordination matches the PDF model after surface truncation."
+  },
+  "check.C4": {
+   "name": "Oxidation state (XANES vs bond-valence sum)",
+   "status": "pass",
+   "values": {
+    "xanes_valence": 3.91,
+    "xanes_edge_valence": 4.19,
+    "lcf": {
+     "Ir+0": 0.02328,
+     "Ir+4": 0.9767
+    },
+    "bvs_valence": 4.002,
+    "formal_valence": 4.0,
+    "diff": -0.09,
+    "metallic_model": false,
+    "xanes_fidelity": "low (simple edge model)"
+   },
+   "tolerance": {
+    "warn_abs": 0.5,
+    "fail_abs": 1.0,
+    "metal_warn_abs": 0.2,
+    "metal_fail_abs": 0.25,
+    "bvs_shift_min": 0.03,
+    "xanes_shift_min": 0.1
+   },
+   "explanation": "XANES and the bond-valence sum agree."
+  },
+  "check.C5": {
+   "name": "Disorder (EXAFS \u03c3\u00b2 vs PDF pair width)",
+   "status": "warn",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ir-O",
+      "exafs_sigma2": 0.00748,
+      "pdf_uncorrelated_sigma2": 0.02744,
+      "pdf_with_delta2_sigma2": 0.00703,
+      "ratio_exafs_to_pdf": 0.273
+     }
+    ]
+   },
+   "tolerance": {
+    "ratio_low": 0.3,
+    "ratio_high": 1.3
+   },
+   "explanation": "EXAFS/PDF disorder ratio 0.27\u20130.27 is outside 0.3\u20131.3: static disorder (a distorted or split first shell) or a surface layer seen differently by the two probes."
+  },
+  "check.C6": {
+   "name": "Size (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_sphere_diameter_nm": 7.8,
+    "xrd_scherrer_nm": 6.34,
+    "pdf_diameter_nm": 7.11,
+    "rel_diff": 0.097
+   },
+   "tolerance": {
+    "warn_rel": 0.25,
+    "fail_rel": 0.5
+   },
+   "explanation": "XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter."
+  },
+  "check.C7": {
+   "name": "Joint simulation score (XRD + PDF + EXAFS)",
+   "status": "pass",
+   "values": {
+    "candidates": [
+     {
+      "candidate": "IrO2",
+      "xrd": 0.0213,
+      "pdf": 0.2339,
+      "exafs": 0.101,
+      "score": 0.1187
+     }
+    ],
+    "margin": null,
+    "techniques": [
+     "exafs",
+     "pdf",
+     "xrd"
+    ]
+   },
+   "tolerance": {
+    "min_margin": 0.02
+   },
+   "explanation": "IrO2 has the best joint score."
+  },
+  "prior.1": {
+   "quantity": "oxidation_state",
+   "element": "Ir",
+   "value": 3,
+   "unit": "",
+   "doi": "10.1021/acscatal.5c05765",
+   "snippet": "Our findings reveal two distinct electrochemical regimes, a low potential plateau associated with a nonconductive Ir 3+ state and a linear region where small potential variations induce reversible oxidation state and structural transformations."
+  },
+  "prior.2": {
+   "quantity": "particle_size",
+   "value": 2.5,
+   "unit": "nm",
+   "doi": "10.1088/2053-1591/ad30ab",
+   "snippet": "The average particle size of the IrO2 particles on poly(BIAN-thiophene)/TNT was 2.5 nm."
+  },
+  "prior.3": {
+   "quantity": "particle_size",
+   "value": 10.0,
+   "unit": "nm",
+   "doi": "10.1149/ma2023-01362023mtgabs",
+   "snippet": "Here, we demonstrate how nanoparticles below 10 nm can be obtained at high preparation temperatures up to 800 \u00b0C with unprecedented control over particle size and morphology."
+  },
+  "prior.4": {
+   "quantity": "particle_size",
+   "value": 1.7,
+   "uncertainty": 0.4,
+   "unit": "nm",
+   "doi": "10.1149/ma2016-02/38/2425",
+   "snippet": "Chlorine\u2212free iridium oxide nanoparticles are synthesized using the modified Adams fusion method(5), which is capable of producing spherical 1.7 \u00b1 0.4 nm particles with a specific surface area of 150 m2/g using a low temperature synthesis (350 \u00b0C)."
+  },
+  "prior.5": {
+   "quantity": "particle_size",
+   "value": [
+    6.5,
+    19.0
+   ],
+   "unit": "nm",
+   "doi": "10.1166/jnn.2007.750",
+   "snippet": "Nanoparticles of transition metal oxides with metallic properties, RuO2, IrO2, and ReO3 in the ranges 6.5-19 nm, 6-14 nm, and 8.5-32.5 nm, respectively have been prepared by soft chemical routes."
+  },
+  "prior.6": {
+   "quantity": "particle_size",
+   "value": [
+    6.0,
+    14.0
+   ],
+   "unit": "nm",
+   "doi": "10.1166/jnn.2007.750",
+   "snippet": "Nanoparticles of transition metal oxides with metallic properties, RuO2, IrO2, and ReO3 in the ranges 6.5-19 nm, 6-14 nm, and 8.5-32.5 nm, respectively have been prepared by soft chemical routes."
+  },
+  "prior.7": {
+   "quantity": "particle_size",
+   "value": [
+    8.5,
+    32.5
+   ],
+   "unit": "nm",
+   "doi": "10.1166/jnn.2007.750",
+   "snippet": "Nanoparticles of transition metal oxides with metallic properties, RuO2, IrO2, and ReO3 in the ranges 6.5-19 nm, 6-14 nm, and 8.5-32.5 nm, respectively have been prepared by soft chemical routes."
+  },
+  "vision.xrd": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": null,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.pdf": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 1.81,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.exafs": {
+   "accepted": true,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": 3.312,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "rerun.R1.1.xrd_add_phase": {
+   "error": "TypeError: xrd_add_phase() got an unexpected keyword argument 'optional'",
+   "confirms": false
+  },
+  "rerun.R2.1.exafs_window_scan": {
+   "fits": [
+    {
+     "kmax": 10.0,
+     "neighbor": "O",
+     "N": 5.785,
+     "sigma2": 0.007273,
+     "R_A": 1.989
+    },
+    {
+     "kmax": 11.0,
+     "neighbor": "O",
+     "N": 5.866,
+     "sigma2": 0.007458,
+     "R_A": 1.986
+    },
+    {
+     "kmax": 12.0,
+     "neighbor": "O",
+     "N": 5.89,
+     "sigma2": 0.007485,
+     "R_A": 1.983
+    }
+   ],
+   "N_range": {
+    "O": [
+     5.785,
+     5.89
+    ]
+   },
+   "confirms": false
+  }
+ },
+ "vision": {
+  "virtual_xafs": {
+   "plot": "results/runs/s0044/virtual_xafs.png"
+  },
+  "xrd": {
+   "plot": "results/runs/s0044/xrd_fit.png",
+   "features": {
+    "n_independent": 4001,
+    "thinned_by": 1,
+    "rms_rel": 0.03990827047547076,
+    "durbin_watson": null,
+    "regions": [
+     {
+      "region": "10.0-26.0",
+      "misfit_share": 0.13107293335290798,
+      "rms_rel": 0.03229144161441941,
+      "durbin_watson": null
+     },
+     {
+      "region": "26.0-42.0",
+      "misfit_share": 0.5145239968656296,
+      "rms_rel": 0.06397845407298244,
+      "durbin_watson": null
+     },
+     {
+      "region": "42.0-58.0",
+      "misfit_share": 0.23091982081439766,
+      "rms_rel": 0.04286092411336883,
+      "durbin_watson": null
+     },
+     {
+      "region": "58.0-74.0",
+      "misfit_share": 0.10113785507548459,
+      "rms_rel": 0.028365326968122228,
+      "durbin_watson": null
+     },
+     {
+      "region": "74.0-90.0",
+      "misfit_share": 0.02546108181576369,
+      "rms_rel": 0.014232111935921195,
+      "durbin_watson": null
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  },
+  "pdf": {
+   "plot": "results/runs/s0044/pdf_fit.png",
+   "features": {
+    "n_independent": 147,
+    "thinned_by": 16,
+    "rms_rel": 0.23585515178854438,
+    "durbin_watson": 1.809565798395516,
+    "regions": [
+     {
+      "region": "1.5-6.2",
+      "misfit_share": 0.10334265100665314,
+      "rms_rel": 0.16783526014717226,
+      "durbin_watson": 1.5137160538030001
+     },
+     {
+      "region": "6.2-10.8",
+      "misfit_share": 0.08967895990598472,
+      "rms_rel": 0.15901947552894807,
+      "durbin_watson": 1.4615494694177196
+     },
+     {
+      "region": "10.8-15.5",
+      "misfit_share": 0.30466253761099427,
+      "rms_rel": 0.29309915269997877,
+      "durbin_watson": 2.3331690489407926
+     },
+     {
+      "region": "15.5-20.2",
+      "misfit_share": 0.2110928506601474,
+      "rms_rel": 0.24397301758124418,
+      "durbin_watson": 1.5958124074744933
+     },
+     {
+      "region": "20.2-24.9",
+      "misfit_share": 0.2912230008162204,
+      "rms_rel": 0.2817450167026456,
+      "durbin_watson": 1.4293491855661065
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  },
+  "exafs": {
+   "plot": "results/runs/s0044/exafs_fit.png",
+   "features": {
+    "n_independent": 11,
+    "thinned_by": 6,
+    "rms_rel": 0.08562862712352155,
+    "durbin_watson": 3.311749565392562,
+    "regions": [
+     {
+      "region": "1.0-2.9",
+      "misfit_share": 1.0,
+      "rms_rel": 0.08562862712352155,
+      "durbin_watson": 3.311749565392562
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": true,
+   "steps": []
+  }
+ }
+}

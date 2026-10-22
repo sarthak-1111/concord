@@ -59,11 +59,12 @@ Other commands: `uv run concord priors Pt3Co` (literature values with DOIs), `ma
 | Planted faults detected (a check fails) | 0.667 | ≥ 0.6 | pass |
 | False alarms on clean samples | 0 | ≤ 0.2 | pass |
 | C1–C6 reported for every sample | 1 | ≥ 1.0 | pass |
-| Runtime per sample, mean (s) | 25.1 | ≤ 120 | pass |
+| Runtime per sample, mean (s) | 25.8 | ≤ 120 | pass |
 | Virtual EXAFS vs spectrum, median R-factor | 0.0219 | ≤ 0.1 | pass |
 
 Virtual EXAFS against the hidden spectrum (XAFS withheld): median R-factor 0.011  
 Faults that only raise a warning: 11% of fault samples.  
+With the critic (`make eval-agents`, 18 of 19 runs complete): faults flagged by a check or a re-run-confirmed objection 62%, clean samples flagged 0%, numbers in the agents' prose not found in the evidence: 0, 26 min and 39k tokens per sample.  
 
 Per-sample details: [`results/eval.md`](results/eval.md).
 <!-- results:end -->
@@ -93,9 +94,10 @@ sample folder ─► XRD   peaks, phase ranking, Scherrer/WH size (Voigt, instru
   equally good candidates) is run through FEFF; the spread is shown as a band, labelled PREDICTED, NOT MEASURED,
   with a measurement recommendation. When XAFS was measured, the prediction is a consistency check.
 - **Generator–critic loop.** The critic has its own prompt, high thinking and only the evidence. Every objection
-  must cite evidence ids; it can ask for one of five re-runs (another candidate, envelope on/off, a probe shell, a
-  k-range scan, size from the strongest peak), and the re-run decides. A number guard rejects any number in the
-  prose that is not in the evidence.
+  must cite evidence ids; it can ask for one of seven re-runs (another PDF candidate, envelope on/off, a probe shell,
+  a k-range scan, size from the strongest peak, a second XRD phase, a zoomed visual inspection), and the re-run
+  decides. A re-run that cannot run leaves the objection unsettled. A number guard rejects any number in the prose
+  that is not in the evidence.
 - **Visual inspection.** Fit plots are rendered deterministically (XRD with reflection ticks, PDF, EXAFS in k and R,
   and a zoom on the largest misfit) and judged by the eye module when `EYE_MODULE_PATH` is set, otherwise by an open
   fallback (residual features calibrated on the development split + gpt-oss judge). A fit is accepted only if the
@@ -120,6 +122,10 @@ plots from residual statistics; everything else is the same.
 - Sub-monolayer oxide shells and dopants of a few percent sit at the detection limit of these techniques; the
   planted low-concentration dopant is not detected.
 - Pt3Co and Pt are hard to tell apart by PDF alone for small particles; C7 and EXAFS help, not always.
+- The number guard checks that every number in the prose is in the evidence, not that it is attached to the right
+  quantity. On s0031 the analyst quoted the C5 ratio 0.276 next to the wrong PDF σ², and the critic let it pass.
+- The critic picks the re-run itself. On s0024 it rightly objected that C7 passes, then asked for a PDF re-fit that
+  does not test that, so the log marks the objection refuted.
 - The eye module interface could not be inspected (the reference repositories were not available), so the adapter
   tries a list of common entry points.
 - The reference repositories `xafs_backend` and `xafs_frontend` are private and were not cloned (no credentials);
