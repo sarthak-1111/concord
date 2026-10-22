@@ -44,7 +44,9 @@ _SIZE = re.compile(r"(?<![\w.])" + _NUM + r"(?:\s?[-–]\s?" + _NUM + r")?" + _P
 _SIZE_WORDS = re.compile(r"\b(?:size|diameter|particles?|nanoparticles?|NPs?|crystallites?|clusters?|grains?)\b", re.I)
 _ION = re.compile(r"(?<![A-Za-z])([A-Z][a-z]?)\s?(\d)\+")
 _ION_ROMAN = re.compile(r"(?<![A-Za-z])([A-Z][a-z]?)\s?\((I{1,3}|IV|VI{0,2})\)")
-_VALENCE = re.compile(r"(?:oxidation state|valence)[^.;]{0,30}?(?<![\w.])\+?" + _NUM + r"(?![\w.]*\s?(?:nm|Å|%|eV))")
+# only linking words between "oxidation state" and the value ("of Pt is +0.6"), so "... was observed with 0.02 O" is not read
+_VALENCE = re.compile(r"(?:oxidation state|valence)(?:\s+(?:of|is|was|were|close to|near|about|around|[A-Z][a-z]?)|\s*[=:~≈])+\s*\+?"
+                      + _NUM + r"(?![\w.]*\s?(?:nm|Å|%|eV))")
 
 
 # -- open literature APIs (cached) -------------------------------------------------------------------------------

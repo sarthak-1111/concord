@@ -1,0 +1,111 @@
+{
+ "composition": "TiO2",
+ "phase": null,
+ "material": "TiO2",
+ "model": "BAAI/bge-small-en-v1.5",
+ "queries": {
+  "openalex": [
+   "TiO2 EXAFS coordination number bond length",
+   "TiO2 XANES oxidation state",
+   "TiO2 nanoparticles size"
+  ],
+  "crossref": [
+   "TiO2 EXAFS",
+   "TiO2 nanoparticles XANES"
+  ],
+  "arxiv": [
+   "all:\"TiO2\" AND (all:EXAFS OR all:XAFS OR all:XANES OR all:nanoparticles)"
+  ]
+ },
+ "papers": 116,
+ "sentences": 812,
+ "errors": [],
+ "priors": [
+  {
+   "quantity": "oxidation_state",
+   "element": "Ti",
+   "value": 4,
+   "unit": "",
+   "form": "Ti 4+",
+   "doi": "10.1088/2053-1591/ab4e3f",
+   "title": "Phase growth analysis of sputtered TiO2 thin films at low oxygen partial pressures using XANES and XRR",
+   "year": 2019,
+   "source": "OpenAlex",
+   "snippet": "Anal.At.Spectrom.29 736] coordination environment and Ti 4+ oxidation state was observed with 0.02 and 0.04 O 2 partial pressures, respectively.",
+   "relevance": 0.746
+  },
+  {
+   "quantity": "particle_size",
+   "value": 8.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.4028/www.scientific.net/kem.833.147",
+   "title": "Size Dependent Dielectric Properties of TiO2 Nanoparticles",
+   "year": 2020,
+   "source": "OpenAlex",
+   "snippet": "The average sizes of nanoparticles estimated respectively are ~ 8 nm and ~ 22 nm.",
+   "relevance": 0.729
+  },
+  {
+   "quantity": "particle_size",
+   "value": 22.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.4028/www.scientific.net/kem.833.147",
+   "title": "Size Dependent Dielectric Properties of TiO2 Nanoparticles",
+   "year": 2020,
+   "source": "OpenAlex",
+   "snippet": "The average sizes of nanoparticles estimated respectively are ~ 8 nm and ~ 22 nm.",
+   "relevance": 0.729
+  },
+  {
+   "quantity": "particle_size",
+   "value": 1.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1002/cctc.200900104",
+   "title": "X‐ray Absorption Spectroscopy of an Fe‐Promoted Rh/TiO2 Catalyst for Synthesis of Ethanol from Synthesis Gas",
+   "year": 2009,
+   "source": "OpenAlex",
+   "snippet": "The metal particles contained on an average about 20 atoms, which is consistent with a particle size of 1 nm.",
+   "relevance": 0.697
+  },
+  {
+   "quantity": "particle_size",
+   "value": 32.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1021/la7039916",
+   "title": "Adsorption of Organic Acids on TiO2 Nanoparticles: Effects of pH, Nanoparticle Size, and Nanoparticle Aggregation",
+   "year": 2008,
+   "source": "OpenAlex",
+   "snippet": "The relative reactivity of 5 and 32 nm particles as determined from Langmuir adsorption parameters did not appear to vary greatly despite differences that occur in nanoparticle aggregation for these two different size nanoparticles.",
+   "relevance": 0.673
+  },
+  {
+   "quantity": "particle_size",
+   "value": 9.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.51415/10321/3804",
+   "title": "The efficiency of phytoremediation using Panicum maximum and TiO2 nanoparticles",
+   "year": null,
+   "source": "Crossref",
+   "snippet": "The Image J analysis showed that the average particle distribution of nTiO2 was 9 nm.",
+   "relevance": 0.672
+  },
+  {
+   "quantity": "particle_size",
+   "value": 7.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1115/1.859841.paper69",
+   "title": "The Effect of TiO2 Nanoparticle Size on Photo-Catalytic Performance in Selective Propane Oxidation",
+   "year": 2011,
+   "source": "OpenAlex",
+   "snippet": "We present a detailed comparison of two samples of identical atomic composition but different texture, with narrow TiO2 particle-size distributions centered at 4 and 7 nm.",
+   "relevance": 0.662
+  }
+ ],
+ "mined": "2026-10-22"
+}

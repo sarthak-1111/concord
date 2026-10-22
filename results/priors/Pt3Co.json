@@ -1,6 +1,6 @@
 {
  "composition": "Pt3Co",
- "phase": null,
+ "phase": "Pt3Co",
  "material": "Pt3Co",
  "model": "BAAI/bge-small-en-v1.5",
  "queries": {

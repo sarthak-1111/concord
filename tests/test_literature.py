@@ -13,6 +13,10 @@ def test_values_are_read_with_their_pair_and_uncertainty():
 def test_oxidation_states_and_sizes():
     ox = extract("XANES shows Ce3+ and Ce(IV) species; Cu2+ is reduced.", "oxidation_state", {"Ce", "O"})
     assert [(x["element"], x["value"]) for x in ox] == [("Ce", 3), ("Ce", 4)]
+    ox = extract("XANES: the Ti 4+ oxidation state was observed with 0.02 and 0.04 O vacancies.", "oxidation_state", {"Ti", "O"})
+    assert [(x["element"], x["value"]) for x in ox] == [("Ti", 4)]
+    ox = extract("The average oxidation state of Pt is +0.6 from the white line.", "oxidation_state", {"Pt"})
+    assert [(x["element"], x["value"]) for x in ox] == [("Pt", 0.6)]
     sizes = extract("Particles of 3.2 ± 0.4 nm and 2–5 nm clusters; a 532 nm laser.", "particle_size", {"Pt"})
     assert [x["value"] for x in sizes] == [3.2, [2.0, 5.0]]
     assert extract("The film was 30 nm thick.", "particle_size", {"Pt"}) == []  # no size word

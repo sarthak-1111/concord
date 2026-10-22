@@ -1,0 +1,124 @@
+{
+ "composition": "Pt",
+ "phase": "Pt",
+ "material": "Pt",
+ "model": "BAAI/bge-small-en-v1.5",
+ "queries": {
+  "openalex": [
+   "Pt EXAFS coordination number bond length",
+   "Pt XANES oxidation state",
+   "Pt nanoparticles size"
+  ],
+  "crossref": [
+   "Pt EXAFS",
+   "Pt nanoparticles XANES"
+  ],
+  "arxiv": [
+   "all:\"Pt\" AND (all:EXAFS OR all:XAFS OR all:XANES OR all:nanoparticles)"
+  ]
+ },
+ "papers": 114,
+ "sentences": 649,
+ "errors": [],
+ "priors": [
+  {
+   "quantity": "bond_length",
+   "pair": "Pt–Pt",
+   "value": 2.876,
+   "uncertainty": 0.028,
+   "unit": "Å",
+   "doi": "10.2533/chimia.2008.287",
+   "title": "EXAFS Structural Determination of the Pt2(P2O5H2)44– Anion in Solution",
+   "year": 2008,
+   "source": "OpenAlex",
+   "snippet": "A Pt–Pt distance of 2.876(28) Å and a Pt–P bond length of 2.32(4) Å are obtained.",
+   "relevance": 0.725
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Pt",
+   "value": 4,
+   "unit": "",
+   "form": "Pt(IV)",
+   "doi": "10.1039/c2mt20053h",
+   "title": "Quantitative measurement of the reduction of platinum(iv) complexes using X-ray absorption near-edge spectroscopy (XANES)",
+   "year": 2012,
+   "source": "OpenAlex",
+   "snippet": "Reduction of Pt(IV) complexes over time in cell growth media and A2780 cells was observed by XANES, and shown to correspond with their reduction potentials and cytotoxicities.",
+   "relevance": 0.718
+  },
+  {
+   "quantity": "particle_size",
+   "value": 5.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1103/physrevb.85.075439",
+   "title": "Fitting EXAFS data using molecular dynamics outputs and a histogram approach",
+   "year": 2012,
+   "source": "OpenAlex",
+   "snippet": "The estimation of metal nanoparticle diameter by analysis of extended x-ray absorption fine structure (EXAFS) data from coordination numbers is nontrivial, particularly for particles 5 nm in diameter, for which the undercoordination of surface atoms becomes an increasingly significant contribution to the average coordination number.",
+   "relevance": 0.718
+  },
+  {
+   "quantity": "particle_size",
+   "value": 3.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.48550/arXiv.2406.01004",
+   "title": "Pt nanoparticles dispersed in a metal-organic framework as peroxidase mimics for colorimetric detection of GSH",
+   "year": 2024,
+   "source": "arXiv",
+   "snippet": "We successfully synthesized Pt@ZIF-8 in two steps, the average particle size of Pt nanoparticles is about 3 nm.",
+   "relevance": 0.68
+  },
+  {
+   "quantity": "particle_size",
+   "value": 1.5,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1103/physrevb.84.245438",
+   "title": "Thermodynamic properties of Pt nanoparticles: Size, shape, support, and adsorbate effects",
+   "year": 2011,
+   "source": "OpenAlex",
+   "snippet": "For large NP sizes (diameter $d$ >1.5 nm) \\ensuremath{\\Theta}${}_{D}$ was found to decrease toward \\ensuremath{\\Theta}${}_{D}$ of bulk Pt with increasing NP size.",
+   "relevance": 0.664
+  },
+  {
+   "quantity": "particle_size",
+   "value": 4.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1039/b303911k",
+   "title": "Size effects on reactivity of Pt nanoparticles in CO monolayer oxidation: The role of surface mobility",
+   "year": 2003,
+   "source": "OpenAlex",
+   "snippet": "Significant size effects are observed in the particle size interval from ca. 1 to 4 nm, including the positive shift of the CO stripping peak with decreasing particle size and a pronounced asymmetry of the current transients at constant potential.",
+   "relevance": 0.655
+  },
+  {
+   "quantity": "particle_size",
+   "value": 2.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1039/b821622n",
+   "title": "Pt nanoparticle stability in PEM fuel cells: influence of particle size distribution and crossover hydrogen",
+   "year": 2009,
+   "source": "OpenAlex",
+   "snippet": "Our model demonstrates that, due to rapid changes in the Gibbs–Thomson energy, particle size effects dominate degradation for ∼2 nm particles but play almost no role for ∼5 nm particles.",
+   "relevance": 0.654
+  },
+  {
+   "quantity": "particle_size",
+   "value": 5.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1039/b821622n",
+   "title": "Pt nanoparticle stability in PEM fuel cells: influence of particle size distribution and crossover hydrogen",
+   "year": 2009,
+   "source": "OpenAlex",
+   "snippet": "Our model demonstrates that, due to rapid changes in the Gibbs–Thomson energy, particle size effects dominate degradation for ∼2 nm particles but play almost no role for ∼5 nm particles.",
+   "relevance": 0.654
+  }
+ ],
+ "mined": "2026-10-22"
+}

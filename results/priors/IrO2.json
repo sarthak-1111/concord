@@ -1,0 +1,120 @@
+{
+ "composition": "IrO2",
+ "phase": "IrO2",
+ "material": "IrO2",
+ "model": "BAAI/bge-small-en-v1.5",
+ "queries": {
+  "openalex": [
+   "IrO2 EXAFS coordination number bond length",
+   "IrO2 XANES oxidation state",
+   "IrO2 nanoparticles size"
+  ],
+  "crossref": [
+   "IrO2 EXAFS",
+   "IrO2 nanoparticles XANES"
+  ],
+  "arxiv": [
+   "all:\"IrO2\" AND (all:EXAFS OR all:XAFS OR all:XANES OR all:nanoparticles)"
+  ]
+ },
+ "papers": 70,
+ "sentences": 606,
+ "errors": [],
+ "priors": [
+  {
+   "quantity": "oxidation_state",
+   "element": "Ir",
+   "value": 3,
+   "unit": "",
+   "form": "Ir 3+",
+   "doi": "10.1021/acscatal.5c05765",
+   "title": "Role of Hydration in Uncovering the OER Activity of Amorphous Iridium Oxide Electrocatalysts",
+   "year": 2025,
+   "source": "OpenAlex",
+   "snippet": "Our findings reveal two distinct electrochemical regimes, a low potential plateau associated with a nonconductive Ir 3+ state and a linear region where small potential variations induce reversible oxidation state and structural transformations.",
+   "relevance": 0.687
+  },
+  {
+   "quantity": "particle_size",
+   "value": 2.5,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1088/2053-1591/ad30ab",
+   "title": "Electronic structure control of IrO2 via conjugated polymer support for highly efficient oxygen evolution reaction",
+   "year": 2024,
+   "source": "OpenAlex",
+   "snippet": "The average particle size of the IrO2 particles on poly(BIAN-thiophene)/TNT was 2.5 nm.",
+   "relevance": 0.717
+  },
+  {
+   "quantity": "particle_size",
+   "value": 10.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1149/ma2023-01362023mtgabs",
+   "title": "Size-Controlled Synthesis of IrO2 nanoparticles at High Temperatures for the Oxygen Evolution Reaction",
+   "year": 2023,
+   "source": "OpenAlex",
+   "snippet": "Here, we demonstrate how nanoparticles below 10 nm can be obtained at high preparation temperatures up to 800 °C with unprecedented control over particle size and morphology.",
+   "relevance": 0.611
+  },
+  {
+   "quantity": "particle_size",
+   "value": 1.7,
+   "uncertainty": 0.4,
+   "unit": "nm",
+   "doi": "10.1149/ma2016-02/38/2425",
+   "title": "Influence of Crystallinity, Particle Size, and Microstructure on the Oxygen Evolution Activity of IrO2",
+   "year": 2016,
+   "source": "OpenAlex",
+   "snippet": "Chlorine−free iridium oxide nanoparticles are synthesized using the modified Adams fusion method(5), which is capable of producing spherical 1.7 ± 0.4 nm particles with a specific surface area of 150 m2/g using a low temperature synthesis (350 °C).",
+   "relevance": 0.584
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    6.5,
+    19.0
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1166/jnn.2007.750",
+   "title": "Synthesis and Characterization of Nanocrystals of the Oxide Metals, RuO2, IrO2, and ReO3",
+   "year": 2007,
+   "source": "OpenAlex",
+   "snippet": "Nanoparticles of transition metal oxides with metallic properties, RuO2, IrO2, and ReO3 in the ranges 6.5-19 nm, 6-14 nm, and 8.5-32.5 nm, respectively have been prepared by soft chemical routes.",
+   "relevance": 0.579
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    6.0,
+    14.0
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1166/jnn.2007.750",
+   "title": "Synthesis and Characterization of Nanocrystals of the Oxide Metals, RuO2, IrO2, and ReO3",
+   "year": 2007,
+   "source": "OpenAlex",
+   "snippet": "Nanoparticles of transition metal oxides with metallic properties, RuO2, IrO2, and ReO3 in the ranges 6.5-19 nm, 6-14 nm, and 8.5-32.5 nm, respectively have been prepared by soft chemical routes.",
+   "relevance": 0.579
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    8.5,
+    32.5
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1166/jnn.2007.750",
+   "title": "Synthesis and Characterization of Nanocrystals of the Oxide Metals, RuO2, IrO2, and ReO3",
+   "year": 2007,
+   "source": "OpenAlex",
+   "snippet": "Nanoparticles of transition metal oxides with metallic properties, RuO2, IrO2, and ReO3 in the ranges 6.5-19 nm, 6-14 nm, and 8.5-32.5 nm, respectively have been prepared by soft chemical routes.",
+   "relevance": 0.579
+  }
+ ],
+ "mined": "2026-10-22"
+}

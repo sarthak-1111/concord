@@ -63,7 +63,9 @@ def _plots(sid: str, a: dict, mtime: float) -> dict[str, str]:
 
 
 def view(sid: str) -> dict | None:
-    cached = RUNS / f"{sid}.json"
+    cached, after_agents = RUNS / f"{sid}.json", RUNS / sid / "analysis.json"
+    if after_agents.exists() and (not cached.exists() or after_agents.stat().st_mtime >= cached.stat().st_mtime):
+        cached = after_agents  # the agents' copy carries the fixes the visual inspection kept
     if not cached.exists():
         return None
     a, mtime = json.loads(cached.read_text()), cached.stat().st_mtime

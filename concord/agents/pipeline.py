@@ -298,8 +298,8 @@ async def run_sample_async(folder: str | Path, out: Path | None = None, on_event
               "unsupported_numbers": number_guard(prose, st["evidence"]), "report_md": md, "wall_s": round(time.time() - t0, 1),
               "llm": trace.totals(), "out_dir": str(out)}
     (out / "report.md").write_text(md)
+    (out / "analysis.json").write_text(json.dumps(st["analysis"]))  # before agents.json: the UI marks agents older than the analysis stale
     (out / "agents.json").write_text(json.dumps({**result, "evidence": st["evidence"], "vision": st.get("vision")}, default=str, indent=1))
-    (out / "analysis.json").write_text(json.dumps(st["analysis"]))
     RUNS.pop(session.id, None)
     return result
 

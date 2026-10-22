@@ -1,0 +1,127 @@
+{
+ "composition": "PtO2",
+ "phase": "PtO2",
+ "material": "PtO2",
+ "model": "BAAI/bge-small-en-v1.5",
+ "queries": {
+  "openalex": [
+   "PtO2 EXAFS coordination number bond length",
+   "PtO2 XANES oxidation state",
+   "PtO2 nanoparticles size"
+  ],
+  "crossref": [
+   "PtO2 EXAFS",
+   "PtO2 nanoparticles XANES"
+  ],
+  "arxiv": [
+   "all:\"PtO2\" AND (all:EXAFS OR all:XAFS OR all:XANES OR all:nanoparticles)"
+  ]
+ },
+ "papers": 28,
+ "sentences": 306,
+ "errors": [],
+ "priors": [
+  {
+   "quantity": "bond_length",
+   "pair": "Pt–Pt",
+   "value": 2.8,
+   "uncertainty": null,
+   "unit": "Å",
+   "doi": "10.31635/ccschem.022.202101628",
+   "title": "Strain-Assisted Single Pt Sites on High-Curvature MoS 2 Surface for Ultrasensitive H 2 S Sensing",
+   "year": 2022,
+   "source": "OpenAlex",
+   "snippet": "No Pt–Pt characteristic peak (at ∼2.8 Å) was detected for both Pt-B-MoS2 and Pt-S-MoS2 samples, confirming the atomic dispersion of Pt on the supports.",
+   "relevance": 0.611
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Pt",
+   "value": 4,
+   "unit": "",
+   "form": "Pt4+",
+   "doi": "10.31635/ccschem.022.202101628",
+   "title": "Strain-Assisted Single Pt Sites on High-Curvature MoS 2 Surface for Ultrasensitive H 2 S Sensing",
+   "year": 2022,
+   "source": "OpenAlex",
+   "snippet": "However, for the Pt loading of S-MoS2 samples (donated as Pt-S-MoS2), the Pt exhibited an additional peak at ∼74.0 eV, suggesting the existing higher oxidation state of the Pt4+ species.",
+   "relevance": 0.617
+  },
+  {
+   "quantity": "particle_size",
+   "value": 1.3,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1055/s-0042-1755335",
+   "title": "Nanomaterial Characterisation of Diluted Platina and Alcohol Control Samples",
+   "year": 2023,
+   "source": "OpenAlex",
+   "snippet": "Results Platina 30c to CM: Nanoparticles were identified under DLS (mean particle size varying from 1.3 nm in 30c to 6.5 nm in CM) and HRTEM (particle size varying from 3.31 to 12.7 nm in 30c to 1.94 to 8.54 nm in CM).",
+   "relevance": 0.715
+  },
+  {
+   "quantity": "particle_size",
+   "value": 6.5,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1055/s-0042-1755335",
+   "title": "Nanomaterial Characterisation of Diluted Platina and Alcohol Control Samples",
+   "year": 2023,
+   "source": "OpenAlex",
+   "snippet": "Results Platina 30c to CM: Nanoparticles were identified under DLS (mean particle size varying from 1.3 nm in 30c to 6.5 nm in CM) and HRTEM (particle size varying from 3.31 to 12.7 nm in 30c to 1.94 to 8.54 nm in CM).",
+   "relevance": 0.715
+  },
+  {
+   "quantity": "particle_size",
+   "value": 12.7,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1055/s-0042-1755335",
+   "title": "Nanomaterial Characterisation of Diluted Platina and Alcohol Control Samples",
+   "year": 2023,
+   "source": "OpenAlex",
+   "snippet": "Results Platina 30c to CM: Nanoparticles were identified under DLS (mean particle size varying from 1.3 nm in 30c to 6.5 nm in CM) and HRTEM (particle size varying from 3.31 to 12.7 nm in 30c to 1.94 to 8.54 nm in CM).",
+   "relevance": 0.715
+  },
+  {
+   "quantity": "particle_size",
+   "value": 8.54,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1055/s-0042-1755335",
+   "title": "Nanomaterial Characterisation of Diluted Platina and Alcohol Control Samples",
+   "year": 2023,
+   "source": "OpenAlex",
+   "snippet": "Results Platina 30c to CM: Nanoparticles were identified under DLS (mean particle size varying from 1.3 nm in 30c to 6.5 nm in CM) and HRTEM (particle size varying from 3.31 to 12.7 nm in 30c to 1.94 to 8.54 nm in CM).",
+   "relevance": 0.715
+  },
+  {
+   "quantity": "particle_size",
+   "value": 3.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1039/c5nr03585f",
+   "title": "Nanoparticle cluster gas sensor: Pt activated SnO 2 nanoparticles for NH 3 detection with ultrahigh sensitivity",
+   "year": 2015,
+   "source": "OpenAlex",
+   "snippet": "The SnO2 nanoparticle cluster matrix consists of tens of thousands of SnO2 nanoparticles with an ultra-small grain size estimated to be 3.0 nm.",
+   "relevance": 0.647
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    1.1,
+    2.1
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1021/acsami.8b06815",
+   "title": "Photoinduced in Situ Deposition of Uniform and Well-Dispersed PtO2 Nanoparticles on ZnO Nanorods for Efficient Catalytic Reduction of 4-Nitrophenol",
+   "year": 2018,
+   "source": "OpenAlex",
+   "snippet": "The high crystallinity and uniform crystal structure of the ZnO matrix conduct the in situ deposition of PtO 2 nanoparticles with 1.1–2.1 nm, which are evenly and densely anchored on the surface.",
+   "relevance": 0.576
+  }
+ ],
+ "mined": "2026-10-22"
+}

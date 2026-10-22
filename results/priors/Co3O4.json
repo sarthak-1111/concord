@@ -1,0 +1,185 @@
+{
+ "composition": "Co3O4",
+ "phase": "Co3O4",
+ "material": "Co3O4",
+ "model": "BAAI/bge-small-en-v1.5",
+ "queries": {
+  "openalex": [
+   "Co3O4 EXAFS coordination number bond length",
+   "Co3O4 XANES oxidation state",
+   "Co3O4 nanoparticles size"
+  ],
+  "crossref": [
+   "Co3O4 EXAFS",
+   "Co3O4 nanoparticles XANES"
+  ],
+  "arxiv": [
+   "all:\"Co3O4\" AND (all:EXAFS OR all:XAFS OR all:XANES OR all:nanoparticles)"
+  ]
+ },
+ "papers": 102,
+ "sentences": 742,
+ "errors": [],
+ "priors": [
+  {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 2,
+   "unit": "",
+   "form": "Co2+",
+   "doi": "10.48550/arXiv.1404.1658",
+   "title": "Coexistence of Co3+ and Co2+ in ceramic Co3TeO6; XANES, Magnetization and first principle study",
+   "year": 2014,
+   "source": "arXiv",
+   "snippet": "XANES along with linear combination fit provide relative concentrations of Co2+ and Co3+.Temperature dependent DC magnetization exhibits the same antiferromagnetic behavior as observed in single crystal.",
+   "relevance": 0.767
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 3,
+   "unit": "",
+   "form": "Co3+",
+   "doi": "10.48550/arXiv.1404.1658",
+   "title": "Coexistence of Co3+ and Co2+ in ceramic Co3TeO6; XANES, Magnetization and first principle study",
+   "year": 2014,
+   "source": "arXiv",
+   "snippet": "XANES along with linear combination fit provide relative concentrations of Co2+ and Co3+.Temperature dependent DC magnetization exhibits the same antiferromagnetic behavior as observed in single crystal.",
+   "relevance": 0.767
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 3,
+   "unit": "",
+   "form": "Co3+",
+   "doi": "10.48550/arXiv.1201.5193",
+   "title": "Covalent Hybrid of Spinel Manganese-Cobalt Oxide and Gra-phene as Advanced Oxygen Reduction Electrocatalysts",
+   "year": 2012,
+   "source": "arXiv",
+   "snippet": "Co L-edge and Mn L-edge XANES suggested substitu-tion of Co3+ sites by Mn3+, which increased the activity of the catalytic sites in the hybrid materials, further boosting the ORR activity compared to the pure cobalt oxide hybrid.",
+   "relevance": 0.752
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 3,
+   "unit": "",
+   "form": "Co 3+",
+   "doi": "10.1021/acscatal.9b01048",
+   "title": "Selective 2-Propanol Oxidation over Unsupported Co3O4 Spinel Nanoparticles: Mechanistic Insights into Aerobic Oxidation of Alcohols",
+   "year": 2019,
+   "source": "OpenAlex",
+   "snippet": "The consumption of surface oxygen and reduction of Co 3+ to Co 2+ during 2-propanol oxidation derived from X-ray absorption spectroscopy and X-ray photoelectron spectroscopy measurements before and after reaction and poisoning by strongly bound carbonaceous species result in the loss of the low-temperature activity, while the high-temperature reaction pathway remained unaffected.",
+   "relevance": 0.714
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 2,
+   "unit": "",
+   "form": "Co 2+",
+   "doi": "10.1021/acscatal.9b01048",
+   "title": "Selective 2-Propanol Oxidation over Unsupported Co3O4 Spinel Nanoparticles: Mechanistic Insights into Aerobic Oxidation of Alcohols",
+   "year": 2019,
+   "source": "OpenAlex",
+   "snippet": "The consumption of surface oxygen and reduction of Co 3+ to Co 2+ during 2-propanol oxidation derived from X-ray absorption spectroscopy and X-ray photoelectron spectroscopy measurements before and after reaction and poisoning by strongly bound carbonaceous species result in the loss of the low-temperature activity, while the high-temperature reaction pathway remained unaffected.",
+   "relevance": 0.714
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Co",
+   "value": 3,
+   "unit": "",
+   "form": "Co3+",
+   "doi": "10.34726/hss.2016.17050",
+   "title": "CO oxidation and preferential CO oxidation on cobalt oxide catalysts",
+   "year": 2017,
+   "source": "OpenAlex",
+   "snippet": "The combined results of operando NAP-XPS and operando FTIR spectroscopy (i.e., static steady-state and dynamic switching experiments) indicate a redox Mars-van-Krevelen mechanism of CO oxidation on Co3O4, involving the Co3+/Co2+ cycle and oxygen vacancy formation at higher temperatures and likely the Langmuir¿Hinshelwood mechanism at lower temperature.",
+   "relevance": 0.71
+  },
+  {
+   "quantity": "particle_size",
+   "value": 4.3,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1063/1.2817481",
+   "title": "Finite size effect on Néel temperature with Co3O4 nanoparticles",
+   "year": 2007,
+   "source": "OpenAlex",
+   "snippet": "Along with the results from the previous experiments on the Co3O4 nanoparticles with average diameter of 8 and 4.3 nm, the variation of TN with the particle diameter, d, appears to follow the finite size scaling relation.",
+   "relevance": 0.704
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    20.0,
+    25.0
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1166/jnn.2015.9776",
+   "title": "A Novel Synthesis and Characterization Studies of Magnetic Co3O4 Nanoparticles",
+   "year": 2014,
+   "source": "OpenAlex",
+   "snippet": "HR-TEM images showed that Co3O4 nanoparticles have sphere-like structure with an average particle size in the range of 20-25 nm (MCM) and 45-50 nm (CCM).",
+   "relevance": 0.671
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    45.0,
+    50.0
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1166/jnn.2015.9776",
+   "title": "A Novel Synthesis and Characterization Studies of Magnetic Co3O4 Nanoparticles",
+   "year": 2014,
+   "source": "OpenAlex",
+   "snippet": "HR-TEM images showed that Co3O4 nanoparticles have sphere-like structure with an average particle size in the range of 20-25 nm (MCM) and 45-50 nm (CCM).",
+   "relevance": 0.671
+  },
+  {
+   "quantity": "particle_size",
+   "value": 46.9,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1021/jp904022e",
+   "title": "Size-Dependent Activity of Co3O4 Nanoparticle Anodes for Alkaline Water Electrolysis",
+   "year": 2009,
+   "source": "OpenAlex",
+   "snippet": "Cubic Co 3 O 4 nanoparticles with average diameters of 5.9, 21.1, and 46.9 nm (hereafter small, medium, and large) have been synthesized and characterized by pXRD, TEM, and BET.",
+   "relevance": 0.66
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    80.0,
+    130.0
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.35414/akufemubid.1275507",
+   "title": "Molten Salt Approach for Co3O4 Synthesis as a Charge Storage Electrode Bir Yük Depolama Elektrodu Olarak Co3O4 Sentezi İçin Eriyik Tuz  Yaklaşımı",
+   "year": 2023,
+   "source": "Crossref",
+   "snippet": "The nanospheres were with an average size distribution of almost 80-130 nm.",
+   "relevance": 0.654
+  },
+  {
+   "quantity": "particle_size",
+   "value": 60.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.18321/cpc23(1)53-62",
+   "title": "Synthesis of Co3O4 NPs by solution combustion synthesis (SCS)  and their structure morphology: a mini review Ерітіндінің жану синтезі (SCS) әдісі арқылы Co3O4 нанобөлшектерінің синтезі және олардың құрылымының морфологиясы: шағын шолу Синтез наночастиц Co3O4 методом синтеза горения раствора (СГС) и морфология их структуры: мини-обзор",
+   "year": 2025,
+   "source": "Crossref",
+   "snippet": "Unique features of cobalt (II)(III) oxide Co3O4 nanoparticles are size between 12 and 60 nm, and high surface area and porosity that enhances their performances in fields such as energy storage, environmental and sensing applications.",
+   "relevance": 0.639
+  }
+ ],
+ "mined": "2026-10-22"
+}

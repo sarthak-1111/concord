@@ -1,0 +1,153 @@
+{
+ "composition": "TiO2",
+ "phase": "TiO2-anatase",
+ "material": "anatase TiO2",
+ "model": "BAAI/bge-small-en-v1.5",
+ "queries": {
+  "openalex": [
+   "anatase TiO2 EXAFS coordination number bond length",
+   "anatase TiO2 XANES oxidation state",
+   "anatase TiO2 nanoparticles size"
+  ],
+  "crossref": [
+   "anatase TiO2 EXAFS",
+   "anatase TiO2 nanoparticles XANES"
+  ],
+  "arxiv": [
+   "all:\"TiO2\" AND (all:EXAFS OR all:XAFS OR all:XANES OR all:nanoparticles)"
+  ]
+ },
+ "papers": 121,
+ "sentences": 822,
+ "errors": [],
+ "priors": [
+  {
+   "quantity": "bond_length",
+   "pair": "Ti–O",
+   "value": 1.93,
+   "uncertainty": 0.01,
+   "unit": "Å",
+   "doi": "10.1515/zna-1981-1110",
+   "title": "EXAFS Study of Rutile and Anatase",
+   "year": 1981,
+   "source": "Crossref",
+   "snippet": "Using the theoretical phases, Ti-O bond distances of 1.93(1) Å were derived both for rutile and anatase, as compared to the crystallographic values of 1.948 - 1.980(1) Å (rutile) and 1.934-1.980(1) Å (anatase).",
+   "relevance": 0.685
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Ti",
+   "value": 4,
+   "unit": "",
+   "form": "Ti 4+",
+   "doi": "10.1088/2053-1591/ab4e3f",
+   "title": "Phase growth analysis of sputtered TiO2 thin films at low oxygen partial pressures using XANES and XRR",
+   "year": 2019,
+   "source": "OpenAlex",
+   "snippet": "Anal.At.Spectrom.29 736] coordination environment and Ti 4+ oxidation state was observed with 0.02 and 0.04 O 2 partial pressures, respectively.",
+   "relevance": 0.746
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Ti",
+   "value": 3.0,
+   "unit": "",
+   "form": "oxidation state close to 3",
+   "doi": "10.1021/jp048567f",
+   "title": "Atomic and Electronic Bulk versus Surface Structure: Lithium Intercalation in Anatase TiO2",
+   "year": 2004,
+   "source": "OpenAlex",
+   "snippet": "Surface sensitive reflection mode XAFS indicates that intercalation leads to a 3−4 nm surface region characterized by an effective Ti oxidation state close to 3+.",
+   "relevance": 0.714
+  },
+  {
+   "quantity": "oxidation_state",
+   "element": "Ti",
+   "value": 3,
+   "unit": "",
+   "form": "Ti3+",
+   "doi": "10.2139/ssrn.6544703",
+   "title": "Tunable Surface Acidity and Charge of Sulfate-Terminated Anatase TiO2 Nanoparticles Prepared by Solid-State Thermolysis",
+   "year": 2026,
+   "source": "Crossref",
+   "snippet": "EPR spectroscopy identified stabilized Ti3+ centers and oxygen-centered radicals, enhanced under UV illumination, indicating sulfate-induced oxygen vacancies and charge localization.",
+   "relevance": 0.666
+  },
+  {
+   "quantity": "particle_size",
+   "value": [
+    5.0,
+    13.0
+   ],
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1007/s40089-014-0111-x",
+   "title": "Choice of precursor not affecting the size of anatase TiO2 nanoparticles but affecting morphology under broader view",
+   "year": 2014,
+   "source": "OpenAlex",
+   "snippet": "The sizes of synthesized particles were in the range 5–13 nm, i.e. 9 nm on an average and with a regular shape.",
+   "relevance": 0.699
+  },
+  {
+   "quantity": "particle_size",
+   "value": 9.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.1007/s40089-014-0111-x",
+   "title": "Choice of precursor not affecting the size of anatase TiO2 nanoparticles but affecting morphology under broader view",
+   "year": 2014,
+   "source": "OpenAlex",
+   "snippet": "The sizes of synthesized particles were in the range 5–13 nm, i.e. 9 nm on an average and with a regular shape.",
+   "relevance": 0.699
+  },
+  {
+   "quantity": "particle_size",
+   "value": 46.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.4236/snl.2012.24014",
+   "title": "The Size Effect of TiO2 Anatase Nanoparticles on Photon Correlation Spectroscopy",
+   "year": 2012,
+   "source": "OpenAlex",
+   "snippet": "We found that the average size of samples was changed from 30 to 46 nm with changing temperature from 450℃ to 650℃ and at fixed temperature (450℃) with changing of calcination times from 1 to 3 hours, the size was changed from 30 to 58 nm.",
+   "relevance": 0.674
+  },
+  {
+   "quantity": "particle_size",
+   "value": 58.0,
+   "uncertainty": null,
+   "unit": "nm",
+   "doi": "10.4236/snl.2012.24014",
+   "title": "The Size Effect of TiO2 Anatase Nanoparticles on Photon Correlation Spectroscopy",
+   "year": 2012,
+   "source": "OpenAlex",
+   "snippet": "We found that the average size of samples was changed from 30 to 46 nm with changing temperature from 450℃ to 650℃ and at fixed temperature (450℃) with changing of calcination times from 1 to 3 hours, the size was changed from 30 to 58 nm.",
+   "relevance": 0.674
+  },
+  {
+   "quantity": "particle_size",
+   "value": 13.8,
+   "uncertainty": 5.5,
+   "unit": "nm",
+   "doi": "10.1590/1516-1439.301914",
+   "title": "Enhanced Photocatalytic Activity of Pure Anatase Tio2 and Pt-Tio2 Nanoparticles Synthesized by Green Microwave Assisted Route",
+   "year": 2015,
+   "source": "OpenAlex",
+   "snippet": "The TiO2 elongated nanoparticles having a length of 13.8 ± 5.5 nm and a diameter of 9.0 ±1.2 nm were characterized by powder X-Ray diffraction, transmission electron microscopy, selected area diffraction, BET surface area analyzer and FT-IR spectroscopy.",
+   "relevance": 0.666
+  },
+  {
+   "quantity": "particle_size",
+   "value": 9.0,
+   "uncertainty": 1.2,
+   "unit": "nm",
+   "doi": "10.1590/1516-1439.301914",
+   "title": "Enhanced Photocatalytic Activity of Pure Anatase Tio2 and Pt-Tio2 Nanoparticles Synthesized by Green Microwave Assisted Route",
+   "year": 2015,
+   "source": "OpenAlex",
+   "snippet": "The TiO2 elongated nanoparticles having a length of 13.8 ± 5.5 nm and a diameter of 9.0 ±1.2 nm were characterized by powder X-Ray diffraction, transmission electron microscopy, selected area diffraction, BET surface area analyzer and FT-IR spectroscopy.",
+   "relevance": 0.666
+  }
+ ],
+ "mined": "2026-10-22"
+}
