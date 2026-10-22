@@ -6,6 +6,7 @@ sample listing, per-sample result views and plot files. Run it with `make api` (
   GET  /api/samples/{id}             result view: checks, evidence, plots, critic log, report (404 until analysed)
   GET  /api/samples/{id}/export      ?format=json (full analysis + agent run) or ?format=md (report)
   POST /api/samples/{id}/priors      search the open literature for the sample's material (cached afterwards)
+  POST /api/samples/{id}/chat        {messages: [{role, content}]} → {answer, cites, suggest, unsupported_numbers}
   POST /api/runs                     {sample, mode: "fast" | "full"} → {run_id}
   WS   /api/runs/{run_id}/stream     progress events, then {type: "result", payload: view}, then {type: "done"}
   GET  /files/{id}/...               plot images
@@ -28,10 +29,12 @@ from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from concord import literature
+from concord.agents.chat import answer
 from concord.agents.evidence import bundle
 from concord.agents.pipeline import report_markdown, run_sample_async
 from concord.analysis import analyze, infer_inputs, load_inputs, to_json
 from concord.config import ROOT
+from concord.llm.client import LLMError
 from concord.vision.check import plots
 
 SAMPLES = ROOT / "dataset" / "samples"
@@ -199,6 +202,23 @@ async def mine_priors(request: Request) -> JSONResponse:
     return JSONResponse({k: r[k] for k in ("material", "papers", "sentences", "priors", "errors")})
 
 
+async def chat(request: Request) -> JSONResponse:
+    sid = request.path_params["sid"]
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    v = _folder(sid) and await asyncio.to_thread(view, sid)
+    if not v:
+        return JSONResponse({"error": "analyse the sample first: the answers come from its results"}, status_code=404)
+    msgs = [m for m in (await request.json()).get("messages", [])
+            if isinstance(m, dict) and m.get("role") in ("user", "assistant") and isinstance(m.get("content"), str)]
+    if not msgs or msgs[-1]["role"] != "user":
+        return JSONResponse({"error": "the last message must be a question"}, status_code=400)
+    try:
+        return JSONResponse(await asyncio.to_thread(answer, v["evidence"], msgs))
+    except LLMError as exc:  # carries no endpoint address
+        return JSONResponse({"error": f"the language model is unavailable: {exc}"}, status_code=503)
+
+
 async def create_run(request: Request) -> JSONResponse:
     if _foreign(request):
         return JSONResponse({"error": "forbidden"}, status_code=403)
@@ -232,11 +252,11 @@ async def stream_run(ws: WebSocket) -> None:
             return
         sid, cached = req["sample"], RUNS / f"{req['sample']}.json"
         if req["mode"] == "fast" or not cached.exists():
-            await send("status", "running the tools and checks: XRD, PDF, EXAFS, XANES, virtual XAFS, C1–C7")
+            await send("status", "Running the tools and checks: XRD, PDF, EXAFS, XANES, virtual XAFS, C1 to C7")
             res = await asyncio.to_thread(analyze, _folder(sid))
             cached.write_text(json.dumps(to_json(res)))
         if req["mode"] == "full":
-            await send("status", "visual inspection and generator–critic loop (gpt-oss)")
+            await send("status", "Visual inspection and the generator and critic loop (gpt-oss)")
             await run_sample_async(_folder(sid), RUNS / sid, on_event=on_event, precomputed=cached)
         await send("result", await asyncio.to_thread(view, sid))
         await send("done")
@@ -253,6 +273,7 @@ app = Starlette(routes=[
     Route("/api/samples/{sid}", sample),
     Route("/api/samples/{sid}/export", export),
     Route("/api/samples/{sid}/priors", mine_priors, methods=["POST"]),
+    Route("/api/samples/{sid}/chat", chat, methods=["POST"]),
     Route("/api/uploads", upload, methods=["POST"]),
     Route("/api/runs", create_run, methods=["POST"]),
     WebSocketRoute("/api/runs/{run_id}/stream", stream_run),

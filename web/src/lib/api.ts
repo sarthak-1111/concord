@@ -94,3 +94,25 @@ export type View = {
   report_md: string;
   priors: Prior[];
 };
+
+export type ChatReply = { answer: string; cites: string[]; suggest: "none" | "run_fast" | "run_full" | "find_priors"; unsupported_numbers: string[] };
+
+export async function post<T>(path: string, body?: unknown): Promise<T> {
+  const r = await fetch(API + path, { method: "POST", headers: body ? { "Content-Type": "application/json" } : undefined, body: body ? JSON.stringify(body) : undefined });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error ?? r.statusText);
+  return d;
+}
+
+export type Tab = "checks" | "fits" | "virtual" | "critic" | "literature" | "report";
+
+/** Where an evidence id lives in the workbench: a check, a technique's fit, or a panel. */
+export function locate(id: string): { tab: Tab; focus?: string } {
+  if (id.startsWith("check.")) return { tab: "checks", focus: id.slice(6) };
+  const tech = id.match(/^(?:vision\.)?(xrd|pdf|exafs|xanes|bvs)\b/)?.[1];
+  if (tech) return { tab: "fits", focus: tech === "bvs" ? "xanes" : tech };
+  if (id.startsWith("virtual_xafs")) return { tab: "virtual" };
+  if (id.startsWith("prior.")) return { tab: "literature" };
+  if (id.startsWith("rerun.")) return { tab: "critic" };
+  return { tab: "checks" };
+}

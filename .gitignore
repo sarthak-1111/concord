@@ -26,3 +26,4 @@ results/runs/*/*
 !results/runs/*/report.md
 web/*.tsbuildinfo
 uploads/
+.playwright-cli/

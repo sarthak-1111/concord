@@ -27,16 +27,21 @@ A sample folder holds any of `xrd.xy`, `pdf.gr`, `xafs_mu.dat` / `xafs_chi.k`, a
 `--composition Pt3Co`. Techniques are detected from the files present, instrument values from the file headers;
 anything assumed is printed. Output: `results/runs/<sample>/report.md`, fit plots, `analysis.json`.
 
-Web UI (sample picker, cross-check panel, fit plots, virtual XAFS, critic log, literature priors, export):
+Web UI: a conversation with the analyst beside a results workbench. The conversation opens with what the tools found
+(from the data, no LLM), streams every run (tools, critic, literature search) as it happens, and answers questions
+about the sample from its evidence only: each answer cites evidence ids that open the matching check, fit or panel,
+and passes the number guard (a number the evidence lacks is flagged, never hidden). The workbench holds the
+cross-check strip, fit plots with the visual verdicts, the virtual XAFS, the critic review, literature priors and the
+report, with Markdown and JSON export. Light and dark themes; phone layouts switch between the two panes.
 
 ```bash
 make api    # http://127.0.0.1:8000
 make ui     # http://127.0.0.1:3000/console#s0031
 ```
 
-Your own data in the UI: open **Analyse your own data** in the sidebar, give the composition and any of the XRD, PDF
-and XAFS files (plus the edge for XAFS), and press *Upload and analyse*; the tools run at once and the critic is one
-click away. Values missing from the file headers are assumed and listed. For the XANES valence, put μ(E) of at least
+Your own data in the UI: press **Analyse your own data** in the sidebar (or the upload button in the composer), give
+the composition and any of the XRD, PDF and XAFS files (plus the edge for XAFS), and press *Upload and analyse*; the
+tools run at once and the critic is one click away. Values missing from the file headers are assumed and listed. For the XANES valence, put μ(E) of at least
 two standards of known valence as `<El>_v<valence>.dat` in a `references/` folder beside the sample folders.
 
 Other commands: `uv run concord priors Pt3Co` (literature values with DOIs), `make eval`, `make test`,

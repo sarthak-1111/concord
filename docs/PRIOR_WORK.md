@@ -15,7 +15,6 @@ changes the boundary.
 |---|---|
 | `src/agent.py`, `src/agents/**` (agent graph, prompts), except the files listed below | Google ADK agent graph: root → sequential(parallel(research, XRD), final analyzer) with its XRD and research sub-agents |
 | `src/schemas/schemas.py`, `src/data_store/data_store.py` | Output schemas and the in-memory store of the XRD agents |
-| `web/src/components/EventCard.tsx`, `web/src/lib/useRunStream.ts`, `web/src/app/{layout,globals}` | Event card and WebSocket hook of the console (small fixes below) |
 | `sample_data/*.csv`, `docs/media/workflow.png`, `examples/chunker_test.py` | Sample patterns, figure, chunker demo |
 
 ### Changed in the fork
@@ -34,7 +33,7 @@ changes the boundary.
 | Reference matching no longer needs Materials Project: reference lines come from any pymatgen structure | `concord/tools/xrd.py::reference_lines`, `match_reference` |
 | Upstream tests imported a module path that no longer existed (`src.sub_agents...`) and could not run; ported to the refactored functions with the same assertions | `tests/conftest.py`, `tests/test_xrd_tools.py` (first four tests) |
 | API server rewritten for Concord; the run-and-stream protocol (`POST /api/runs`, WebSocket `/api/runs/{id}/stream`) is kept | `backend/app/main.py` |
-| Console rewritten as the Concord workbench (`console/page.tsx`); `PlotsView`, `PromptForm`, the logo and the unused Tailwind v3 config removed; `EventCard` hooks moved above its early return (React rules of hooks); `useRunStream` clears events between runs; Next.js 14.2.7 → 16.4.0, React 18 → 19.3.0 (14.x has unpatched advisories) | `web/` |
+| Console rewritten as the Concord workbench (`console/page.tsx`), then redesigned as a conversation beside a results workbench; `PlotsView`, `PromptForm`, `EventCard`, the logo and the unused Tailwind v3 config removed; `useRunStream` (CrystaLenz's WebSocket hook) keeps events per run id and reports a closed connection; `layout.tsx` and `globals.css` rewritten; Next.js 14.2.7 → 16.4.0, React 18 → 19.3.0 (14.x has unpatched advisories) | `web/` |
 | `requirements.txt` → `pyproject.toml` + `uv.lock` (pinned; uv only resolves releases at least two weeks old) | repo root |
 
 ## 2. New in Concord
@@ -55,7 +54,8 @@ changes the boundary.
 | `concord/evaluate.py`, `eval/config.yaml` | `make eval`: metrics, registered thresholds, `results/eval.{json,md}` |
 | `concord/cli.py` | `concord analyze <folder> [--fast]`, `concord priors`, `concord eval`, `concord health` |
 | `concord/data_builder/`, `scripts/validate_dataset.py`, `data/` | dataset builder from open structures (COD; Materials Project, JARVIS, OQMD as fallbacks), nanoparticle models, XRD/PDF/XAFS simulation with planted faults, validator, structure manifest |
-| `backend/app/main.py`, `web/src/components/{CheckPanel,TechniqueTabs,VirtualXafs,CriticLog,Priors,SampleList,Value}.tsx`, `web/src/lib/api.ts` | sample workbench API and UI |
+| `concord/agents/chat.py` | questions about one sample answered from its evidence bundle: cited evidence ids, number guard with one rewrite, a suggested follow-up run |
+| `backend/app/main.py`, `web/src/components/*.tsx`, `web/src/lib/{api,thread}.ts` | sample workbench API and UI: conversation (`Chat`), results workbench (`Workbench`, `CheckPanel`, `TechniqueTabs`, `VirtualXafs`, `CriticLog`, `Priors`), sample rail, upload dialog |
 | `config.yaml`, `concord/config.py`, `concord/trace.py`, `scripts/secret_scan.py`, `.githooks/pre-commit`, `Makefile` | configuration, JSONL trace, pre-commit secret scan, make targets |
 | `tests/` except the four ported XRD tests | 40+ tests: physics of every tool, checks, evidence, literature extraction, LLM client, vision, secret scan |
 
@@ -88,5 +88,7 @@ Ideas found there that Concord had already built independently (nothing changed)
 
 Google ADK, pymatgen, ASE, diffpy.structure, diffpy.srfit, DebyeCalculator, xraylarch (bundled FEFF6L), xraydb, lmfit,
 scipy, numpy, matplotlib, Starlette, uvicorn, sentence-transformers with `BAAI/bge-small-en-v1.5` (MIT), faiss-cpu, pypdf,
-Next.js, React, SWR, Tailwind CSS. Literature metadata and abstracts from OpenAlex, Crossref and arXiv (each prior cites its
+Next.js, React, SWR, Tailwind CSS, Phosphor Icons (MIT), the Newsreader font (SIL OFL, via `next/font`). The UI's colour,
+radius and motion values come from the OpenDesign `claude` style package (visual language only: no names, marks or fonts
+of that brand). Literature metadata and abstracts from OpenAlex, Crossref and arXiv (each prior cites its
 DOI). Structures from open databases are listed with source and licence in `data/manifest.csv`.

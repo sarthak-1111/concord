@@ -1,27 +1,39 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useSWR, { mutate as globalMutate } from "swr";
-import { API, fetcher, type SampleRow, type View } from "@/lib/api";
+import { ChatCircle, ChartLine, List, SidebarSimple, X } from "@phosphor-icons/react";
+import { API, fetcher, locate, post, type ChatReply, type Prior, type SampleRow, type Tab, type View } from "@/lib/api";
 import { useRunStream } from "@/lib/useRunStream";
-import SampleList from "@/components/SampleList";
-import CheckPanel from "@/components/CheckPanel";
-import TechniqueTabs from "@/components/TechniqueTabs";
-import VirtualXafs from "@/components/VirtualXafs";
-import CriticLog from "@/components/CriticLog";
-import EventCard from "@/components/EventCard";
-import Priors from "@/components/Priors";
+import { useThreads, type Msg, type Step } from "@/lib/thread";
+import type { Focus } from "@/components/CheckPanel";
+import Rail from "@/components/Rail";
+import Chat from "@/components/Chat";
+import Workbench from "@/components/Workbench";
 import Upload from "@/components/Upload";
 
-const BUTTON = "rounded-lg px-3 py-2 text-sm font-medium shadow-sm transition disabled:cursor-not-allowed disabled:opacity-50";
+type Run = { id: string; sid: string; mode: "fast" | "full" };
 
-export default function Workbench() {
+const tally = (v: View) => {
+  const n = (s: string) => v.checks.filter((c) => c.status === s).length;
+  return `${v.phase ? `Phase ${v.phase}. ` : "No candidate fits. "}${n("pass")} pass, ${n("warn")} warn, ${n("fail")} fail${n("skip") ? `, ${n("skip")} skipped` : ""}.`;
+};
+
+export default function Console() {
   const { data: samples, error: listError, mutate: refreshSamples } = useSWR<SampleRow[]>("/api/samples", fetcher);
   const [sid, setSid] = useState<string>();
   const { data: view, error, isLoading, mutate } = useSWR<View>(sid ? `/api/samples/${sid}` : null, fetcher, { shouldRetryOnError: false, revalidateOnFocus: false });
-  const [run, setRun] = useState<{ id: string; sample: string; mode: string }>();
+  const threads = useThreads();
+  const [run, setRun] = useState<Run>();
   const { events } = useRunStream(run?.id);
-  const failed = events.some((e) => e.type === "error");
-  const running = !!run && !failed && !events.some((e) => e.type === "done");
+  const [asking, setAsking] = useState<string>();
+  const [tab, setTab] = useState<Tab>("checks");
+  const [focus, setFocus] = useState<Focus>();
+  const [pane, setPane] = useState<"chat" | "results">("chat");  // below xl only one pane shows
+  const [results, setResults] = useState(true);  // xl and up: the results panel can be hidden
+  const [rail, setRail] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const handled = useRef<string | undefined>(undefined);
+  const searching = useRef(false);
 
   useEffect(() => {  // first visit: the sample named in the URL hash, else the first test sample
     if (sid || !samples?.length) return;
@@ -35,106 +47,154 @@ export default function Workbench() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  useEffect(() => {
-    const r = events.find((e) => e.type === "result");
-    if (r?.payload) {
-      globalMutate(`/api/samples/${r.payload.sample_id}`, r.payload, { revalidate: false });
+  useEffect(() => {  // mirror the run's stream into its sample's thread
+    if (!run || !events.length) return;
+    const steps: Step[] = events.flatMap((e): Step[] => e.type === "status" ? [{ kind: "status", text: String(e.payload) }]
+      : e.type === "event" ? [{ kind: "agent", author: e.payload.author, text: e.payload.content.parts.map((p: { text: string }) => p.text).join(" ") }] : []);
+    const result: View | undefined = events.find((e) => e.type === "result")?.payload;
+    const err = events.find((e) => e.type === "error")?.payload;
+    const done = events.some((e) => e.type === "done");
+    const closed = events.some((e) => e.type === "closed");
+    const end = done || err || closed;
+    if (result && handled.current !== run.id) {
+      handled.current = run.id;
+      globalMutate(`/api/samples/${result.sample_id}`, result, { revalidate: false });
       refreshSamples();
     }
-  }, [events, refreshSamples]);
+    threads.update(run.sid, (msgs) => msgs.map((m) => m.kind === "run" && m.id === run.id ? {
+      ...m, steps, state: err || (closed && !done) ? "error" : done ? "done" : "running", ended: end ? Date.now() : undefined,
+      summary: result ? tally(result) + (run.mode === "full" && result.agents ? ` The critic took ${result.agents.rounds} round${result.agents.rounds === 1 ? "" : "s"} and raised ${result.agents.log.length} objection${result.agents.log.length === 1 ? "" : "s"}.` : "") : undefined,
+      error: err ? String(err) : closed && !done ? "The connection to the API closed before the run finished." : undefined,
+    } : m));
+    if (end) setRun(undefined);
+  }, [events]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const select = (id: string) => {
+  const select = useCallback((id: string) => {
     setSid(id);
+    setFocus(undefined);
+    setRail(false);
     history.replaceState(null, "", `#${id}`);
-  };
+  }, []);
+
   const start = async (mode: "fast" | "full", id = sid) => {
-    const r = await fetch(`${API}/api/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sample: id, mode }) });
-    const d = await r.json();
-    if (d.run_id && id) setRun({ id: d.run_id, sample: id, mode });
+    if (!id || run) return;
+    try {
+      const { run_id } = await post<{ run_id: string }>("/api/runs", { sample: id, mode });
+      threads.update(id, (m) => [...m, { kind: "run", id: run_id, mode, state: "running", started: Date.now(), steps: [] }]);
+      setRun({ id: run_id, sid: id, mode });
+    } catch (e) {
+      threads.update(id, (m) => [...m, { kind: "error", text: `The run could not start: ${(e as Error).message}` }]);
+    }
   };
+
+  const ask = async (text: string) => {
+    if (!sid) return;
+    const id = sid;
+    const history = [...threads.get(id), { kind: "user", text } as Msg]
+      .flatMap((m) => m.kind === "user" ? [{ role: "user", content: m.text }] : m.kind === "answer" ? [{ role: "assistant", content: m.answer }] : []);
+    threads.update(id, (m) => [...m, { kind: "user", text }]);
+    setAsking(id);
+    try {
+      const r = await post<ChatReply>(`/api/samples/${id}/chat`, { messages: history.slice(-12) });
+      threads.update(id, (m) => [...m, { kind: "answer", ...r }]);
+    } catch (e) {
+      threads.update(id, (m) => [...m, { kind: "error", text: (e as Error).message }]);
+    } finally {
+      setAsking(undefined);
+    }
+  };
+
+  const findPriors = async () => {
+    if (!sid || searching.current) return;
+    const id = sid, rid = `priors-${Date.now()}`, started = Date.now();
+    searching.current = true;
+    const finish = (patch: Partial<Extract<Msg, { kind: "run" }>>) =>
+      threads.update(id, (m) => m.map((x) => (x.kind === "run" && x.id === rid ? { ...x, ended: Date.now(), ...patch } : x)));
+    threads.update(id, (m) => [...m, { kind: "run", id: rid, mode: "priors", state: "running", started, steps: [{ kind: "status", text: "Searching OpenAlex, Crossref and arXiv for this material" }] }]);
+    try {
+      const d = await post<{ papers: number; priors: Prior[]; errors?: string[] }>(`/api/samples/${id}/priors`);
+      finish({ state: "done", summary: `${d.papers} papers read, ${d.priors.length} literature values kept with their DOI.${d.errors?.length ? ` Incomplete: ${d.errors.join(", ")}.` : ""}` });
+      globalMutate(`/api/samples/${id}`);
+    } catch (e) {
+      finish({ state: "error", error: (e as Error).message });
+    } finally {
+      searching.current = false;
+    }
+  };
+
+  const open = (evidenceId: string) => {
+    const t = locate(evidenceId);
+    setTab(t.tab);
+    if (t.focus) setFocus({ id: t.focus, n: Date.now() });
+    setResults(true);
+    setPane("results");
+  };
+
   const uploaded = async (id: string) => {
+    setUploading(false);
     await refreshSamples();
     select(id);
     start("fast", id);
   };
-  const composition = view?.composition ?? samples?.find((s) => s.id === sid)?.composition;
+
+  const state = !sid || isLoading ? "loading" : view ? "ready" : (error as { status?: number })?.status === 404 ? "missing" : error ? "error" : "loading";
+  const row = samples?.find((s) => s.id === sid);
+  const busy = !!run;
 
   return (
-    <main className="min-h-screen md:pl-64">
-      <aside className="flex max-h-[45vh] flex-col gap-3 border-b border-slate-200 bg-[#f9f2e4] p-3 md:fixed md:left-0 md:top-0 md:h-screen md:max-h-none md:w-64 md:border-b-0 md:border-r">
-        <div>
-          <div className="text-xl font-semibold text-slate-900">Concord</div>
-          <p className="text-xs text-slate-600">XRD, PDF and XAFS of one sample, cross-checked</p>
-        </div>
-        <Upload onUploaded={uploaded} />
-        {samples ? <SampleList samples={samples} selected={sid} onSelect={select} />
-          : <p className="text-sm text-slate-600">{listError ? "Cannot reach the API. Start it with make api." : "Loading samples…"}</p>}
+    <div className="flex h-[100dvh] overflow-hidden bg-bg text-fg">
+      <a href="#conversation" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-sm focus:bg-surface focus:px-3 focus:py-2 focus:shadow-raised">Skip to the conversation</a>
+      <aside className="hidden w-[264px] shrink-0 border-r border-line lg:block">
+        <Rail samples={samples} error={listError} selected={sid} running={run?.sid} onSelect={select} onNew={() => setUploading(true)} />
       </aside>
+      {rail ? (
+        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Samples">
+          <button className="absolute inset-0 bg-black/30" aria-label="Close the sample list" onClick={() => setRail(false)} />
+          <div className="rise absolute inset-y-0 left-0 w-[min(300px,85vw)] bg-bg shadow-raised">
+            <button onClick={() => setRail(false)} className="btn btn-ghost absolute right-2 top-14 z-10 px-2" aria-label="Close"><X size={18} weight="bold" /></button>
+            <Rail samples={samples} error={listError} selected={sid} running={run?.sid} onSelect={select} onNew={() => { setRail(false); setUploading(true); }} />
+          </div>
+        </div>
+      ) : null}
 
-      <div className="mx-auto grid max-w-[1600px] gap-5 p-4 md:p-6">
-        {sid ? (
-          <header className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold text-slate-900">{sid} <span className="font-normal text-slate-500">· {composition}</span></h1>
-              {view ? (
-                <p className="mt-1 text-sm text-slate-700">
-                  Phase: <b>{view.phase ?? "none (no candidate structure fits)"}</b> · {view.techniques.map((t) => t.toUpperCase()).join(" + ")} · tools {view.timings_s.total} s
-                </p>
-              ) : null}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button disabled={running} onClick={() => start("fast")} className={`${BUTTON} bg-[#d6512f] text-white hover:bg-[#c24728]`}>Run fast · tools only</button>
-              <button disabled={running} onClick={() => start("full")} className={`${BUTTON} border border-[#d6512f] bg-white text-[#d6512f] hover:bg-orange-50`}>Run full · with critic</button>
-              {view ? (
-                <>
-                  <a href={`${API}/api/samples/${sid}/export?format=md`} className={`${BUTTON} border border-slate-300 bg-white text-slate-700 hover:bg-slate-50`}>Report .md</a>
-                  <a href={`${API}/api/samples/${sid}/export?format=json`} className={`${BUTTON} border border-slate-300 bg-white text-slate-700 hover:bg-slate-50`}>Data .json</a>
-                </>
-              ) : null}
-            </div>
-          </header>
-        ) : null}
+      <main className="flex min-w-0 flex-1 flex-col">
+        <div className="flex h-12 shrink-0 items-center gap-2 border-b border-line px-3 xl:hidden">
+          <button onClick={() => setRail(true)} className="btn btn-ghost px-2 lg:hidden" aria-label="Open the sample list"><List size={20} weight="bold" /></button>
+          <span className="min-w-0 truncate text-sm"><span className="font-medium">{view?.composition ?? row?.composition}</span> <span className="font-mono text-xs text-meta">{sid}</span></span>
+          <div role="tablist" aria-label="View" className="ml-auto inline-flex rounded-md bg-surface-warm p-0.5">
+            {([["chat", "Chat", ChatCircle], ["results", "Results", ChartLine]] as const).map(([k, label, Icon]) => (
+              <button key={k} role="tab" aria-selected={pane === k} onClick={() => setPane(k)}
+                className={`flex items-center gap-1 rounded-sm px-2.5 py-1 text-sm font-medium transition-colors duration-150 ${pane === k ? "bg-surface text-fg shadow-ring" : "text-muted"}`}>
+                <Icon size={15} weight="bold" aria-hidden />{label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-        {run ? (
-          <section aria-live="polite" className="rounded-xl border border-slate-200 bg-white/80 p-3">
-            <div className="flex items-center gap-2 text-sm text-slate-700">
-              {running ? <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#d6512f] border-t-transparent" /> : null}
-              {run.mode} run of {run.sample}: {running ? "running…" : failed ? "failed" : "done"}
+        <div className="flex min-h-0 flex-1">
+          {sid ? (
+            <>
+              <section aria-label="Conversation" className={`relative min-w-0 flex-1 flex-col ${pane === "chat" ? "flex" : "hidden"} xl:flex ${results ? "xl:max-w-[520px] xl:border-r xl:border-line" : ""}`}>
+                <button onClick={() => setResults((x) => !x)} className="btn btn-ghost absolute right-3 top-3 z-10 hidden px-2 xl:inline-flex"
+                  aria-label={results ? "Hide the results panel" : "Show the results panel"} title={results ? "Hide results" : "Show results"}>
+                  <SidebarSimple size={18} weight="bold" className="-scale-x-100" />
+                </button>
+                <Chat sid={sid} row={row} view={view} state={state} msgs={threads.get(sid)} asking={asking === sid} busy={busy}
+                  act={{ ask, run: (m) => start(m), findPriors, open, upload: () => setUploading(true) }} />
+              </section>
+              <section aria-label="Results" className={`min-w-0 flex-1 bg-surface/40 ${pane === "results" ? "block" : "hidden"} ${results ? "xl:block" : "xl:hidden"}`}>
+                <Workbench sid={sid} view={view} state={state} tab={tab} setTab={setTab} focus={focus} open={open}
+                  onRun={() => start("fast")} busy={busy} onMined={() => mutate()} />
+              </section>
+            </>
+          ) : (
+            <div className="grid flex-1 place-items-center p-8 text-sm text-meta">
+              {listError ? <p className="text-bad">Cannot reach the API at {API}. Start it with make api.</p> : <p>Loading samples…</p>}
             </div>
-            <div className="mt-2 grid max-h-80 gap-2 overflow-y-auto">
-              {events.map((e, i) => e.type === "event" ? <EventCard key={i} event={e} />
-                : e.type === "status" || e.type === "error"
-                  ? <p key={i} className={`text-sm ${e.type === "error" ? "text-red-700" : "text-slate-600"}`}>{String(e.payload)}</p> : null)}
-            </div>
-          </section>
-        ) : null}
-
-        {!sid ? null : (error as { status?: number })?.status === 404 ? (
-          <p className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-            Not analysed yet. <b>Run fast</b> takes about half a minute and needs no LLM; <b>Run full</b> adds the visual inspection and the critic.
-          </p>
-        ) : error ? (
-          <p className="text-sm text-red-700">Could not load {sid}: {error.message}</p>
-        ) : isLoading || !view ? (
-          <p className="text-sm text-slate-500">Loading…</p>
-        ) : (
-          <>
-            {Object.keys(view.errors).length || view.assumed.length ? (
-              <div className="grid gap-1 text-sm">
-                {Object.entries(view.errors).map(([k, v]) => <p key={k} className="rounded bg-red-50 p-2 text-red-800">{k} failed: {v}</p>)}
-                {view.assumed.map((a) => <p key={a} className="rounded bg-amber-50 p-2 text-amber-900">Assumed {a} (not in the file headers).</p>)}
-              </div>
-            ) : null}
-            <CheckPanel checks={view.checks} />
-            <div className="grid items-start gap-5 2xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-              <TechniqueTabs key={view.sample_id} view={view} />
-              <VirtualXafs v={view.virtual_xafs} plot={view.plots.virtual_xafs} reason={view.errors.virtual_xafs} />
-            </div>
-            <CriticLog view={view} />
-            <Priors sid={view.sample_id} priors={view.priors} onMined={() => mutate()} />
-          </>
-        )}
-      </div>
-    </main>
+          )}
+        </div>
+      </main>
+      <Upload open={uploading} onClose={() => setUploading(false)} onUploaded={uploaded} />
+    </div>
   );
 }

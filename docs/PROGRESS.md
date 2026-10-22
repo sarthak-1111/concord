@@ -42,6 +42,12 @@ Times below are JST on 2026-10-22.
   comparison, no EXAFS term in C7 and a recommendation to measure the edge it had measured. It now uses the same χ(k)
   as the EXAFS fit (921ae7e; s0004 with μ(E) only: R 0.057, against 0.006 from the supplied χ(k)).
 
+- [x] **22:07 Redesign.** The UI is a conversation with the analyst beside a results workbench (tokens from the
+  OpenDesign `claude` package, Phosphor icons, light and dark, phone layout). New `POST /api/samples/{id}/chat`
+  answers from the sample's evidence only, with cited ids that open the matching panel and the number guard (one
+  rewrite, then anything unsupported is flagged); runs and literature searches stream into the conversation. Checked
+  in a browser at 1440×900 and 390×844, light and dark; design detector clean; 51 tests.
+
 ## Agent runs (`make eval-agents`, test + faults)
 
 First batch (4.2 h, ended 14:12): 14 of 19 samples complete, 0 unsupported numbers in the reports, 1.6 critic
