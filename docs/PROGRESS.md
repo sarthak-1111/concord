@@ -10,7 +10,7 @@ Times below are JST on 2026-10-22.
 | 1 | Fork runs, references cloned, `EYE_MODULE_PATH` set, docs, health and tests pass | Fork, docs, health and tests done (47 tests). References and eye module **blocked**, see "Blocked" |
 | 2 | Dataset v1 valid | Done: 60 samples (31 train, 10 val, 10 test, 9 faults), validator 1149/1149 checks |
 | 3 | `make eval` end to end with C1–C6 | Done, passes every threshold (C7 added) |
-| 4 | UI shows cross-check panel, critic log and virtual XAFS for every test sample; `make eval` still passes | UI done; agent runs for the 19 test and fault samples in progress |
+| 4 | UI shows cross-check panel, critic log and virtual XAFS for every test sample; `make eval` still passes | Done: all 19 test and fault samples show C1–C7, a current critic log and a virtual XAFS (checked through the API at 16:34); `make eval` passes |
 
 ## Blocks
 
@@ -33,7 +33,11 @@ Times below are JST on 2026-10-22.
   values, checked at the API (element symbols, edge element in the composition, 20 MiB, three files), then the tools
   run at once. The report lists assumed values and what could not be analysed.
 - [x] **14:38 Agent-run fixes** (see "Agent runs").
-- [ ] **Agent runs** for all test and fault samples (`make eval-agents`), `docs/DEMO.md`.
+- [x] **16:27 Agent runs** for all 19 test and fault samples (`make eval-agents`); `docs/DEMO.md` with the
+  three-minute storyboard around s0031.
+- [x] **16:31 Mislabelled edge.** On s0045 (labelled TiO2, Ce L3 edge measured) C4 explained the missing Ce as a
+  metal with an oxidised component, and the virtual XAFS raised. C4 now says the label or the edge is wrong, and the
+  virtual XAFS predicts the model's own Ti K edge without scoring it against the Ce spectrum (3cc029b).
 
 ## Agent runs (`make eval-agents`, test + faults)
 
@@ -59,6 +63,13 @@ s0038 R1.1 and s0044 R1.1 (the `optional` argument) and s0045 R1.1 (Ce is not in
 sample). Since 1e6fd90 such an objection is `failed`, shown as not settled, and the three were relabelled. No metric
 counts them.
 
+s0003 completed at 16:27 (3 rounds). All 19 runs: 0 numbers in the prose that are not in the evidence, 1.8 critic
+rounds, 26 min and 42k tokens per sample. With the critic, 6 of 9 faults are flagged and 0 of 10 clean samples, the
+same as the checks alone: every objection a re-run settled was refuted, none upheld, so the critic added no
+detection. What it did catch were false statements in the analyst's claims: s0003 (the XANES valence 3.883 called
+above 4, corrected), s0052 (the PDF fit called visually rejected, corrected) and s0024 (C7 called failing; the next
+round still reads "a fail status for the combined assessment").
+
 ## `make eval` history (v1, test + faults)
 
 | commit | time | phase ID | EXAFS R MAE (Å) | CN MAE | oxidation | size XRD | size PDF | faults detected | false alarms | s/sample | virtual EXAFS R | hidden | pass |
@@ -68,6 +79,7 @@ counts them.
 | edc9f04 | 08:44 | 1 | 0.0033 | 0.40 | 1 | 0.099 | 0.039 | 0.56 | 0 | 25 | 0.041 | 0.010 | no |
 | 7e9c900 | 09:21 | 1 | 0.0033 | 0.40 | 1 | 0.099 | 0.039 | 0.67 | 0 | 24 | 0.041 | 0.010 | yes |
 | 713a87c | 10:17 | 1 | 0.0033 | 0.40 | 1 | 0.099 | 0.039 | 0.67 | 0 | 25 | 0.022 | 0.011 | yes |
+| 3cc029b | 16:34 | 1 | 0.0033 | 0.40 | 1 | 0.099 | 0.039 | 0.67 | 0 | 24 | 0.022 | 0.011 | yes |
 
 Until 7e9c900 the run failed one threshold, planted-fault detection (0.56 < 0.6). It passed after new C4 rules, not
 after a threshold change; the rules were calibrated on the development split, never on test samples (below).

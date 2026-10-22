@@ -1,0 +1,769 @@
+{
+ "sample_id": "s0003",
+ "model": {
+  "summary": "The TiO2 sample lacks a consistent crystalline phase: XRD ranking favours TiO2-anatase (score 0.759, area fraction 0.728) while the PDF fit for anatase has Rw 0.8321 (and 0.8456 without the particle envelope), far above the good-fit tolerance of 0.25, and check.C1 reports phase-consistency failure (lattice_rel_change 0.0205). Consequently the phase is set to null. Nanoparticle size is ~4\u202fnm (XRD sphere diameter 3.885\u202fnm, PDF particle size 4.011\u202fnm). PDF anatase lattice parameters are a\u202f=\u202f3.708\u202f\u00c5, b\u202f=\u202f3.708\u202f\u00c5, c\u202f=\u202f9.331\u202f\u00c5 (relative change 0.0205 vs reference). EXAFS shows a Ti\u2013O bond length of 1.958\u202f\u00c5, 0.0441\u202f\u00c5 longer than the PDF model distance 1.914\u202f\u00c5 (check.C2), and a coordination number of 9.23\u202f\u00b1\u202f4.122, 3.66 higher than the bulk model value 5.57 (check.C3). XANES linear-combination fit gives a Ti valence of 3.883, while the edge position suggests 4.24 and bond-valence-sum gives 4.45, indicating mixed valence or non-stoichiometry (check.C4). Disorder analysis yields an EXAFS/PDF \u03c3\u00b2 ratio of 0.237, below the lower bound of 0.3 (check.C5). Joint simulation favours anatase with total score 0.4966 (margin 0.0566) over rutile (score 0.5532) (check.C7). Visual inspections reject each technique (XRD peaks at 25.52\u00b0, 30.82\u00b0, 64.58\u00b0; PDF Rw 0.832; EXAFS Durbin\u2011Watson 0.8809).",
+  "claims": [
+   {
+    "statement": "No consistent crystalline phase could be assigned; phase set to null",
+    "evidence": [
+     "check.C1"
+    ]
+   },
+   {
+    "statement": "Particle size from XRD sphere diameter is 3.885\u202fnm and from PDF psize is 4.011\u202fnm, indicating ~4\u202fnm nanoparticles",
+    "evidence": [
+     "xrd.size",
+     "pdf.fit.TiO2-anatase",
+     "check.C6"
+    ]
+   },
+   {
+    "statement": "Lattice parameters from PDF anatase fit are a=3.708\u202f\u00c5, b=3.708\u202f\u00c5, c=9.331\u202f\u00c5, a relative change of 0.0205 compared to reference values",
+    "evidence": [
+     "pdf.fit.TiO2-anatase",
+     "check.C1"
+    ]
+   },
+   {
+    "statement": "EXAFS Ti\u2013O bond length is 1.958\u202f\u00c5, 0.0441\u202f\u00c5 longer than the PDF model distance of 1.914\u202f\u00c5, exceeding the warning tolerance",
+    "evidence": [
+     "exafs.fit",
+     "check.C2"
+    ]
+   },
+   {
+    "statement": "EXAFS Ti\u2013O coordination number is 9.23\u202f\u00b1\u202f4.122, 3.66 higher than the bulk model value of 5.57, failing the coordination number check",
+    "evidence": [
+     "exafs.fit",
+     "check.C3"
+    ]
+   },
+   {
+    "statement": "XANES-derived valence from linear\u2011combination fitting is 3.883 (below the formal Ti valence of 4.0), while the XANES edge position suggests a valence of 4.24 (above formal). The bond\u2011valence\u2011sum estimate is 4.45, also above formal. This discrepancy indicates possible mixed valence or non\u2011stoichiometry",
+    "evidence": [
+     "xanes",
+     "bvs",
+     "check.C4"
+    ]
+   },
+   {
+    "statement": "Disorder analysis shows EXAFS \u03c3\u00b2=0.01476, PDF \u03c3\u00b2 (with \u0394\u00b2) =0.00913, giving a ratio of 0.237, below the lower bound of 0.3, suggesting static disorder",
+    "evidence": [
+     "check.C5"
+    ]
+   },
+   {
+    "statement": "Joint simulation score: anatase total score 0.4966, rutile total score 0.5532, margin 0.0566; anatase has the best joint score among candidates",
+    "evidence": [
+     "check.C7"
+    ]
+   },
+   {
+    "statement": "XRD visual inspection flagged unexplained peaks at 25.52\u00b0, 30.82\u00b0, and 64.58\u00b0, leading to rejection of the XRD fit",
+    "evidence": [
+     "vision.xrd"
+    ]
+   },
+   {
+    "statement": "PDF visual inspection rejected due to high Rw of 0.832, exceeding the 0.25 threshold",
+    "evidence": [
+     "vision.pdf"
+    ]
+   },
+   {
+    "statement": "EXAFS visual inspection rejected because the Durbin\u2011Watson statistic is 0.8809, below the acceptable limit of 1.0",
+    "evidence": [
+     "vision.exafs"
+    ]
+   }
+  ],
+  "responses": []
+ },
+ "log": [
+  {
+   "round": 1,
+   "id": "R1.1",
+   "objection": "The claim that both XANES-derived valence (3.883) and BVS-derived valence (4.45) are above the formal Ti valence of 4.0 is incorrect: the XANES-derived valence is below 4.0. Therefore the statement that both indicate mixed valence or non\u2011stoichiometry is unsupported by the evidence.",
+   "claim": 6,
+   "cited": [
+    "xanes",
+    "bvs",
+    "check.C4"
+   ],
+   "action": null,
+   "args": {},
+   "status": "open",
+   "finding": "no re-run requested; the analyst must answer it"
+  },
+  {
+   "round": 2,
+   "id": "R2.1",
+   "objection": "No consistent crystalline phase could be assigned; phase set to null",
+   "claim": 0,
+   "cited": [
+    "check.C1",
+    "check.C7",
+    "xrd.ranking"
+   ],
+   "action": "pdf_toggle_envelope",
+   "args": {},
+   "status": "not confirmed",
+   "finding": "TiO2-anatase without the particle envelope: Rw 0.846 (was 0.832)",
+   "result_id": "rerun.R2.1.pdf_toggle_envelope"
+  },
+  {
+   "round": 3,
+   "id": "R3.1",
+   "objection": "No consistent crystalline phase could be assigned; phase set to null",
+   "claim": 0,
+   "cited": [
+    "check.C1",
+    "check.C7",
+    "xrd.ranking"
+   ],
+   "action": "xrd_add_phase",
+   "args": {
+    "candidate": "TiO2-rutile"
+   },
+   "status": "not confirmed",
+   "finding": "adding TiO2-rutile (0 % of the simulated intensity) takes the XRD residual RMS from 2338 to 2338",
+   "result_id": "rerun.R3.1.xrd_add_phase"
+  }
+ ],
+ "rounds": 3,
+ "confirmed": [],
+ "unsupported_numbers": [],
+ "report_md": "# Concord report \u2014 s0003 (TiO2)\n\n**TiO\u2082 nanoparticles (~4\u202fnm) show no consistent crystalline phase and exhibit mixed structural and oxidation-state indicators.**\n\nPhase: **None**\n\nThe TiO2 sample lacks a consistent crystalline phase: XRD ranking favours TiO2-anatase (score 0.759, area fraction 0.728) while the PDF fit for anatase has Rw 0.8321 (and 0.8456 without the particle envelope), far above the good-fit tolerance of 0.25, and check.C1 reports phase-consistency failure (lattice_rel_change 0.0205). Consequently the phase is set to null. Nanoparticle size is ~4\u202fnm (XRD sphere diameter 3.885\u202fnm, PDF particle size 4.011\u202fnm). PDF anatase lattice parameters are a\u202f=\u202f3.708\u202f\u00c5, b\u202f=\u202f3.708\u202f\u00c5, c\u202f=\u202f9.331\u202f\u00c5 (relative change 0.0205 vs reference). EXAFS shows a Ti\u2013O bond length of 1.958\u202f\u00c5, 0.0441\u202f\u00c5 longer than the PDF model distance 1.914\u202f\u00c5 (check.C2), and a coordination number of 9.23\u202f\u00b1\u202f4.122, 3.66 higher than the bulk model value 5.57 (check.C3). XANES linear-combination fit gives a Ti valence of 3.883, while the edge position suggests 4.24 and bond-valence-sum gives 4.45, indicating mixed valence or non-stoichiometry (check.C4). Disorder analysis yields an EXAFS/PDF \u03c3\u00b2 ratio of 0.237, below the lower bound of 0.3 (check.C5). Joint simulation favours anatase with total score 0.4966 (margin 0.0566) over rutile (score 0.5532) (check.C7). Visual inspections reject each technique (XRD peaks at 25.52\u00b0, 30.82\u00b0, 64.58\u00b0; PDF Rw 0.832; EXAFS Durbin\u2011Watson 0.8809).\n\n## Key numbers (from the tools)\n\n- **XRD**: best match TiO2-anatase (profile correlation 0.780, 73 % of the peak area explained); sphere diameter 3.9 nm from 6 indexed reflections\n- **PDF**: TiO2-anatase refines to Rw 0.832; a 3.7075 \u00c5, c 9.3313 \u00c5; U_iso O 0.0500 \u00c5\u00b2, Ti 0.0123 \u00c5\u00b2; particle diameter 4.0 nm\n- **EXAFS** (Ti K): Ti\u2013O N 9.2 \u00b1 4.1 at 1.958 \u00c5, \u03c3\u00b2 0.0148 \u00c5\u00b2; R-factor 0.0732\n- **XANES**: Ti valence 3.88 from a linear combination of standards, 4.24 from the edge position\n- **Bond valence** (PDF model): 4.45\n\n## Evidence by technique\n\n- **XRD**: Ranking favours TiO\u2082\u2011anatase (score 0.759, area fraction 0.728) but visual inspection rejects the fit due to unexplained peaks at 25.52\u00b0, 30.82\u00b0 and 64.58\u00b0.\n- **PDF**: Fit to anatase yields Rw\u202f0.832 (far above the 0.25 tolerance) with lattice parameters a\u202f=\u202f3.708\u202f\u00c5, b\u202f=\u202f3.708\u202f\u00c5, c\u202f=\u202f9.331\u202f\u00c5 (relative change 0.0205) and a particle size of 4.011\u202fnm.\n- **EXAFS**: Ti\u2013O bond length is 1.958\u202f\u00c5 (0.0441\u202f\u00c5 longer than the PDF model distance 1.914\u202f\u00c5) and the coordination number is 9.23\u202f\u00b1\u202f4.122 (3.66 higher than the bulk value 5.57), both exceeding tolerances.\n- **XANES**: Linear\u2011combination fitting gives a Ti valence of 3.883 (below the formal 4.0), while the edge position suggests 4.24 and bond\u2011valence\u2011sum gives 4.45, indicating possible mixed valence or non\u2011stoichiometry.\n\n## Cross-technique checks\n\n| check | status | explanation |\n|---|---|---|\n| C1 Phase consistency (XRD vs PDF) | **FAIL** | No candidate structure fits the PDF (best Rw 0.83 for TiO2-anatase). The true phase may be missing from the candidate list, or the sample label is wrong. |\n| C2 Bond lengths (EXAFS R vs PDF model) | **warn** | EXAFS and the PDF model disagree by up to 0.044 \u00c5: local distortion, a second phase, or strain the average structure does not capture. |\n| C3 Coordination numbers (EXAFS N vs model) | **FAIL** | EXAFS coordination differs from the model by up to 3.7: segregation, vacancies or a disordered surface. |\n| C4 Oxidation state (XANES vs bond-valence sum) | **FAIL** | The refined bond lengths (bond-valence sum 4.45) and the XANES edge (4.24) both put the valence above the formal 4: mixed valence or non-stoichiometry (for example reduced cations with oxygen vacancies) that the stoichiometric model lacks. |\n| C5 Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) | **warn** | EXAFS/PDF disorder ratio 0.24\u20130.24 is outside 0.3\u20131.3: static disorder (a distorted or split first shell) or a surface layer seen differently by the two probes. |\n| C6 Size (XRD vs PDF) | pass | XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter. |\n| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | TiO2-anatase has the best joint score (margin 0.057). |\n\n## Virtual XAFS \u2014 PREDICTED, NOT MEASURED\n\nTi K EXAFS computed with FEFF from the PDF-refined model (TiO2-anatase, TiO2-rutile; 24 ensemble members, Debye temperature 275\u2013557 K). This edge was measured, so the prediction serves as a consistency check against the measurement.\n\nAgainst the measured spectrum: R-factor 0.1544 in R 1.0\u20133.5 \u00c5.\n\n## Literature priors (other samples: context, not constraints)\n\n- Ti oxidation state 4, [doi:10.1088/2053-1591/ab4e3f](https://doi.org/10.1088/2053-1591/ab4e3f) (2019): \u00abAnal.At.Spectrom.29 736] coordination environment and Ti 4+ oxidation state was observed with 0.02 and 0.04 O 2 partial pressures, respectively.\u00bb\n- particle size 8 nm, [doi:10.4028/www.scientific.net/kem.833.147](https://doi.org/10.4028/www.scientific.net/kem.833.147) (2020): \u00abThe average sizes of nanoparticles estimated respectively are ~ 8 nm and ~ 22 nm.\u00bb\n- particle size 22 nm, [doi:10.4028/www.scientific.net/kem.833.147](https://doi.org/10.4028/www.scientific.net/kem.833.147) (2020): \u00abThe average sizes of nanoparticles estimated respectively are ~ 8 nm and ~ 22 nm.\u00bb\n- particle size 1 nm, [doi:10.1002/cctc.200900104](https://doi.org/10.1002/cctc.200900104) (2009): \u00abThe metal particles contained on an average about 20 atoms, which is consistent with a particle size of 1 nm.\u00bb\n- particle size 32 nm, [doi:10.1021/la7039916](https://doi.org/10.1021/la7039916) (2008): \u00abThe relative reactivity of 5 and 32 nm particles as determined from Langmuir adsorption parameters did not appear to vary greatly despite differences that occur in nanoparticle aggregation for these two different size na\u00bb\n- particle size 9 nm, [doi:10.51415/10321/3804](https://doi.org/10.51415/10321/3804) (None): \u00abThe Image J analysis showed that the average particle distribution of nTiO2 was 9 nm.\u00bb\n- particle size 7 nm, [doi:10.1115/1.859841.paper69](https://doi.org/10.1115/1.859841.paper69) (2011): \u00abWe present a detailed comparison of two samples of identical atomic composition but different texture, with narrow TiO2 particle-size distributions centered at 4 and 7 nm.\u00bb\n\n## Claims\n\n0. No consistent crystalline phase could be assigned; phase set to null _(evidence: check.C1)_\n1. Particle size from XRD sphere diameter is 3.885\u202fnm and from PDF psize is 4.011\u202fnm, indicating ~4\u202fnm nanoparticles _(evidence: xrd.size, pdf.fit.TiO2-anatase, check.C6)_\n2. Lattice parameters from PDF anatase fit are a=3.708\u202f\u00c5, b=3.708\u202f\u00c5, c=9.331\u202f\u00c5, a relative change of 0.0205 compared to reference values _(evidence: pdf.fit.TiO2-anatase, check.C1)_\n3. EXAFS Ti\u2013O bond length is 1.958\u202f\u00c5, 0.0441\u202f\u00c5 longer than the PDF model distance of 1.914\u202f\u00c5, exceeding the warning tolerance _(evidence: exafs.fit, check.C2)_\n4. EXAFS Ti\u2013O coordination number is 9.23\u202f\u00b1\u202f4.122, 3.66 higher than the bulk model value of 5.57, failing the coordination number check _(evidence: exafs.fit, check.C3)_\n5. XANES-derived valence from linear\u2011combination fitting is 3.883 (below the formal Ti valence of 4.0), while the XANES edge position suggests a valence of 4.24 (above formal). The bond\u2011valence\u2011sum estimate is 4.45, also above formal. This discrepancy indicates possible mixed valence or non\u2011stoichiometry _(evidence: xanes, bvs, check.C4)_\n6. Disorder analysis shows EXAFS \u03c3\u00b2=0.01476, PDF \u03c3\u00b2 (with \u0394\u00b2) =0.00913, giving a ratio of 0.237, below the lower bound of 0.3, suggesting static disorder _(evidence: check.C5)_\n7. Joint simulation score: anatase total score 0.4966, rutile total score 0.5532, margin 0.0566; anatase has the best joint score among candidates _(evidence: check.C7)_\n8. XRD visual inspection flagged unexplained peaks at 25.52\u00b0, 30.82\u00b0, and 64.58\u00b0, leading to rejection of the XRD fit _(evidence: vision.xrd)_\n9. PDF visual inspection rejected due to high Rw of 0.832, exceeding the 0.25 threshold _(evidence: vision.pdf)_\n10. EXAFS visual inspection rejected because the Durbin\u2011Watson statistic is 0.8809, below the acceptable limit of 1.0 _(evidence: vision.exafs)_\n\n## Objections and resolutions\n\n| id | objection | cited | re-run | finding | status |\n|---|---|---|---|---|---|\n| R1.1 | The claim that both XANES-derived valence (3.883) and BVS-derived valence (4.45) are above the formal Ti valence of 4.0 is incorrect: the XANES-derived valence is below 4.0. Therefore the statement that both indicate mixed valence or non\u2011stoichiometry is unsupported by the evidence. | xanes, bvs, check.C4 | \u2013 | no re-run requested; the analyst must answer it | open |\n| R2.1 | No consistent crystalline phase could be assigned; phase set to null | check.C1, check.C7, xrd.ranking | pdf_toggle_envelope | TiO2-anatase without the particle envelope: Rw 0.846 (was 0.832) | not confirmed |\n| R3.1 | No consistent crystalline phase could be assigned; phase set to null | check.C1, check.C7, xrd.ranking | xrd_add_phase | adding TiO2-rutile (0 % of the simulated intensity) takes the XRD residual RMS from 2338 to 2338 | not confirmed |\n\n## Limitations\n\n- Phase assignment fails (check.C1) and the joint simulation margin (0.0566) is small.\n- XRD, PDF and EXAFS visual inspections all reject their fits.\n- Disorder analysis shows an EXAFS/PDF \u03c3\u00b2 ratio of 0.237 (<\u202f0.3), pointing to static disorder.\n- The XANES valence discrepancy is one\u2011sided (XANES below 4, BVS above 4), so the claim that both exceed the formal valence is inaccurate.\n",
+ "wall_s": 1895.3,
+ "llm": {
+  "llm_calls": 11,
+  "prompt_tokens": 38715,
+  "completion_tokens": 41919,
+  "llm_seconds": 1567.72
+ },
+ "out_dir": "results/runs/s0003",
+ "evidence": {
+  "sample": {
+   "composition": "TiO2",
+   "techniques": [
+    "xrd",
+    "pdf",
+    "xafs"
+   ],
+   "candidates": [
+    "TiO2-anatase",
+    "TiO2-rutile"
+   ],
+   "xafs_edge": "Ti K"
+  },
+  "xrd.ranking": [
+   {
+    "phase": "TiO2-anatase",
+    "score": 0.759,
+    "profile_corr": 0.7796,
+    "obs_area_fraction_explained": 0.7281
+   },
+   {
+    "phase": "TiO2-rutile",
+    "score": 0.2563,
+    "profile_corr": 0.3219,
+    "obs_area_fraction_explained": 0.1579
+   }
+  ],
+  "xrd.size": {
+   "sphere_diameter_nm": 3.885,
+   "scherrer_median_nm": 2.904,
+   "williamson_hall_strain": 0.003591,
+   "n_indexed_peaks": 6
+  },
+  "pdf.fit.TiO2-anatase": {
+   "rw": 0.8321,
+   "lattice": {
+    "a": 3.708,
+    "b": 3.708,
+    "c": 9.331
+   },
+   "lattice_ref": {
+    "a": 3.785,
+    "b": 3.785,
+    "c": 9.52
+   },
+   "uiso": {
+    "O": 0.05,
+    "Ti": 0.01227
+   },
+   "delta2": 3.127,
+   "psize_nm": 4.011,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.fit.TiO2-rutile": {
+   "rw": 0.8472,
+   "lattice": {
+    "a": 4.595,
+    "b": 4.595,
+    "c": 2.978
+   },
+   "lattice_ref": {
+    "a": 4.589,
+    "b": 4.589,
+    "c": 2.958
+   },
+   "uiso": {
+    "O": 0.05,
+    "Ti": 0.003292
+   },
+   "delta2": 3.531,
+   "psize_nm": 1.917,
+   "r_range": [
+    1.5,
+    25.0
+   ]
+  },
+  "pdf.best": "TiO2-anatase",
+  "exafs.fit": {
+   "absorber": "Ti",
+   "edge": "K",
+   "model": "TiO2",
+   "rfactor": 0.07317,
+   "e0_shift_eV": -1.166,
+   "window": {
+    "kmin": 3.0,
+    "kmax": 12.0,
+    "rmin": 1.0,
+    "rmax": 2.891,
+    "kweight": 2.0
+   },
+   "shells": [
+    {
+     "neighbor": "O",
+     "N": 9.23,
+     "N_err": 4.122,
+     "R_A": 1.958,
+     "R_err": 0.04351,
+     "sigma2": 0.01476,
+     "extra": null
+    }
+   ]
+  },
+  "xanes": {
+   "absorber": "Ti",
+   "edge_eV": 4972.0,
+   "valence": 3.883,
+   "valence_edge": 4.24,
+   "lcf_weights": {
+    "Ti+3": 0.1169,
+    "Ti+4": 0.8831
+   }
+  },
+  "bvs": {
+   "valence": 4.45,
+   "formal_valence": 4.0
+  },
+  "virtual_xafs": {
+   "label": "PREDICTED, NOT MEASURED",
+   "edge": "Ti K",
+   "candidates": [
+    "TiO2-anatase",
+    "TiO2-rutile"
+   ],
+   "theta_K_range": [
+    274.5,
+    557.0
+   ],
+   "vs_measured": {
+    "rfactor_R": 0.1544,
+    "band_coverage_k": 0.2762,
+    "r_window": [
+     1.0,
+     3.5
+    ]
+   },
+   "per_candidate_rfactor": {
+    "TiO2-anatase": 0.4372,
+    "TiO2-rutile": 0.1344
+   },
+   "recommendation": "This edge was measured, so the prediction serves as a consistency check against the measurement."
+  },
+  "check.C1": {
+   "name": "Phase consistency (XRD vs PDF)",
+   "status": "fail",
+   "values": {
+    "xrd_phase": "TiO2-anatase",
+    "xrd_score": 0.759,
+    "xrd_area_explained": 0.728,
+    "peak_rel_intensity": 0.912,
+    "pdf_phase": "TiO2-anatase",
+    "pdf_rw": 0.832,
+    "pdf_runner_up": "TiO2-rutile",
+    "pdf_runner_up_rw": 0.847,
+    "lattice_rel_change": 0.0205
+   },
+   "tolerance": {
+    "pdf_good_rw": 0.25,
+    "xrd_weak_rel_intensity": 0.05,
+    "lattice_warn_rel": 0.003
+   },
+   "explanation": "No candidate structure fits the PDF (best Rw 0.83 for TiO2-anatase). The true phase may be missing from the candidate list, or the sample label is wrong."
+  },
+  "check.C2": {
+   "name": "Bond lengths (EXAFS R vs PDF model)",
+   "status": "warn",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ti-O",
+      "exafs_R_A": 1.958,
+      "exafs_err": 0.0435,
+      "pdf_model_R_A": 1.914,
+      "diff_A": 0.0441
+     }
+    ],
+    "max_abs_diff_A": 0.0441
+   },
+   "tolerance": {
+    "warn_A": 0.02,
+    "fail_A": 0.05
+   },
+   "explanation": "EXAFS and the PDF model disagree by up to 0.044 \u00c5: local distortion, a second phase, or strain the average structure does not capture."
+  },
+  "check.C3": {
+   "name": "Coordination numbers (EXAFS N vs model)",
+   "status": "fail",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ti-O",
+      "exafs_N": 9.23,
+      "exafs_err": 4.12,
+      "model_N_bulk": 6.0,
+      "surface_factor": 0.928,
+      "model_N": 5.57,
+      "diff": 3.66
+     }
+    ],
+    "extra_shell": null,
+    "max_abs_diff": 3.66
+   },
+   "tolerance": {
+    "warn_abs": 1.0,
+    "fail_abs": 2.0,
+    "extra_min_sigma": 3.0,
+    "extra_min_rfactor_drop": 0.3
+   },
+   "explanation": "EXAFS coordination differs from the model by up to 3.7: segregation, vacancies or a disordered surface."
+  },
+  "check.C4": {
+   "name": "Oxidation state (XANES vs bond-valence sum)",
+   "status": "fail",
+   "values": {
+    "xanes_valence": 3.88,
+    "xanes_edge_valence": 4.24,
+    "lcf": {
+     "Ti+3": 0.1169,
+     "Ti+4": 0.8831
+    },
+    "bvs_valence": 4.45,
+    "formal_valence": 4.0,
+    "diff": -0.57,
+    "metallic_model": false,
+    "xanes_fidelity": "low (simple edge model)"
+   },
+   "tolerance": {
+    "warn_abs": 0.5,
+    "fail_abs": 1.0,
+    "metal_warn_abs": 0.2,
+    "metal_fail_abs": 0.25,
+    "bvs_shift_min": 0.03,
+    "xanes_shift_min": 0.1
+   },
+   "explanation": "The refined bond lengths (bond-valence sum 4.45) and the XANES edge (4.24) both put the valence above the formal 4: mixed valence or non-stoichiometry (for example reduced cations with oxygen vacancies) that the stoichiometric model lacks."
+  },
+  "check.C5": {
+   "name": "Disorder (EXAFS \u03c3\u00b2 vs PDF pair width)",
+   "status": "warn",
+   "values": {
+    "pairs": [
+     {
+      "pair": "Ti-O",
+      "exafs_sigma2": 0.01476,
+      "pdf_uncorrelated_sigma2": 0.06227,
+      "pdf_with_delta2_sigma2": 0.00913,
+      "ratio_exafs_to_pdf": 0.237
+     }
+    ]
+   },
+   "tolerance": {
+    "ratio_low": 0.3,
+    "ratio_high": 1.3
+   },
+   "explanation": "EXAFS/PDF disorder ratio 0.24\u20130.24 is outside 0.3\u20131.3: static disorder (a distorted or split first shell) or a surface layer seen differently by the two probes."
+  },
+  "check.C6": {
+   "name": "Size (XRD vs PDF)",
+   "status": "pass",
+   "values": {
+    "xrd_sphere_diameter_nm": 3.89,
+    "xrd_scherrer_nm": 2.9,
+    "pdf_diameter_nm": 4.01,
+    "rel_diff": -0.031
+   },
+   "tolerance": {
+    "warn_rel": 0.25,
+    "fail_rel": 0.5
+   },
+   "explanation": "XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter."
+  },
+  "check.C7": {
+   "name": "Joint simulation score (XRD + PDF + EXAFS)",
+   "status": "pass",
+   "values": {
+    "candidates": [
+     {
+      "candidate": "TiO2-anatase",
+      "xrd": 0.2204,
+      "pdf": 0.8321,
+      "exafs": 0.4372,
+      "score": 0.4966
+     },
+     {
+      "candidate": "TiO2-rutile",
+      "xrd": 0.6781,
+      "pdf": 0.8472,
+      "exafs": 0.1344,
+      "score": 0.5532
+     }
+    ],
+    "margin": 0.0566,
+    "techniques": [
+     "exafs",
+     "pdf",
+     "xrd"
+    ]
+   },
+   "tolerance": {
+    "min_margin": 0.02
+   },
+   "explanation": "TiO2-anatase has the best joint score (margin 0.057)."
+  },
+  "prior.1": {
+   "quantity": "oxidation_state",
+   "element": "Ti",
+   "value": 4,
+   "unit": "",
+   "doi": "10.1088/2053-1591/ab4e3f",
+   "snippet": "Anal.At.Spectrom.29 736] coordination environment and Ti 4+ oxidation state was observed with 0.02 and 0.04 O 2 partial pressures, respectively."
+  },
+  "prior.2": {
+   "quantity": "particle_size",
+   "value": 8.0,
+   "unit": "nm",
+   "doi": "10.4028/www.scientific.net/kem.833.147",
+   "snippet": "The average sizes of nanoparticles estimated respectively are ~ 8 nm and ~ 22 nm."
+  },
+  "prior.3": {
+   "quantity": "particle_size",
+   "value": 22.0,
+   "unit": "nm",
+   "doi": "10.4028/www.scientific.net/kem.833.147",
+   "snippet": "The average sizes of nanoparticles estimated respectively are ~ 8 nm and ~ 22 nm."
+  },
+  "prior.4": {
+   "quantity": "particle_size",
+   "value": 1.0,
+   "unit": "nm",
+   "doi": "10.1002/cctc.200900104",
+   "snippet": "The metal particles contained on an average about 20 atoms, which is consistent with a particle size of 1 nm."
+  },
+  "prior.5": {
+   "quantity": "particle_size",
+   "value": 32.0,
+   "unit": "nm",
+   "doi": "10.1021/la7039916",
+   "snippet": "The relative reactivity of 5 and 32 nm particles as determined from Langmuir adsorption parameters did not appear to vary greatly despite differences that occur in nanoparticle aggregation for these two different size nanoparticles."
+  },
+  "prior.6": {
+   "quantity": "particle_size",
+   "value": 9.0,
+   "unit": "nm",
+   "doi": "10.51415/10321/3804",
+   "snippet": "The Image J analysis showed that the average particle distribution of nTiO2 was 9 nm."
+  },
+  "prior.7": {
+   "quantity": "particle_size",
+   "value": 7.0,
+   "unit": "nm",
+   "doi": "10.1115/1.859841.paper69",
+   "snippet": "We present a detailed comparison of two samples of identical atomic composition but different texture, with narrow TiO2 particle-size distributions centered at 4 and 7 nm."
+  },
+  "vision.xrd": {
+   "accepted": false,
+   "verdict": "reject",
+   "inspector": "gpt-oss judge",
+   "issues": [
+    {
+     "region": "26.0-42.0",
+     "pattern": "25.52\u00b0",
+     "likely_cause": "missing crystalline phase",
+     "suggested_action": "xrd_add_phase"
+    },
+    {
+     "region": "26.0-42.0",
+     "pattern": "30.82\u00b0",
+     "likely_cause": "missing crystalline phase",
+     "suggested_action": "xrd_add_phase"
+    },
+    {
+     "region": "58.0-74.0",
+     "pattern": "64.58\u00b0",
+     "likely_cause": "missing crystalline phase",
+     "suggested_action": "xrd_add_phase"
+    }
+   ],
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "durbin_watson": null,
+   "structured_regions": [],
+   "unexplained_peaks": [
+    25.52,
+    30.82,
+    64.58
+   ],
+   "fixes_tried": [
+    {
+     "iteration": 1,
+     "action": "xrd_add_phase",
+     "finding": "adding TiO2-rutile (0 % of the simulated intensity) takes the XRD residual RMS from 2338 to 2338",
+     "kept": false
+    }
+   ]
+  },
+  "vision.pdf": {
+   "accepted": false,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": false,
+    "reason": "Rw 0.832 above 0.25"
+   },
+   "durbin_watson": 1.875,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "vision.exafs": {
+   "accepted": false,
+   "verdict": "accept",
+   "inspector": "gpt-oss judge",
+   "issues": [],
+   "numerical": {
+    "ok": false,
+    "reason": "Durbin-Watson 0.88 < 1.0 on independent points"
+   },
+   "durbin_watson": 0.8809,
+   "structured_regions": [],
+   "unexplained_peaks": [],
+   "fixes_tried": []
+  },
+  "rerun.R2.1.pdf_toggle_envelope": {
+   "candidate": "TiO2-anatase",
+   "rw": 0.8456,
+   "lattice": {
+    "a": 3.701,
+    "b": 3.701,
+    "c": 9.367
+   },
+   "psize_nm": null,
+   "delta2": 3.399,
+   "confirms": false
+  },
+  "rerun.R3.1.xrd_add_phase": {
+   "second_phase": "TiO2-rutile",
+   "intensity_share": 0.0,
+   "rms_before": 2338.0,
+   "rms_after": 2338.0,
+   "confirms": false
+  }
+ },
+ "vision": {
+  "virtual_xafs": {
+   "plot": "results/runs/s0003/virtual_xafs.png"
+  },
+  "xrd": {
+   "plot": "results/runs/s0003/xrd_fit.png",
+   "features": {
+    "n_independent": 4001,
+    "thinned_by": 1,
+    "rms_rel": 0.4859151519394252,
+    "durbin_watson": null,
+    "regions": [
+     {
+      "region": "10.0-26.0",
+      "misfit_share": 0.21845449620375332,
+      "rms_rel": 0.5075852029034936,
+      "durbin_watson": null
+     },
+     {
+      "region": "26.0-42.0",
+      "misfit_share": 0.6013251915126413,
+      "rms_rel": 0.842137794013416,
+      "durbin_watson": null
+     },
+     {
+      "region": "42.0-58.0",
+      "misfit_share": 0.0666302628862117,
+      "rms_rel": 0.2803265438222614,
+      "durbin_watson": null
+     },
+     {
+      "region": "58.0-74.0",
+      "misfit_share": 0.10048557341706547,
+      "rms_rel": 0.34425504760944026,
+      "durbin_watson": null
+     },
+     {
+      "region": "74.0-90.0",
+      "misfit_share": 0.014298300430740332,
+      "rms_rel": 0.1298585855852791,
+      "durbin_watson": null
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": [
+     25.52,
+     30.82,
+     64.58
+    ]
+   },
+   "visual": {
+    "verdict": "reject",
+    "issues": [
+     {
+      "region": "26.0-42.0",
+      "pattern": "25.52\u00b0",
+      "likely_cause": "missing crystalline phase",
+      "suggested_action": "xrd_add_phase"
+     },
+     {
+      "region": "26.0-42.0",
+      "pattern": "30.82\u00b0",
+      "likely_cause": "missing crystalline phase",
+      "suggested_action": "xrd_add_phase"
+     },
+     {
+      "region": "58.0-74.0",
+      "pattern": "64.58\u00b0",
+      "likely_cause": "missing crystalline phase",
+      "suggested_action": "xrd_add_phase"
+     }
+    ],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": true,
+    "reason": "within limits"
+   },
+   "accepted": false,
+   "steps": [
+    {
+     "iteration": 1,
+     "action": "xrd_add_phase",
+     "finding": "adding TiO2-rutile (0 % of the simulated intensity) takes the XRD residual RMS from 2338 to 2338",
+     "kept": false
+    }
+   ]
+  },
+  "pdf": {
+   "plot": "results/runs/s0003/pdf_fit.png",
+   "features": {
+    "n_independent": 147,
+    "thinned_by": 16,
+    "rms_rel": 0.8315195485047769,
+    "durbin_watson": 1.8752849943236445,
+    "regions": [
+     {
+      "region": "1.5-6.2",
+      "misfit_share": 0.5073767731468855,
+      "rms_rel": 1.3110999315549132,
+      "durbin_watson": 1.6552085015703164
+     },
+     {
+      "region": "6.2-10.8",
+      "misfit_share": 0.19027726702645906,
+      "rms_rel": 0.8166304781890683,
+      "durbin_watson": 1.8858281547436466
+     },
+     {
+      "region": "10.8-15.5",
+      "misfit_share": 0.18332300406702914,
+      "rms_rel": 0.8015684497394706,
+      "durbin_watson": 2.071545412352792
+     },
+     {
+      "region": "15.5-20.2",
+      "misfit_share": 0.07217108392119183,
+      "rms_rel": 0.5029371842903108,
+      "durbin_watson": 1.5945650971402792
+     },
+     {
+      "region": "20.2-24.9",
+      "misfit_share": 0.04685187183843468,
+      "rms_rel": 0.39841343687021524,
+      "durbin_watson": 2.276352126152063
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": false,
+    "reason": "Rw 0.832 above 0.25"
+   },
+   "accepted": false,
+   "steps": []
+  },
+  "exafs": {
+   "plot": "results/runs/s0003/exafs_fit.png",
+   "features": {
+    "n_independent": 11,
+    "thinned_by": 6,
+    "rms_rel": 0.19443915294470437,
+    "durbin_watson": 0.8809258793919436,
+    "regions": [
+     {
+      "region": "1.0-2.9",
+      "misfit_share": 1.0,
+      "rms_rel": 0.19443915294470437,
+      "durbin_watson": 0.8809258793919436
+     }
+    ],
+    "structured_regions": [],
+    "concentrated_regions": [],
+    "unexplained_peaks": []
+   },
+   "visual": {
+    "verdict": "accept",
+    "issues": [],
+    "inspector": "gpt-oss judge"
+   },
+   "numerical": {
+    "ok": false,
+    "reason": "Durbin-Watson 0.88 < 1.0 on independent points"
+   },
+   "accepted": false,
+   "steps": []
+  }
+ }
+}

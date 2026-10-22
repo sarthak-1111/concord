@@ -59,12 +59,12 @@ Other commands: `uv run concord priors Pt3Co` (literature values with DOIs), `ma
 | Planted faults detected (a check fails) | 0.667 | ≥ 0.6 | pass |
 | False alarms on clean samples | 0 | ≤ 0.2 | pass |
 | C1–C6 reported for every sample | 1 | ≥ 1.0 | pass |
-| Runtime per sample, mean (s) | 25.8 | ≤ 120 | pass |
+| Runtime per sample, mean (s) | 24 | ≤ 120 | pass |
 | Virtual EXAFS vs spectrum, median R-factor | 0.0219 | ≤ 0.1 | pass |
 
 Virtual EXAFS against the hidden spectrum (XAFS withheld): median R-factor 0.011  
 Faults that only raise a warning: 11% of fault samples.  
-With the critic (`make eval-agents`, 18 of 19 runs complete): faults flagged by a check or a re-run-confirmed objection 62%, clean samples flagged 0%, numbers in the agents' prose not found in the evidence: 0, 26 min and 39k tokens per sample.  
+With the critic (`make eval-agents`, 19 of 19 runs complete): faults flagged by a check or a re-run-confirmed objection 67%, clean samples flagged 0%, numbers in the agents' prose not found in the evidence: 0, 26 min and 42k tokens per sample.  
 
 Per-sample details: [`results/eval.md`](results/eval.md).
 <!-- results:end -->
