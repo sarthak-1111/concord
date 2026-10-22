@@ -38,6 +38,9 @@ Times below are JST on 2026-10-22.
 - [x] **16:31 Mislabelled edge.** On s0045 (labelled TiO2, Ce L3 edge measured) C4 explained the missing Ce as a
   metal with an oxidised component, and the virtual XAFS raised. C4 now says the label or the edge is wrong, and the
   virtual XAFS predicts the model's own Ti K edge without scoring it against the Ce spectrum (3cc029b).
+- [x] **16:36 μ(E) uploads.** The virtual XAFS was compared only with a χ(k) file, so an upload with μ(E) alone got no
+  comparison, no EXAFS term in C7 and a recommendation to measure the edge it had measured. It now uses the same χ(k)
+  as the EXAFS fit (921ae7e; s0004 with μ(E) only: R 0.057, against 0.006 from the supplied χ(k)).
 
 ## Agent runs (`make eval-agents`, test + faults)
 
