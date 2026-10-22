@@ -93,6 +93,9 @@ export type View = {
   vision: Record<string, Vision> | null;
   report_md: string;
   priors: Prior[];
+  raw_pdf?: boolean;  // the folder has the raw PDF intensity, so it can be re-reduced
+  user_settings?: Record<string, Record<string, unknown>>;  // fit settings the user changed
+  restorable?: boolean;
 };
 
 export type ChatReply = { answer: string; cites: string[]; suggest: "none" | "run_fast" | "run_full" | "find_priors"; unsupported_numbers: string[] };

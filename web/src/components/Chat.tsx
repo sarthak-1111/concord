@@ -9,6 +9,7 @@ import { NUMBER, sources } from "@/lib/insight";
 import { fmt } from "@/components/Value";
 import { TONE } from "@/components/CheckPanel";
 import { Chip } from "@/components/CriticLog";
+import Generated from "@/components/Generated";
 
 type Actions = {
   ask: (text: string) => void;
@@ -185,9 +186,9 @@ function Message({ m, act, busy, evidence }: { m: Msg; act: Actions; busy: boole
   );
 }
 
-export default function Chat({ sid, row, view, state, msgs, asking, busy, act }: {
+export default function Chat({ sid, row, view, state, msgs, asking, busy, act, ganReady }: {
   sid: string; row?: SampleRow; view?: View; state: "loading" | "missing" | "error" | "ready"; msgs: Msg[];
-  asking: boolean; busy: boolean; act: Actions;
+  asking: boolean; busy: boolean; act: Actions; ganReady: boolean;
 }) {
   const [text, setText] = useState("");
   const scroller = useRef<HTMLDivElement>(null);
@@ -217,6 +218,7 @@ export default function Chat({ sid, row, view, state, msgs, asking, busy, act }:
               <span className="font-mono text-xs">{sid}</span>
             </div>
             <Brief row={row} view={view} state={state} act={act} busy={busy} />
+            {view ? <Generated key={view.sample_id} view={view} ganReady={ganReady} /> : null}
           </div>
           <div className="grid gap-6" aria-live="polite">{msgs.map((m, i) => <div key={i} className="rise"><Message m={m} act={act} busy={busy} evidence={view?.evidence} /></div>)}</div>
           {asking ? (

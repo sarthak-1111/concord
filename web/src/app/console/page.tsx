@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import useSWR, { mutate as globalMutate } from "swr";
 import { ChatCircle, ChartLine, List, SidebarSimple, X } from "@phosphor-icons/react";
-import { API, fetcher, locate, post, type ChatReply, type Prior, type SampleRow, type Tab, type View } from "@/lib/api";
+import { API, curvesKey, fetcher, locate, post, type ChatReply, type Prior, type SampleRow, type Tab, type View } from "@/lib/api";
 import { useRunStream } from "@/lib/useRunStream";
 import { useThreads, type Msg, type Step } from "@/lib/thread";
 import type { Focus } from "@/components/CheckPanel";
@@ -13,6 +13,9 @@ import Workbench from "@/components/Workbench";
 import Upload from "@/components/Upload";
 import Planner from "@/components/Planner";
 import RealOrGan from "@/components/RealOrGan";
+import TweakStudio from "@/components/TweakStudio";
+import PreprocessStudio from "@/components/PreprocessStudio";
+import type { Studio } from "@/components/TechniqueTabs";
 
 type Run = { id: string; sid: string; mode: "fast" | "full"; local?: boolean };  // local: no stream, a single request
 
@@ -37,6 +40,7 @@ export default function Console() {
   const [uploading, setUploading] = useState(false);
   const [planning, setPlanning] = useState(false);
   const [showcase, setShowcase] = useState(false);
+  const [studio, setStudio] = useState<Studio>();
   const { data: ganStatus } = useSWR<{ loaded: string[] }>("/api/gan", fetcher, { revalidateOnFocus: false });
   const handled = useRef<string | undefined>(undefined);
   const searching = useRef(false);
@@ -163,6 +167,23 @@ export default function Console() {
     setPane("results");
   };
 
+  const applied = (v: View, summary: string) => {
+    setStudio(undefined);
+    globalMutate(`/api/samples/${v.sample_id}`, v, { revalidate: false });
+    globalMutate(curvesKey(v));
+    threads.update(v.sample_id, (m) => [...m, { kind: "run", id: `tweak-${Date.now()}`, mode: "action", label: "Your settings", state: "done",
+      started: Date.now(), ended: Date.now(), steps: [], summary: `${summary} ${tally(v)}` }]);
+  };
+
+  const restore = async () => {
+    if (!sid) return;
+    try {
+      applied(await post<View>(`/api/samples/${sid}/restore`), "Restored the original analysis.");
+    } catch (e) {
+      threads.update(sid, (m) => [...m, { kind: "error", text: (e as Error).message }]);
+    }
+  };
+
   const uploaded = async (id: string) => {
     setUploading(false);
     await refreshSamples();
@@ -218,12 +239,13 @@ export default function Console() {
                   <SidebarSimple size={18} weight="bold" className="-scale-x-100" />
                 </button>
                 <Chat sid={sid} row={row} view={view} state={state} msgs={threads.get(sid)} asking={asking === sid} busy={busy}
-                  act={{ ask, run: (m) => start(m), findPriors, open, upload: () => setUploading(true) }} />
+                  act={{ ask, run: (m) => start(m), findPriors, open, upload: () => setUploading(true) }} ganReady={!!ganStatus?.loaded?.length} />
               </section>
               <section aria-label="Results" className={`min-w-0 flex-1 bg-surface/40 ${pane === "results" ? "block" : "hidden"} ${results ? "xl:block" : "xl:hidden"}`}>
                 <Workbench sid={sid} view={view} state={state} tab={tab} setTab={setTab} focus={focus} open={open}
                   onRun={() => start("fast")} busy={busy} onMined={() => mutate()}
-                  settling={{ runs: threads.get(sid).filter((m): m is Extract<Msg, { kind: "run" }> => m.kind === "run" && m.mode === "action"), busy, onSettle: settle }} />
+                  settling={{ runs: threads.get(sid).filter((m): m is Extract<Msg, { kind: "run" }> => m.kind === "run" && m.mode === "action"), busy, onSettle: settle }}
+                  onStudio={setStudio} onRestore={restore} />
               </section>
             </>
           ) : (
@@ -236,6 +258,10 @@ export default function Console() {
       <Upload open={uploading} onClose={() => setUploading(false)} onUploaded={uploaded} onPlan={plan}
         onExample={() => { setUploading(false); select("s0031"); }} />
       <RealOrGan open={showcase} onClose={() => setShowcase(false)} />
+      {sid ? <>
+        <TweakStudio sid={sid} technique={studio?.technique ?? "xrd"} open={studio?.kind === "analysis"} onClose={() => setStudio(undefined)} onApplied={applied} />
+        <PreprocessStudio sid={sid} open={studio?.kind === "preprocess"} onClose={() => setStudio(undefined)} onSaved={(id) => { setStudio(undefined); uploaded(id); }} />
+      </> : null}
     </div>
   );
 }

@@ -12,6 +12,9 @@ sample listing, per-sample result views and plot files. Run it with `make api` (
   POST /api/uploads/inspect          multipart files → per file: detected technique, preview, edge (nothing is saved)
   POST /api/plans                    {composition, candidates?, size_nm?, realistic?} → simulated candidates per technique
                                      and which technique separates them (SIMULATED, NOT MEASURED; never analysed as data)
+  POST /api/samples/{id}/generate    {realistic?} → the techniques the user did not measure, simulated from the fitted model
+                                     (+ the GAN's instrument realism); GENERATED, NOT MEASURED, never analysed
+  GET  /api/elements                 {phases: {element: [library phases with it as a cation]}} for the periodic table
   GET  /api/gan                      which realism GANs are loaded
   GET  /api/gan/showcase             ?technique=xrd&seed=0 → a real spectrum, its simulation and the GAN's version
   POST /api/runs                     {sample, mode: "fast" | "full"} → {run_id}
@@ -40,8 +43,9 @@ from concord.agents.chat import answer
 from concord.agents.evidence import bundle
 from concord.agents.pipeline import report_markdown, run_sample_async
 from concord.agents.resolver import ACTIONS, run_action
-from concord.analysis import analyze, infer_inputs, load_inputs, to_json
-from concord import gan, planner
+from concord.analysis import _cations, analyze, infer_inputs, load_inputs, to_json
+from concord.data_builder.fetch import systems
+from concord import gan, generate, planner
 from concord.config import ROOT
 from concord.upload_inspect import columns, inspect_file
 from concord.llm.client import LLMError
@@ -95,12 +99,15 @@ def view(sid: str) -> dict | None:
         return None
     a, mtime = json.loads(cached.read_text()), cached.stat().st_mtime
     ag = _agents(sid)
+    fresh = ag and cached != after_agents  # analysed again after the critic (e.g. with the user's settings): its numbers win
     v = a.get("virtual_xafs")
     priors = literature.for_result(a)
+    folder = _folder(sid)
     return {
         "sample_id": sid, "composition": a["inputs"]["composition"], "techniques": a["inputs"]["techniques"],
         "assumed": a["inputs"].get("assumed", []), "phase": a["phase"], "checks": a["checks"], "errors": a["errors"],
-        "timings_s": a["timings_s"], "evidence": ag["evidence"] if ag else bundle(a), "plots": _plots(sid, a, mtime),
+        "timings_s": a["timings_s"], "evidence": {**ag["evidence"], **bundle(a)} if fresh else ag["evidence"] if ag else bundle(a),
+        "plots": _plots(sid, a, mtime),
         "virtual_xafs": v and {k: v.get(k) for k in ("label", "absorber", "edge", "candidates", "members", "theta_K_range",
                                                       "recommendation", "vs_measured", "per_candidate")},
         "agents": ag and {**{k: ag.get(k) for k in ("model", "log", "rounds", "confirmed", "unsupported_numbers", "wall_s", "llm", "error")},
@@ -109,8 +116,11 @@ def view(sid: str) -> dict | None:
         "vision": ag and {t: {"accepted": x["accepted"], "verdict": x["visual"]["verdict"], "inspector": x["visual"]["inspector"],
                               "issues": x["visual"]["issues"], "numerical": x["numerical"], "steps": x.get("steps", [])}
                           for t, x in (ag.get("vision") or {}).items() if "visual" in x},
-        "report_md": ag["report_md"] if ag else report_markdown({"analysis": {**a, "priors": priors}}),
+        "report_md": ag["report_md"] if ag and not fresh else report_markdown({"analysis": {**a, "priors": priors}}),
         "priors": priors,
+        "raw_pdf": bool(folder and (folder / "pdf_iq.dat").exists()),
+        "user_settings": a["inputs"].get("user_settings") or {},
+        "restorable": (RUNS / f"{sid}.original.json").exists(),
     }
 
 
@@ -172,6 +182,28 @@ async def make_plan(request: Request) -> JSONResponse:
         return JSONResponse(await asyncio.to_thread(planner.plan, comp, cands, size, realism=realism))
     except ValueError as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
+
+
+async def generate_missing(request: Request) -> JSONResponse:
+    sid, cached = request.path_params["sid"], RUNS / f"{request.path_params['sid']}.json"
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    if not _folder(sid) or not cached.exists():
+        return JSONResponse({"error": "analyse the sample first: the curves come from its fitted model"}, status_code=404)
+    d = await request.json() if int(request.headers.get("content-length") or 0) else {}
+    realism = gan.realism if d.get("realistic", True) and gan.available()["loaded"] else None
+    try:
+        return JSONResponse(await asyncio.to_thread(generate.generate, json.loads(cached.read_text()), realism))
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+
+
+async def elements(request: Request) -> JSONResponse:
+    phases: dict[str, list[str]] = {}
+    for x in systems():
+        for e in sorted(_cations(x["formula"])):
+            phases.setdefault(e, []).append(x["name"])
+    return JSONResponse({"phases": phases})
 
 
 async def gan_status(request: Request) -> JSONResponse:
@@ -392,6 +424,8 @@ app = Starlette(routes=[
     Route("/api/uploads", upload, methods=["POST"]),
     Route("/api/uploads/inspect", inspect_upload, methods=["POST"]),
     Route("/api/plans", make_plan, methods=["POST"]),
+    Route("/api/samples/{sid}/generate", generate_missing, methods=["POST"]),
+    Route("/api/elements", elements),
     Route("/api/gan", gan_status),
     Route("/api/gan/showcase", gan_showcase),
     Route("/api/runs", create_run, methods=["POST"]),

@@ -72,6 +72,12 @@ shows no credentials and nothing in the clones was changed:
 - `xafs_backend` (4e9568a) and `xafs_frontend` (add424a), bitbucket.org/fccubicsaxs: upload and preprocessing only,
   no analysis code; nothing referenced.
 
+**Idea referenced, code written fresh: the composition periodic table.** At the user's request the composition picker
+follows `pdf_frontend`'s idea of choosing a sample's elements from a periodic table (block tints, a search box, an
+amount per picked element). `web/src/components/PeriodicTable.tsx` and `web/src/lib/elements.ts` are new code: the
+grid positions are computed from the atomic number, names come from pymatgen, and a dot marks elements with library
+candidates (`GET /api/elements`), which the reference does not do.
+
 They were cloned after Concord's pipeline was built (up to d2441bb), so its design does not come from them. Their
 preprocessing (raw data to S(Q) and G(r), PARA files, XAFS normalisation) was deliberately not used for ideas.
 

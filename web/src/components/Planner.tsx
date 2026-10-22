@@ -4,6 +4,7 @@ import { Compass, Detective, Waves } from "@phosphor-icons/react";
 import { post } from "@/lib/api";
 import { fmt } from "@/components/Value";
 import Plot from "@/components/Plot";
+import CompositionField from "@/components/PeriodicTable";
 
 type Tech = { x_label: string; y_label: string; x: number[]; curves: Record<string, number[]>; realistic: Record<string, number[]> | null;
   pairs: { a: string; b: string; separation: number; over_noise: number | null }[]; score: number };
@@ -79,7 +80,7 @@ export default function Planner({ initial, ganReady, onShowcase }: { initial?: s
 
         <form onSubmit={(e) => { e.preventDefault(); setExcluded([]); run(); }} className="grid gap-4 rounded-lg bg-surface p-4 shadow-ring sm:grid-cols-[1fr_1.3fr_auto] sm:items-end">
           <label className="grid gap-1 text-sm font-medium text-fg-2">Composition
-            <input value={composition} onChange={(e) => setComposition(e.target.value)} required placeholder="Pt3Co…" autoComplete="off" spellCheck={false} className="field font-normal" />
+            <CompositionField value={composition} onChange={setComposition} />
           </label>
           <label className="grid gap-1 text-sm font-medium text-fg-2">
             <span className="flex justify-between">Particle size <span className="font-normal tabular-nums text-muted">{size} nm</span></span>

@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev -H 127.0.0.1 -p 3000",
     "build": "next build",
-    "start": "next start -H 127.0.0.1 -p 3000"
+    "start": "next start -H 127.0.0.1 -p 3000",
+    "check": "node --experimental-strip-types --no-warnings scripts/check-elements.mts"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.10",

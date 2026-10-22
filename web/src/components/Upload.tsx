@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Compass, FileArrowUp, Play, Trash, UploadSimple, X } from "@phosphor-icons/react";
+import { Compass, FileArrowUp, Play, Sparkle, Trash, UploadSimple, X } from "@phosphor-icons/react";
 import { API } from "@/lib/api";
+import CompositionField from "@/components/PeriodicTable";
 
 type Kind = "xrd" | "pdf" | "xafs_mu" | "xafs_chi";
 type Inspected = {
@@ -100,8 +101,8 @@ export default function Upload({ open, onClose, onUploaded, onExample, onPlan }:
           <button type="button" onClick={onClose} className="btn btn-ghost -mr-2 -mt-1 px-2" aria-label="Close"><X size={18} weight="bold" /></button>
         </div>
         <label className={LABEL}>Composition
-          <input name="composition" required value={composition} onChange={(e) => setComposition(e.target.value)}
-            onBlur={() => items.length && inspect(items.map((i) => i.file))} placeholder="Pt3Co…" autoComplete="off" spellCheck={false} className="field font-normal" />
+          <CompositionField name="composition" value={composition} onChange={setComposition}
+            onBlur={() => items.length && inspect(items.map((i) => i.file))} onPick={(f) => items.length && inspect(items.map((i) => i.file), f)} />
         </label>
 
         <label onDragOver={(e) => { e.preventDefault(); setOver(true); }} onDragLeave={() => setOver(false)}
@@ -158,6 +159,12 @@ export default function Upload({ open, onClose, onUploaded, onExample, onPlan }:
           </details>
         ) : null}
 
+        {used.length > 0 && new Set(used.map((i) => i.kind.split("_")[0])).size < 3 ? (
+          <p className="flex items-start gap-1.5 text-xs text-muted">
+            <Sparkle size={14} weight="fill" className="mt-px shrink-0 text-accent" aria-hidden />
+            Missing a technique? After the analysis, the GAN we trained locally can generate the ones you did not measure from the fitted model, clearly marked as not measured.
+          </p>
+        ) : null}
         {error ? <p role="alert" className="rounded-md bg-bad-bg p-3 text-sm text-bad">{error}</p> : null}
         <div className="flex justify-end gap-2">
           <button type="button" onClick={onClose} className="btn btn-ghost">Cancel</button>

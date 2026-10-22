@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
-import { CheckCircle, XCircle, Wrench } from "@phosphor-icons/react";
+import { CheckCircle, Funnel, Sliders, XCircle, Wrench } from "@phosphor-icons/react";
 import { API, curvesKey, fetcher, type Curves, type View } from "@/lib/api";
 import Value from "@/components/Value";
 import Plot from "@/components/Plot";
@@ -22,7 +22,9 @@ export const Figure = ({ src, alt, caption, lazy }: { src: string; alt: string; 
   </figure>
 );
 
-export default function TechniqueTabs({ view, focus }: { view: View; focus?: { id: string; n: number } }) {
+export type Studio = { kind: "preprocess" | "analysis"; technique: string };
+
+export default function TechniqueTabs({ view, focus, onStudio }: { view: View; focus?: { id: string; n: number }; onStudio?: (s: Studio) => void }) {
   const ev = view.evidence;
   const { data: curves } = useSWR<Curves>(curvesKey(view), fetcher, { revalidateOnFocus: false });
   const tabs = TABS.filter((t) => view.plots[t.key] || t.ids(ev).some((id) => id in ev) || t.error.some((e) => e in view.errors));
@@ -51,6 +53,14 @@ export default function TechniqueTabs({ view, focus }: { view: View; focus?: { i
               <Plot key={tab.key} x={c.x} xLabel={c.x_label} yLabel={c.y_label} ticks={c.ticks} window={c.window} ariaLabel={`${c.title}: data, model and difference`}
                 series={[{ key: "obs", label: "data", y: c.obs, color: "var(--series-1)", width: 1.25 }, { key: "calc", label: "model", y: c.calc, color: "var(--series-2)", width: 1.5 }]}
                 diff={{ y: c.diff, label: "difference (data minus model)" }} />
+              {onStudio ? (
+                <div className="mt-3 flex flex-wrap gap-2 border-t border-line pt-3">
+                  {tab.key === "pdf" && view.raw_pdf ? (
+                    <button onClick={() => onStudio({ kind: "preprocess", technique: "pdf" })} className="btn btn-quiet"><Funnel size={16} weight="bold" aria-hidden />Open in preprocessing</button>
+                  ) : null}
+                  <button onClick={() => onStudio({ kind: "analysis", technique: tab.key })} className="btn btn-quiet"><Sliders size={16} weight="bold" aria-hidden />Open in analysis</button>
+                </div>
+              ) : null}
             </div>
           ) : pngs[0] ? <Figure src={pngs[0]} alt={`${tab.label} fit: data, model and difference`} />
             : <p className="text-sm text-meta">No fit plot for this technique.</p>}
