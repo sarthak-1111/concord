@@ -126,6 +126,15 @@ reduction code was not copied. Copied, from `bitbucket.org/fccubic/pdf_backend` 
   of the particle-size stage (Concord's envelope is in the model whenever it is on, and a diameter held at its XRD
   start would make C6 compare XRD with itself) and returns the stages; `concord/agents/fitter.py` gives the PDF fitting agent the copied prompt and judges each of its refits with
   the copied `should_accept`. The XRD and EXAFS agents are unchanged by this.
+- EXAFS specialist: structure copied/adapted from fccubic/pdf_backend `refinement.py` at `3bf4be1`, by the author's
+  decision on 2026-10-23; the reference has no EXAFS agent, so the stages and bounds are new. Adapted, not copied
+  line for line: the shape of `STAGES` (a fixed list of `key`/`label`/`free`/`why` dicts ending in a `with_kept`
+  consolidate stage), a `BOUNDS` table, `check_physical` returning a list of problem strings, and `should_accept`
+  with the reference's contract and 1 % minimum gain (on the EXAFS R-factor instead of Rw), in
+  `concord/agents/exafs_specialist.py`; its `SYSTEM` prompt follows the style of `SPECIALIST`/`REFINEMENT_NOTES`. New
+  in Concord: the EXAFS stages (ΔE0; ΔE0 + ΔR; σ²; N with σ²; consolidate), the EXAFS bounds and the staged mode of
+  `concord/tools/xafs.py` `shell_fit(staged=True)`. `run_exafs` does not use it (on s0019 it ends at R 0.0030
+  against 0.0019 for the one-shot fit). Nothing from fccubicsaxs/xafs_backend was copied.
 
 ## 3b. Concord Forge (the user's own repository, used at run time)
 

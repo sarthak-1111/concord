@@ -109,7 +109,7 @@ def first_shell_paths(paths: list, rmin: float, rmax: float) -> dict:
 @tool
 def shell_fit(k: np.ndarray, chi: np.ndarray, paths: list, s02: float, kmin: float = 3.0, kmax: float = 12.0,
               rmin: float = 1.0, rmax: float | None = None, kweight: float = 2.0, dk: float = 1.0, shell_tol: float = 0.35,
-              outer: float = 2.0, extra: list | None = None) -> dict:
+              outer: float = 2.0, extra: list | None = None, staged: bool = False) -> dict:
     """First-coordination-shell fit: N, ΔR, σ² per neighbour element whose nearest path lies within `shell_tol`
     of the overall nearest neighbour (e.g. Pt and Co in Pt3Co), plus a shared ΔE0, in the R window [rmin, rmax]
     (default: nearest + 1.0 Å). Every other path out to nearest + `outer` Å enters as a structural background
@@ -141,32 +141,77 @@ def shell_fit(k: np.ndarray, chi: np.ndarray, paths: list, s02: float, kmin: flo
             w = getattr(p, "site_weight", 1.0)  # spherical-particle truncation of the outer shells, γ0(R; D), as in the PDF envelope
             fit_paths[f"bg{j}"] = feffpath(p.filename, s02=f"s02*{w:.6f}*(1 - 1.5*reff/d_out + 0.5*(reff/d_out)**3)", e0="de0",
                                            deltar="alpha_out*reff", sigma2="ss_out")
-    params = param_group(**pars)
     trans = feffit_transform(kmin=kmin, kmax=kmax, kweight=kweight, dk=dk, window="hanning", rmin=rmin, rmax=rmax, fitspace="r")
     dset = feffit_dataset(data=Group(k=np.asarray(k, float), chi=np.asarray(chi, float)), paths=fit_paths, transform=trans)
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        out = feffit(params, dset)
-    res = out.params
-    val = lambda name: (float(res[name].value), float(res[name].stderr) if res[name].stderr is not None else None)
-    rows = []
-    for i, (el, p) in enumerate(shells.items()):
-        (n, dn), (dr, ddr), (ss, dss) = val(f"n{i}"), val(f"dr{i}"), val(f"ss{i}")
-        rows.append({"neighbor": el, "N": n, "N_err": dn, "R_A": float(p.reff + dr), "R_err": ddr, "sigma2": ss,
-                     "sigma2_err": dss, "reff_A": float(p.reff), "N_model": float(p.degen)})
-    for j, p in enumerate(extra or []):
-        (n, dn), (dr, ddr), (ss, dss) = val(f"nx{j}"), val(f"drx{j}"), val(f"ssx{j}")
-        rows.append({"neighbor": p.geom[1][0], "N": n, "N_err": dn, "R_A": float(p.reff + dr), "R_err": ddr, "sigma2": ss,
-                     "sigma2_err": dss, "reff_A": float(p.reff), "N_model": 0.0, "extra": True})
-    de0 = val("de0")
-    d = out.datasets[0]
-    curves = {"r": np.asarray(d.data.r), "chir_mag_data": np.asarray(d.data.chir_mag), "chir_mag_model": np.asarray(d.model.chir_mag),
-              "k": np.asarray(d.data.k), "chi_data": np.asarray(d.data.chi), "chi_model": np.asarray(d.model.chi)}
-    return {"shells": rows, "e0_shift": de0[0], "e0_err": de0[1], "s02": s02, "rfactor": float(out.rfactor), "curves": curves,
-            "chi2_reduced": float(out.chi2_reduced), "n_idp": float(out.n_independent), "n_varys": int(out.nvarys),
-            "background": {"n_paths": len(background), **({k_: val(k_)[0] for k_ in ("d_out", "alpha_out", "ss_out")} if background else {})},
-            "window": {"kmin": kmin, "kmax": kmax, "rmin": rmin, "rmax": rmax, "kweight": kweight}}
 
+    def run(params):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            return feffit(params, dset)
+
+    def summary(out, val):
+        rows = []
+        for i, (el, p) in enumerate(shells.items()):
+            (n, dn), (dr, ddr), (ss, dss) = val(f"n{i}"), val(f"dr{i}"), val(f"ss{i}")
+            rows.append({"neighbor": el, "N": n, "N_err": dn, "R_A": float(p.reff + dr), "R_err": ddr, "sigma2": ss,
+                         "sigma2_err": dss, "reff_A": float(p.reff), "N_model": float(p.degen)})
+        for j, p in enumerate(extra or []):
+            (n, dn), (dr, ddr), (ss, dss) = val(f"nx{j}"), val(f"drx{j}"), val(f"ssx{j}")
+            rows.append({"neighbor": p.geom[1][0], "N": n, "N_err": dn, "R_A": float(p.reff + dr), "R_err": ddr, "sigma2": ss,
+                         "sigma2_err": dss, "reff_A": float(p.reff), "N_model": 0.0, "extra": True})
+        de0 = val("de0")
+        d = out.datasets[0]
+        curves = {"r": np.asarray(d.data.r), "chir_mag_data": np.asarray(d.data.chir_mag), "chir_mag_model": np.asarray(d.model.chir_mag),
+                  "k": np.asarray(d.data.k), "chi_data": np.asarray(d.data.chi), "chi_model": np.asarray(d.model.chi)}
+        return {"shells": rows, "e0_shift": de0[0], "e0_err": de0[1], "s02": s02, "rfactor": float(out.rfactor), "curves": curves,
+                "chi2_reduced": float(out.chi2_reduced), "n_idp": float(out.n_independent), "n_varys": int(out.nvarys),
+                "background": {"n_paths": len(background), **({k_: val(k_)[0] for k_ in ("d_out", "alpha_out", "ss_out")} if background else {})},
+                "window": {"kmin": kmin, "kmax": kmax, "rmin": rmin, "rmax": rmax, "kweight": kweight}}
+
+    if staged:
+        return _staged(pars, run, summary)
+    out = run(param_group(**pars))
+    res = out.params
+    return summary(out, lambda name: (float(res[name].value), float(res[name].stderr) if res[name].stderr is not None else None))
+
+
+def _group(name: str) -> str:
+    """shell_fit parameter name -> its stage group (exafs_specialist.STAGES)."""
+    if name in ("d_out", "alpha_out", "ss_out"):
+        return "background"
+    if name == "de0":
+        return "e0"
+    return {"dr": "distances", "ss": "disorder", "n": "coordination"}[name.rstrip("0123456789").rstrip("x")]
+
+
+def _staged(pars: dict, run, summary) -> dict:
+    """The EXAFS ladder (exafs_specialist.STAGES): each stage starts from the best fit so far, frees only its
+    groups, and is kept only if should_accept passes; otherwise its values are restored and its groups stay fixed.
+    Uncertainties are those of the last kept fit that refined each parameter."""
+    from concord.agents.exafs_specialist import STAGES, should_accept
+    names = [n for n in pars if n != "s02"]
+    values = {n: float(p.value) for n, p in pars.items()}
+    bounds = {n: (p.min, p.max) for n, p in pars.items()}
+    stderr, kept, stages, best, prev = {}, set(), [], None, None
+    for st in STAGES:
+        groups = set(st["free"]) | (kept if st.get("with_kept") else set())
+        free = [n for n in names if _group(n) in groups]
+        out = run(param_group(**{n: param(values[n], vary=n in free, min=bounds[n][0], max=bounds[n][1]) for n in pars}))
+        res = out.params
+        fitted = {n: float(res[n].value) for n in names}
+        errs = {n: float(res[n].stderr) if res[n].stderr is not None else None for n in free}
+        result = summary(out, lambda n: (fitted[n], errs.get(n, stderr.get(n))))
+        ok, why = should_accept(prev, result)
+        stages.append({"key": st["key"], "label": st["label"], "free": sorted(groups), "rfactor": result["rfactor"], "kept": ok, "why": why})
+        if ok:
+            values.update(fitted)
+            stderr.update(errs)
+            kept |= set(st["free"])
+            best, prev = result, result["rfactor"]
+    if best is None:  # no stage passed the gate: say so rather than return the start model as a fit
+        raise ValueError("staged EXAFS fit: no stage passed the physical/R-factor gate: "
+                         + "; ".join(f"{s['label']}: {s['why']}" for s in stages))
+    return {**best, "stages": stages}
 
 def probe_path(absorber: str, edge: str, neighbor: str = "O", r: float = 2.0):
     """Absorber–neighbour single-scattering path from a small octahedral cluster: a test shell for an
