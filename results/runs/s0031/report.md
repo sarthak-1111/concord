@@ -1,10 +1,10 @@
 # Concord report — s0031 (Pt)
 
-**Metallic Pt is the only candidate matching any measurements, but cross‑technique consistency checks fail, indicating missing phases or structural disorder.**
+**Phase assignment is ambiguous; no candidate structure fits both XRD and PDF data within the defined tolerances.**
 
 Phase: **None**
 
-Metallic Pt is the only candidate that matches any of the measurements, but several cross‑technique consistency checks fail, indicating missing phases or structural disorder.
+No candidate phase fits both XRD and PDF data within tolerances; Pt is the most likely candidate from XRD alone but PDF fit is poor. Several checks indicate mismatches in coordination, disorder, and particle size. Vision inspection also rejects XRD, PDF, and EXAFS fits.
 
 ## Key numbers (from the tools)
 
@@ -16,10 +16,10 @@ Metallic Pt is the only candidate that matches any of the measurements, but seve
 
 ## Evidence by technique
 
-- **XRD**: XRD ranking shows Pt as the dominant phase (score = 0.7377, profile_corr = 0.8644) but accounts for only 54.8 % of the observed diffraction area, and two peaks at 10.06° and 38.1° remain unexplained.
-- **PDF**: PDF fit to Pt yields a high Rw of 0.5054, a lattice parameter a = 4.037 Å (reference = 3.922 Å, 2.94 % larger), and a particle size of 1.61 nm, all indicating a poor fit.
-- **EXAFS**: EXAFS fit has an R‑factor of 0.06095 and a Pt–Pt coordination number N = 13.13 ± 2.18, which exceeds the surface‑adjusted model value of 8.84 by 4.29.
-- **XANES**: XANES linear‑combination fitting gives 100 % Pt⁰ (valence = 0.0) with no contribution from oxidized Pt species.
+- **XRD**: XRD ranking identifies Pt as the best matching phase with a score of 0.738, profile correlation of 0.864, and explains ~55 % of the observed area fraction.
+- **PDF**: PDF fitting yields Pt as the best candidate (Rw = 0.505) but the fit quality exceeds the acceptable limit (Rw > 0.25) and the refined lattice parameter a = 4.037 Å shows a relative change of 0.0294 versus the reference, far above the warn threshold of 0.003.
+- **EXAFS**: EXAFS bond length for the Pt–Pt pair (R = 2.847 ± 0.012 Å) matches the PDF‑refined distance (2.855 Å) within 0.007 Å, satisfying the bond‑length tolerance; however, the coordination number (N = 13.13 ± 2.18) exceeds the model expectation (bulk N = 12, surface‑adjusted N ≈ 8.84) by 4.29, indicating over‑coordination, and an additional Pt–O shell (N = 0.118 ± 0.531) is not statistically significant.
+- **XANES**: XANES linear‑combination fitting shows Pt in the metallic state (Pt⁰ = 1.0, Pt²⁺ = 0, Pt⁴⁺ = 0) and the bond‑valence sum also yields a valence of 0, confirming a zero oxidation state.
 
 ## Cross-technique checks
 
@@ -52,15 +52,17 @@ Against the measured spectrum: R-factor 0.6027 in R 1.0–3.5 Å.
 
 ## Claims
 
-0. The sample is metallic Pt, as indicated by the composition label, XANES linear combination fitting (100 % Pt⁰) and bond‑valence sum (valence = 0). _(evidence: sample, xanes, bvs)_
-1. XRD ranking shows Pt as the dominant crystalline phase (score = 0.7377, profile correlation = 0.8644) but only explains 54.8 % of the observed diffraction area; two peaks at 10.06° and 38.1° remain unexplained, suggesting additional unmodelled phase(s). _(evidence: xrd.ranking, check.C1, vision.xrd)_
-2. Phase‑consistency check C1 fails: the PDF best fit to Pt has a high Rw of 0.5054 (above the 0.25 limit) and the lattice parameter differs by 2.94 % from the reference, indicating that the true phase may be missing from the candidate list. _(evidence: pdf.fit.Pt, pdf.best, check.C1)_
-3. PDF fit to Pt yields a lattice parameter a = 4.037 Å (reference = 3.922 Å) and a particle size psize = 1.61 nm, but the fit quality (Rw = 0.5054) is poor. _(evidence: pdf.fit.Pt, pdf.best)_
-4. EXAFS bond length for the Pt–Pt pair (R = 2.847 Å) matches the PDF‑model distance (2.855 Å) within 0.007 Å, satisfying the bond‑length consistency check (C2). _(evidence: exafs.fit, check.C2)_
-5. EXAFS coordination number for Pt–Pt (N = 13.13 ± 2.18) exceeds the surface‑adjusted model value (8.84) by 4.29, failing the coordination‑number check (C3) and suggesting surface segregation, vacancies or disorder. _(evidence: exafs.fit, check.C3)_
-6. The disorder ratio (EXAFS σ² = 0.01309 Å² vs PDF σ² ≈ 0.01409 Å²) is 0.276, below the acceptable 0.3–1.3 range, triggering a warning (C5) that points to static disorder or a distinct surface layer. _(evidence: check.C5)_
-7. Particle‑size estimates differ: XRD sphere diameter = 2.66 nm (Scherrer = 2.16 nm) versus PDF particle diameter = 1.61 nm, a relative difference of 0.65, which fails the size‑consistency check (C6). _(evidence: xrd.size, pdf.fit.Pt, check.C6)_
-8. Joint simulation scores rank Pt as the best overall candidate (score = 0.4147) with a margin of 0.1665 over the next best, supporting Pt as the most plausible phase among the tested list. _(evidence: check.C7)_
+0. Phase assignment is ambiguous; no candidate structure fits both XRD and PDF data within the defined tolerances. _(evidence: check.C1)_
+1. XRD ranking identifies Pt as the best matching phase with a score of 0.738, profile correlation of 0.864, and explains ~55 % of the observed area fraction. _(evidence: xrd.ranking)_
+2. PDF fitting yields Pt as the best candidate (Rw = 0.505) but the fit quality exceeds the acceptable limit (Rw > 0.25) and the refined lattice parameter (a = 4.037 Å) shows a relative change of 0.0294 versus the reference, far above the warn threshold of 0.003. _(evidence: pdf.fit.Pt, check.C1)_
+3. EXAFS bond length for the Pt–Pt pair (R = 2.847 ± 0.012 Å) matches the PDF‑refined distance (2.855 Å) within 0.007 Å, satisfying the bond‑length tolerance. _(evidence: exafs.fit, check.C2)_
+4. EXAFS coordination number for Pt–Pt (N = 13.13 ± 2.18) exceeds the model expectation (bulk N = 12, surface‑adjusted N ≈ 8.84) by 4.29, indicating over‑coordination or a model mismatch. _(evidence: exafs.fit, check.C3)_
+5. An additional Pt–O shell is present at low occupancy (N = 0.118 ± 0.531) but does not improve the fit (rfactor change negligible), so it is not statistically significant. _(evidence: exafs.extra_shell, check.C3)_
+6. XANES linear‑combination fitting shows Pt in the metallic state (Pt⁰ = 1.0, Pt²⁺ = 0, Pt⁴⁺ = 0) and the bond‑valence sum also yields a valence of 0, confirming a zero oxidation state. _(evidence: xanes, bvs, check.C4)_
+7. The disorder ratio (EXAFS σ² = 0.01309 Å² vs. PDF σ² ≈ 0.01409 Å²) equals 0.276, which is below the acceptable range (0.3–1.3), suggesting static disorder or a surface‑layer effect. _(evidence: check.C5)_
+8. Particle size from XRD (sphere diameter = 2.66 nm, Scherrer = 2.16 nm) is substantially larger than the PDF‑derived particle diameter (1.61 nm), giving a relative difference of 0.65 (> 0.5), indicating a size discrepancy between volume‑weighted XRD and number‑weighted PDF. _(evidence: xrd.size, pdf.fit.Pt, check.C6)_
+9. Joint simulation scores across XRD, PDF, and EXAFS rank Pt as the best overall candidate (combined score = 0.415) with a margin of 0.167 over the next best model, though individual checks reveal significant mismatches. _(evidence: check.C7)_
+10. Vision inspection rejects all three techniques: XRD due to unexplained peaks at 10.06° and 38.1°; PDF due to high Rw (0.505) and envelope decay issues; EXAFS due to an R‑factor of 0.061 (> 0.05). These rejections corroborate the need for additional phases or model refinement. _(evidence: vision.xrd, vision.pdf, vision.exafs)_
 
 ## Objections and resolutions
 
@@ -68,8 +70,8 @@ The critic raised no objections.
 
 ## Limitations
 
-- Phase‑consistency check C1 fails (PDF Rw = 0.505 > 0.25, lattice deviation = 0.0294).
-- Coordination‑number check C3 fails (difference = 4.29 > 2.0).
-- Disorder ratio check C5 warns (ratio = 0.276 < 0.3).
-- Size‑consistency check C6 fails (relative difference = 0.65 > 0.5).
-- EXAFS R‑factor exceeds the acceptable limit (0.06095 > 0.05).
+- Check C1 (phase consistency) fails: XRD phase Pt (score 0.738, area explained 0.548) vs PDF phase Pt (Rw 0.505) with lattice rel. change 0.0294, exceeding tolerances.
+- Check C3 (coordination numbers) fails: EXAFS N exceeds model by 4.29, beyond the fail threshold of 2.0.
+- Check C5 (disorder) warns: EXAFS σ²/ PDF σ² ratio = 0.276, below the acceptable range 0.3–1.3.
+- Check C6 (size) fails: XRD sphere diameter 2.66 nm (Scherrer 2.16 nm) vs PDF particle diameter 1.61 nm, relative difference 0.65 (> 0.5).
+- Vision inspection rejects XRD due to unexplained peaks at 10.06° and 38.1°; rejects PDF because Rw 0.505 (> 0.25) and envelope decay issues; rejects EXAFS because R‑factor 0.0610 (> 0.05).

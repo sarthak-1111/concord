@@ -1,4 +1,4 @@
-.PHONY: setup hooks health test structures data data-big validate eval eval-agents analyze ui api
+.PHONY: setup hooks health test structures data raw-pdf data-big validate eval eval-agents analyze ui api
 
 setup: hooks
 	uv sync
