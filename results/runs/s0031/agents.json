@@ -1,84 +1,55 @@
 {
  "sample_id": "s0031",
  "model": {
-  "summary": "No single candidate structure fits both XRD and PDF data, so the phase cannot be assigned confidently.",
+  "phase": "null",
+  "summary": "Phase consistency fails; XRD indicates missing peaks at 10.06\u00b0 and 38.35\u00b0 and adding Pt3Co contributes 0\u202f% intensity (RMS unchanged), while PDF fit for Pt is poor (Rw\u202f=\u202f0.509\u202f>\u202f0.25) and lattice change (0.03) exceeds tolerance (0.003). No candidate matches both techniques, so overall phase set to null.",
   "claims": [
    {
-    "statement": "Phase consistency between XRD and PDF fails; no candidate among Pt, Pt3Co, PtNi, PtO2 fits both datasets, so the phase cannot be assigned.",
+    "statement": "Phase consistency fails; set overall phase to null.",
     "evidence": [
-     "check.C1"
+     "check.C1",
+     "rerun.R2.1.xrd_add_phase",
+     "vision.xrd"
     ]
    },
    {
-    "statement": "XRD ranking shows Pt has the highest fit score of 0.7377, profile correlation 0.8644, and explains 54.8% of observed area.",
-    "evidence": [
-     "xrd.ranking"
-    ]
-   },
-   {
-    "statement": "PDF fitting identifies Pt as the best model with Rw 0.5054, lattice parameter a\u202f=\u202fb\u202f=\u202fc\u202f=\u202f4.037\u202f\u00c5, particle size 1.61\u202fnm, delta2 5.729, and isotropic displacement parameter U_iso(Pt)\u202f=\u202f0.02371.",
-    "evidence": [
-     "pdf.best",
-     "pdf.fit.Pt"
-    ]
-   },
-   {
-    "statement": "EXAFS analysis for Pt yields Rfactor 0.003549, edge energy shift -0.03232\u202feV, Pt\u2013Pt distance 2.852\u202f\u00c5, coordination number 11.54\u202f\u00b1\u202f0.55, and Debye\u2011Waller factor \u03c3\u00b2\u202f=\u202f0.0114\u202f\u00c5\u00b2.",
-    "evidence": [
-     "exafs.fit"
-    ]
-   },
-   {
-    "statement": "XANES L\u2083 edge linear combination fitting gives 100\u202f% Pt\u2070, 0\u202f% Pt\u00b2\u207a, 0\u202f% Pt\u2074\u207a, with valence 0.0, matching the bond\u2011valence sum valence of 0.0.",
-    "evidence": [
-     "xanes",
-     "bvs"
-    ]
-   },
-   {
-    "statement": "Bond lengths from EXAFS (2.852\u202f\u00c5) match the PDF model (2.855\u202f\u00c5) within 0.003\u202f\u00c5, well inside the tolerance of 0.02\u202f\u00c5.",
+    "statement": "EXAFS Pt\u2013Pt bond length (2.85\u202f\u00c5) matches PDF model (2.856\u202f\u00c5) within 0.0058\u202f\u00c5.",
     "evidence": [
      "check.C2"
     ]
    },
    {
-    "statement": "EXAFS coordination number (11.54) exceeds the surface\u2011adjusted model expectation (8.84) by 2.69, surpassing the fail threshold of 2.0, indicating possible surface segregation, vacancies, or disorder.",
+    "statement": "EXAFS Pt\u2013Pt coordination number (11.25\u202f\u00b1\u202f1.5) deviates from model expectation (8.14) by 3.1, indicating surface under\u2011coordination or vacancies.",
     "evidence": [
      "check.C3"
     ]
    },
    {
-    "statement": "Oxidation state assessment shows metallic Pt (valence 0.0) with zero discrepancy between XANES and bond\u2011valence sum, satisfying metallic model criteria.",
+    "statement": "XANES LCF shows 100\u202f% Pt\u2070 and bond\u2011valence sum gives valence\u202f0.0, confirming a metallic Pt state.",
     "evidence": [
      "check.C4"
     ]
    },
    {
-    "statement": "Disorder ratio \u03c3\u00b2_EXAFS / \u03c3\u00b2_PDF is 0.24, below the acceptable range 0.3\u20131.3, suggesting static disorder or a distinct surface layer not captured equally by the two probes.",
+    "statement": "Disorder ratio (EXAFS/PDF \u03c3\u00b2) is 0.287, below the lower bound 0.3, implying static disorder or a distorted first shell.",
     "evidence": [
      "check.C5"
     ]
    },
    {
-    "statement": "Size comparison reveals XRD sphere diameter 2.657\u202fnm and Scherrer median 2.16\u202fnm are larger than PDF particle size 1.61\u202fnm, with relative difference 0.65 exceeding the fail limit of 0.5, indicating a size distribution or surface\u2011related shrinkage in the PDF.",
+    "statement": "Size discrepancy: XRD sphere diameter 2.63\u202fnm vs PDF particle diameter 1.31\u202fnm yields relative difference 1.007, exceeding the fail threshold 0.5.",
     "evidence": [
      "check.C6"
     ]
    },
    {
-    "statement": "Joint simulation scores are: Pt\u202f=\u202f0.4147, Pt\u2083Co\u202f=\u202f0.5812, PtO\u2082\u202f=\u202f0.9147; Pt has the lowest score, making it the most consistent candidate across XRD, PDF, and EXAFS.",
+    "statement": "Joint simulation: Pt has the lowest joint score (0.3894) with margin 0.1716, making it the best candidate among those tested.",
     "evidence": [
      "check.C7"
     ]
    },
    {
-    "statement": "Virtual XAFS predicts an Rfactor of 0.603 for Pt, higher than the measured 0.003549, confirming the measured EXAFS quality; predictions for Pt\u2083Co (0.7813) and PtO\u2082 (0.9108) are even larger.",
-    "evidence": [
-     "virtual_xafs"
-    ]
-   },
-   {
-    "statement": "Vision inspection rejects the XRD fit (extra peaks, unresolved phase) and the PDF fit (lattice drift, high Rw), while the EXAFS fit is accepted.",
+    "statement": "Visual inspection summary: XRD rejected, PDF rejected, EXAFS accepted.",
     "evidence": [
      "vision.xrd",
      "vision.pdf",
@@ -88,44 +59,98 @@
   ],
   "responses": []
  },
- "log": [],
- "rounds": 1,
- "confirmed": [],
+ "log": [
+  {
+   "round": 1,
+   "id": "R1.1",
+   "objection": "Phase consistency fails; set overall phase to null.",
+   "claim": 1,
+   "cited": [
+    "check.C1"
+   ],
+   "action": "exafs_window_scan",
+   "args": {},
+   "status": "confirmed",
+   "finding": "N over kmax 10-12: Pt 11.58-13.13",
+   "result_id": "rerun.R1.1.exafs_window_scan"
+  },
+  {
+   "round": 2,
+   "id": "R2.1",
+   "objection": "The claim that the overall phase should be set to null ignores the XRD inspector's identification of missing diffraction peaks (10.06\u00b0 and 38.35\u00b0) and the suggested addition of a second phase; a rerun adding a second candidate phase is required to test whether phase consistency can be restored.",
+   "claim": 1,
+   "cited": [
+    "vision.xrd",
+    "check.C1"
+   ],
+   "action": "xrd_add_phase",
+   "args": {
+    "candidate": "Pt3Co"
+   },
+   "status": "not confirmed",
+   "finding": "adding Pt3Co (0 % of the simulated intensity) takes the XRD residual RMS from 540 to 540",
+   "result_id": "rerun.R2.1.xrd_add_phase"
+  },
+  {
+   "round": 3,
+   "id": "R3.1",
+   "objection": "The claim that the overall phase should be set to null is not fully justified; while the phase\u2011consistency check fails for the single\u2011phase models, the possibility that a different second phase (e.g., PtO2) could resolve the missing XRD peaks and improve PDF agreement has not been tested.",
+   "claim": 1,
+   "cited": [
+    "check.C1",
+    "vision.xrd",
+    "rerun.R2.1.xrd_add_phase"
+   ],
+   "action": "xrd_add_phase",
+   "args": {
+    "candidate": "PtO2"
+   },
+   "status": "not confirmed",
+   "finding": "adding PtO2 (23 % of the simulated intensity) takes the XRD residual RMS from 540 to 519.6",
+   "result_id": "rerun.R3.1.xrd_add_phase"
+  }
+ ],
+ "rounds": 3,
+ "confirmed": [
+  "R1.1"
+ ],
  "unsupported_numbers": [],
- "report_md": "# Concord report \u2014 s0031 (Pt)\n\n**Phase cannot be assigned confidently as no single candidate fits both XRD and PDF data.**\n\nPhase: **None**\n\nNo single candidate structure fits both XRD and PDF data, so the phase cannot be assigned confidently.\n\n## Key numbers (from the tools)\n\n- **XRD**: best match Pt (profile correlation 0.864, 55 % of the peak area explained); sphere diameter 2.7 nm from 1 indexed reflections\n- **PDF**: Pt refines to Rw 0.505; a 4.0371 \u00c5; U_iso Pt 0.0237 \u00c5\u00b2; particle diameter 1.6 nm\n- **EXAFS** (Pt L3): Pt\u2013Pt N 11.5 \u00b1 0.6 at 2.852 \u00c5, \u03c3\u00b2 0.0114 \u00c5\u00b2; R-factor 0.0035\n- **XANES**: Pt valence 0.00 from a linear combination of standards, 0.04 from the edge position\n- **Bond valence** (PDF model): 0.00\n\n## Evidence by technique\n\n- **XRD**: The XRD ranking gives Pt a fit score of 0.7377, a profile correlation of 0.8644, and it explains 54.8% of the observed area.\n- **PDF**: PDF fitting identifies Pt as the best model with Rw\u202f=\u202f0.5054, lattice parameters a\u202f=\u202fb\u202f=\u202fc\u202f=\u202f4.037\u202f\u00c5, particle size\u202f=\u202f1.61\u202fnm, delta2\u202f=\u202f5.729 and isotropic displacement U_iso(Pt)\u202f=\u202f0.02371.\n- **EXAFS**: EXAFS analysis for Pt yields an Rfactor of 0.003549, edge\u2011energy shift of \u20130.03232\u202feV, Pt\u2013Pt distance of 2.852\u202f\u00c5, coordination number 11.54\u202f\u00b1\u202f0.55 and \u03c3\u00b2\u202f=\u202f0.0114\u202f\u00c5\u00b2.\n- **XANES**: XANES L\u2083\u2011edge linear combination fitting gives 100\u202f% Pt\u2070, 0\u202f% Pt\u00b2\u207a, 0\u202f% Pt\u2074\u207a, with a valence of 0.0, matching the bond\u2011valence\u2011sum valence of 0.0.\n\n## Cross-technique checks\n\n| check | status | explanation |\n|---|---|---|\n| C1 Phase consistency (XRD vs PDF) | **FAIL** | No candidate structure fits the PDF (best Rw 0.51 for Pt). The true phase may be missing from the candidate list, or the sample label is wrong. |\n| C2 Bond lengths (EXAFS R vs PDF model) | pass | EXAFS bond lengths match the PDF-refined model. |\n| C3 Coordination numbers (EXAFS N vs model) | **FAIL** | EXAFS coordination differs from the model by up to 2.7: segregation, vacancies or a disordered surface. |\n| C4 Oxidation state (XANES vs bond-valence sum) | pass | XANES and the bond-valence sum agree. |\n| C5 Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) | **warn** | EXAFS/PDF disorder ratio 0.24\u20130.24 is outside 0.3\u20131.3: static disorder (a distorted or split first shell) or a surface layer seen differently by the two probes. |\n| C6 Size (XRD vs PDF) | **FAIL** | XRD sees larger crystallites than the PDF particle diameter: XRD is volume-weighted (large particles dominate) while the PDF envelope is closer to a number average, or a disordered surface shell shortens the PDF range. |\n| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | Pt has the best joint score (margin 0.167). |\n\n## Virtual XAFS \u2014 PREDICTED, NOT MEASURED\n\nPt L3 EXAFS computed with FEFF from the PDF-refined model (Pt; 24 ensemble members, Debye temperature 97\u201398 K). This edge was measured, so the prediction serves as a consistency check against the measurement.\n\nAgainst the measured spectrum: R-factor 0.6027 in R 1.0\u20133.5 \u00c5.\n\n## Literature priors (other samples: context, not constraints)\n\n- Pt\u2013Pt bond length 2.876 \u00b1 0.028 \u00c5, [doi:10.2533/chimia.2008.287](https://doi.org/10.2533/chimia.2008.287) (2008): \u00abA Pt\u2013Pt distance of 2.876(28) \u00c5 and a Pt\u2013P bond length of 2.32(4) \u00c5 are obtained.\u00bb\n- Pt oxidation state 4, [doi:10.1039/c2mt20053h](https://doi.org/10.1039/c2mt20053h) (2012): \u00abReduction of Pt(IV) complexes over time in cell growth media and A2780 cells was observed by XANES, and shown to correspond with their reduction potentials and cytotoxicities.\u00bb\n- particle size 5 nm, [doi:10.1103/physrevb.85.075439](https://doi.org/10.1103/physrevb.85.075439) (2012): \u00abThe estimation of metal nanoparticle diameter by analysis of extended x-ray absorption fine structure (EXAFS) data from coordination numbers is nontrivial, particularly for particles 5 nm in diameter, for which the under\u00bb\n- particle size 3 nm, [doi:10.48550/arXiv.2406.01004](https://doi.org/10.48550/arXiv.2406.01004) (2024): \u00abWe successfully synthesized Pt@ZIF-8 in two steps, the average particle size of Pt nanoparticles is about 3 nm.\u00bb\n- particle size 1.5 nm, [doi:10.1103/physrevb.84.245438](https://doi.org/10.1103/physrevb.84.245438) (2011): \u00abFor large NP sizes (diameter $d$ >1.5 nm) \\ensuremath{\\Theta}${}_{D}$ was found to decrease toward \\ensuremath{\\Theta}${}_{D}$ of bulk Pt with increasing NP size.\u00bb\n- particle size 4 nm, [doi:10.1039/b303911k](https://doi.org/10.1039/b303911k) (2003): \u00abSignificant size effects are observed in the particle size interval from ca. 1 to 4 nm, including the positive shift of the CO stripping peak with decreasing particle size and a pronounced asymmetry of the current transi\u00bb\n- particle size 2 nm, [doi:10.1039/b821622n](https://doi.org/10.1039/b821622n) (2009): \u00abOur model demonstrates that, due to rapid changes in the Gibbs\u2013Thomson energy, particle size effects dominate degradation for \u223c2 nm particles but play almost no role for \u223c5 nm particles.\u00bb\n- particle size 5 nm, [doi:10.1039/b821622n](https://doi.org/10.1039/b821622n) (2009): \u00abOur model demonstrates that, due to rapid changes in the Gibbs\u2013Thomson energy, particle size effects dominate degradation for \u223c2 nm particles but play almost no role for \u223c5 nm particles.\u00bb\n\n## Claims\n\n0. Phase consistency between XRD and PDF fails; no candidate among Pt, Pt3Co, PtNi, PtO2 fits both datasets, so the phase cannot be assigned. _(evidence: check.C1)_\n1. XRD ranking shows Pt has the highest fit score of 0.7377, profile correlation 0.8644, and explains 54.8% of observed area. _(evidence: xrd.ranking)_\n2. PDF fitting identifies Pt as the best model with Rw 0.5054, lattice parameter a\u202f=\u202fb\u202f=\u202fc\u202f=\u202f4.037\u202f\u00c5, particle size 1.61\u202fnm, delta2 5.729, and isotropic displacement parameter U_iso(Pt)\u202f=\u202f0.02371. _(evidence: pdf.best, pdf.fit.Pt)_\n3. EXAFS analysis for Pt yields Rfactor 0.003549, edge energy shift -0.03232\u202feV, Pt\u2013Pt distance 2.852\u202f\u00c5, coordination number 11.54\u202f\u00b1\u202f0.55, and Debye\u2011Waller factor \u03c3\u00b2\u202f=\u202f0.0114\u202f\u00c5\u00b2. _(evidence: exafs.fit)_\n4. XANES L\u2083 edge linear combination fitting gives 100\u202f% Pt\u2070, 0\u202f% Pt\u00b2\u207a, 0\u202f% Pt\u2074\u207a, with valence 0.0, matching the bond\u2011valence sum valence of 0.0. _(evidence: xanes, bvs)_\n5. Bond lengths from EXAFS (2.852\u202f\u00c5) match the PDF model (2.855\u202f\u00c5) within 0.003\u202f\u00c5, well inside the tolerance of 0.02\u202f\u00c5. _(evidence: check.C2)_\n6. EXAFS coordination number (11.54) exceeds the surface\u2011adjusted model expectation (8.84) by 2.69, surpassing the fail threshold of 2.0, indicating possible surface segregation, vacancies, or disorder. _(evidence: check.C3)_\n7. Oxidation state assessment shows metallic Pt (valence 0.0) with zero discrepancy between XANES and bond\u2011valence sum, satisfying metallic model criteria. _(evidence: check.C4)_\n8. Disorder ratio \u03c3\u00b2_EXAFS / \u03c3\u00b2_PDF is 0.24, below the acceptable range 0.3\u20131.3, suggesting static disorder or a distinct surface layer not captured equally by the two probes. _(evidence: check.C5)_\n9. Size comparison reveals XRD sphere diameter 2.657\u202fnm and Scherrer median 2.16\u202fnm are larger than PDF particle size 1.61\u202fnm, with relative difference 0.65 exceeding the fail limit of 0.5, indicating a size distribution or surface\u2011related shrinkage in the PDF. _(evidence: check.C6)_\n10. Joint simulation scores are: Pt\u202f=\u202f0.4147, Pt\u2083Co\u202f=\u202f0.5812, PtO\u2082\u202f=\u202f0.9147; Pt has the lowest score, making it the most consistent candidate across XRD, PDF, and EXAFS. _(evidence: check.C7)_\n11. Virtual XAFS predicts an Rfactor of 0.603 for Pt, higher than the measured 0.003549, confirming the measured EXAFS quality; predictions for Pt\u2083Co (0.7813) and PtO\u2082 (0.9108) are even larger. _(evidence: virtual_xafs)_\n12. Vision inspection rejects the XRD fit (extra peaks, unresolved phase) and the PDF fit (lattice drift, high Rw), while the EXAFS fit is accepted. _(evidence: vision.xrd, vision.pdf, vision.exafs)_\n\n## Objections and resolutions\n\nThe critic raised no objections.\n\n## Limitations\n\n- Phase consistency check (C1) fails: XRD and PDF cannot be reconciled for any candidate (best PDF Rw\u202f=\u202f0.505, XRD score\u202f=\u202f0.738).\n- Coordination number check (C3) fails: EXAFS N\u202f=\u202f11.54 exceeds the surface\u2011adjusted model expectation of 8.84 by 2.69 (threshold 2.0), indicating possible surface segregation or disorder.\n- Disorder ratio check (C5) warns: \u03c3\u00b2_EXAFS\u202f/\u202f\u03c3\u00b2_PDF\u202f=\u202f0.24, below the acceptable 0.3\u20131.3 range, suggesting static disorder or a distinct surface layer.\n- Size comparison (C6) fails: XRD sphere diameter\u202f=\u202f2.66\u202fnm (Scherrer\u202f=\u202f2.16\u202fnm) vs PDF particle size\u202f=\u202f1.61\u202fnm, relative difference\u202f=\u202f0.65 (>\u202f0.5 limit), implying a size distribution or surface\u2011related shrinkage.\n- Vision inspection rejects the XRD fit (extra/unexplained peaks) and the PDF fit (lattice drift, high Rw), while accepting the EXAFS fit.\n",
- "wall_s": 1761.6,
+ "report_md": "# Concord report \u2014 s0031 (Pt)\n\n**Phase consistency fails; overall phase set to null.**\n\nPhase: **null**\n\nPhase consistency fails; XRD indicates missing peaks at 10.06\u00b0 and 38.35\u00b0 and adding Pt3Co contributes 0\u202f% intensity (RMS unchanged), while PDF fit for Pt is poor (Rw\u202f=\u202f0.509\u202f>\u202f0.25) and lattice change (0.03) exceeds tolerance (0.003). No candidate matches both techniques, so overall phase set to null.\n\n## Key numbers (from the tools)\n\n- **XRD**: best match Pt (profile correlation 0.880, 93 % of the peak area explained); sphere diameter 2.6 nm from 2 indexed reflections\n- **PDF**: Pt refines to Rw 0.509; a 4.0395 \u00c5; U_iso Pt 0.0196 \u00c5\u00b2; particle diameter 1.3 nm\n- **EXAFS** (Pt L3): Pt\u2013Pt N 11.2 \u00b1 1.5 at 2.851 \u00c5, \u03c3\u00b2 0.0112 \u00c5\u00b2; Pt\u2013O N 0.1 \u00b1 0.3 at 2.060 \u00c5, \u03c3\u00b2 0.0010 \u00c5\u00b2 (shell not in the model); R-factor 0.0071\n- **XANES**: Pt valence 0.00 from a linear combination of standards, 0.04 from the edge position\n- **Bond valence** (PDF model): 0.00\n\n## Evidence by technique\n\n- **XRD**: The diffraction pattern lacks the expected peaks at 10.06\u00b0 and 38.35\u00b0; adding a second phase of Pt3Co contributed 0\u202f% of the simulated intensity and left the RMS unchanged at 540, while adding PtO2 (23\u202f% intensity) reduced the RMS to 519.6 but the fit was still rejected.\n- **PDF**: The PDF fit for Pt yields Rw\u202f=\u202f0.509 (above the 0.25 tolerance) and a lattice parameter change of 0.03, exceeding the 0.003 warning limit; the particle size from PDF is 1.312\u202fnm.\n- **EXAFS**: The Pt\u2013Pt bond length is 2.85\u202f\u00c5, differing from the PDF model by \u20130.0058\u202f\u00c5 (within tolerance), but the coordination number is 11.25\u202f\u00b1\u202f1.5 versus the model 8.14, a deviation of 3.1; the disorder ratio \u03c3\u00b2_EXAFS/\u03c3\u00b2_PDF is 0.287 (below the lower bound 0.3), and the size discrepancy between XRD (2.63\u202fnm) and PDF (1.31\u202fnm) gives a relative difference of 1.007 (>\u202f0.5 fail threshold). The joint simulation score for Pt is 0.3894 with a margin of 0.1716.\n- **XANES**: Linear combination fitting shows 100\u202f% Pt\u2070 with a bond\u2011valence sum valence of 0.0, confirming a metallic Pt state.\n\n## Cross-technique checks\n\n| check | status | explanation |\n|---|---|---|\n| C1 Phase consistency (XRD vs PDF) | **FAIL** | No candidate structure fits the PDF (best Rw 0.51 for Pt). The true phase may be missing from the candidate list, or the sample label is wrong. |\n| C2 Bond lengths (EXAFS R vs PDF model) | pass | EXAFS bond lengths match the PDF-refined model. |\n| C3 Coordination numbers (EXAFS N vs model) | **FAIL** | EXAFS coordination differs from the model by up to 3.1: segregation, vacancies or a disordered surface. |\n| C4 Oxidation state (XANES vs bond-valence sum) | pass | XANES and the bond-valence sum agree. |\n| C5 Disorder (EXAFS \u03c3\u00b2 vs PDF pair width) | **warn** | EXAFS/PDF disorder ratio 0.29\u20130.29 is outside 0.3\u20131.3: static disorder (a distorted or split first shell) or a surface layer seen differently by the two probes. |\n| C6 Size (XRD vs PDF) | **FAIL** | XRD sees larger crystallites than the PDF particle diameter: XRD is volume-weighted (large particles dominate) while the PDF envelope is closer to a number average, or a disordered surface shell shortens the PDF range. |\n| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | Pt has the best joint score (margin 0.172). |\n\n## Virtual XAFS \u2014 PREDICTED, NOT MEASURED\n\nPt L3 EXAFS computed with FEFF from the PDF-refined model (Pt; 24 ensemble members, Debye temperature 107\u2013108 K). This edge was measured, so the prediction serves as a consistency check against the measurement.\n\nAgainst the measured spectrum: R-factor 0.5381 in R 1.0\u20133.5 \u00c5.\n\n## Literature priors (other samples: context, not constraints)\n\n- Pt\u2013Pt bond length 2.876 \u00b1 0.028 \u00c5, [doi:10.2533/chimia.2008.287](https://doi.org/10.2533/chimia.2008.287) (2008): \u00abA Pt\u2013Pt distance of 2.876(28) \u00c5 and a Pt\u2013P bond length of 2.32(4) \u00c5 are obtained.\u00bb\n- Pt oxidation state 4, [doi:10.1039/c2mt20053h](https://doi.org/10.1039/c2mt20053h) (2012): \u00abReduction of Pt(IV) complexes over time in cell growth media and A2780 cells was observed by XANES, and shown to correspond with their reduction potentials and cytotoxicities.\u00bb\n- particle size 5 nm, [doi:10.1103/physrevb.85.075439](https://doi.org/10.1103/physrevb.85.075439) (2012): \u00abThe estimation of metal nanoparticle diameter by analysis of extended x-ray absorption fine structure (EXAFS) data from coordination numbers is nontrivial, particularly for particles 5 nm in diameter, for which the under\u00bb\n- particle size 3 nm, [doi:10.48550/arXiv.2406.01004](https://doi.org/10.48550/arXiv.2406.01004) (2024): \u00abWe successfully synthesized Pt@ZIF-8 in two steps, the average particle size of Pt nanoparticles is about 3 nm.\u00bb\n- particle size 1.5 nm, [doi:10.1103/physrevb.84.245438](https://doi.org/10.1103/physrevb.84.245438) (2011): \u00abFor large NP sizes (diameter $d$ >1.5 nm) \\ensuremath{\\Theta}${}_{D}$ was found to decrease toward \\ensuremath{\\Theta}${}_{D}$ of bulk Pt with increasing NP size.\u00bb\n- particle size 4 nm, [doi:10.1039/b303911k](https://doi.org/10.1039/b303911k) (2003): \u00abSignificant size effects are observed in the particle size interval from ca. 1 to 4 nm, including the positive shift of the CO stripping peak with decreasing particle size and a pronounced asymmetry of the current transi\u00bb\n- particle size 2 nm, [doi:10.1039/b821622n](https://doi.org/10.1039/b821622n) (2009): \u00abOur model demonstrates that, due to rapid changes in the Gibbs\u2013Thomson energy, particle size effects dominate degradation for \u223c2 nm particles but play almost no role for \u223c5 nm particles.\u00bb\n- particle size 5 nm, [doi:10.1039/b821622n](https://doi.org/10.1039/b821622n) (2009): \u00abOur model demonstrates that, due to rapid changes in the Gibbs\u2013Thomson energy, particle size effects dominate degradation for \u223c2 nm particles but play almost no role for \u223c5 nm particles.\u00bb\n\n## Claims\n\n0. Phase consistency fails; set overall phase to null. _(evidence: check.C1, rerun.R2.1.xrd_add_phase, vision.xrd)_\n1. EXAFS Pt\u2013Pt bond length (2.85\u202f\u00c5) matches PDF model (2.856\u202f\u00c5) within 0.0058\u202f\u00c5. _(evidence: check.C2)_\n2. EXAFS Pt\u2013Pt coordination number (11.25\u202f\u00b1\u202f1.5) deviates from model expectation (8.14) by 3.1, indicating surface under\u2011coordination or vacancies. _(evidence: check.C3)_\n3. XANES LCF shows 100\u202f% Pt\u2070 and bond\u2011valence sum gives valence\u202f0.0, confirming a metallic Pt state. _(evidence: check.C4)_\n4. Disorder ratio (EXAFS/PDF \u03c3\u00b2) is 0.287, below the lower bound 0.3, implying static disorder or a distorted first shell. _(evidence: check.C5)_\n5. Size discrepancy: XRD sphere diameter 2.63\u202fnm vs PDF particle diameter 1.31\u202fnm yields relative difference 1.007, exceeding the fail threshold 0.5. _(evidence: check.C6)_\n6. Joint simulation: Pt has the lowest joint score (0.3894) with margin 0.1716, making it the best candidate among those tested. _(evidence: check.C7)_\n7. Visual inspection summary: XRD rejected, PDF rejected, EXAFS accepted. _(evidence: vision.xrd, vision.pdf, vision.exafs)_\n\n## Objections and resolutions\n\n| id | objection | cited | re-run | finding | status |\n|---|---|---|---|---|---|\n| R1.1 | Phase consistency fails; set overall phase to null. | check.C1 | exafs_window_scan | N over kmax 10-12: Pt 11.58-13.13 | confirmed |\n| R2.1 | The claim that the overall phase should be set to null ignores the XRD inspector's identification of missing diffraction peaks (10.06\u00b0 and 38.35\u00b0) and the suggested addition of a second phase; a rerun adding a second candidate phase is required to test whether phase consistency can be restored. | vision.xrd, check.C1 | xrd_add_phase | adding Pt3Co (0 % of the simulated intensity) takes the XRD residual RMS from 540 to 540 | not confirmed |\n| R3.1 | The claim that the overall phase should be set to null is not fully justified; while the phase\u2011consistency check fails for the single\u2011phase models, the possibility that a different second phase (e.g., PtO2) could resolve the missing XRD peaks and improve PDF agreement has not been tested. | check.C1, vision.xrd, rerun.R2.1.xrd_add_phase | xrd_add_phase | adding PtO2 (23 % of the simulated intensity) takes the XRD residual RMS from 540 to 519.6 | not confirmed |\n\n## Limitations\n\n- XRD rejects the single\u2011phase model due to missing peaks and negligible intensity contribution from the tested second phase Pt3Co.\n- PDF rejects the model because the Rw value (0.509) exceeds the acceptable limit and the lattice parameter shift (0.03) is too large.\n- EXAFS coordination number mismatch (diff\u202f=\u202f3.1) indicates surface under\u2011coordination or vacancies, and the disorder ratio (0.287) flags static disorder.\n- Size estimates differ markedly between XRD (2.63\u202fnm) and PDF (1.31\u202fnm), exceeding the fail threshold for relative difference.\n- The candidate phase list may be incomplete, as adding PtO2 improves the XRD RMS but does not resolve overall consistency.\n",
+ "wall_s": 3849.5,
  "llm": {
-  "llm_calls": 16,
-  "prompt_tokens": 29794,
-  "completion_tokens": 15408,
-  "llm_seconds": 918.54
+  "llm_calls": 20,
+  "prompt_tokens": 50480,
+  "completion_tokens": 35910,
+  "llm_seconds": 1954.43
  },
  "out_dir": "results/runs/s0031",
  "evidence": {
   "fitting.xrd": {
    "metric": "score",
    "start": 0.7377,
-   "end": 0.7377,
-   "values": {},
+   "end": 0.9003,
+   "values": {
+    "two_theta_max": 80.0,
+    "baseline_log10_lambda": 9.0
+   },
    "verdict": "step budget used"
   },
   "fitting.pdf": {
    "metric": "rw",
-   "start": 0.5054,
-   "end": 0.5054,
+   "start": 0.5094,
+   "end": 0.5094,
    "values": {},
    "verdict": "step budget used"
   },
   "fitting.exafs": {
    "metric": "rfactor",
-   "start": 0.06095,
-   "end": 0.003549,
+   "start": 0.06097,
+   "end": 0.007087,
    "values": {
     "kmax": 10.0,
-    "kweight": 1,
-    "probe": "off"
+    "probe": "on"
    },
-   "verdict": "step budget used"
+   "verdict": "The current fit already has an excellent R\u2011factor (0.007\u202f<\u202f0.05) and reduced chi\u2011square near 1.4, the probe shell is insignificant, and further changes cannot improve the metric by the required 2\u202f% without violating window constraints."
   },
   "sample": {
    "composition": "Pt",
@@ -145,35 +170,35 @@
   "xrd.ranking": [
    {
     "phase": "Pt",
-    "score": 0.7377,
-    "profile_corr": 0.8644,
-    "obs_area_fraction_explained": 0.5476
+    "score": 0.9003,
+    "profile_corr": 0.8797,
+    "obs_area_fraction_explained": 0.9312
    },
    {
     "phase": "Pt3Co",
-    "score": 0.416,
-    "profile_corr": 0.6933,
+    "score": 0.4524,
+    "profile_corr": 0.7539,
     "obs_area_fraction_explained": 0.0
    },
    {
-    "phase": "PtNi",
-    "score": 0.3574,
-    "profile_corr": 0.5956,
-    "obs_area_fraction_explained": 0.0
+    "phase": "PtO2",
+    "score": 0.4375,
+    "profile_corr": 0.1084,
+    "obs_area_fraction_explained": 0.9312
    }
   ],
   "xrd.size": {
-   "sphere_diameter_nm": 2.657,
-   "scherrer_median_nm": 2.16,
+   "sphere_diameter_nm": 2.633,
+   "scherrer_median_nm": 1.592,
    "williamson_hall_strain": null,
-   "n_indexed_peaks": 1
+   "n_indexed_peaks": 2
   },
   "pdf.fit.Pt": {
-   "rw": 0.5054,
+   "rw": 0.5095,
    "lattice": {
-    "a": 4.037,
-    "b": 4.037,
-    "c": 4.037
+    "a": 4.039,
+    "b": 4.039,
+    "c": 4.039
    },
    "lattice_ref": {
     "a": 3.922,
@@ -181,10 +206,10 @@
     "c": 3.922
    },
    "uiso": {
-    "Pt": 0.02371
+    "Pt": 0.01955
    },
-   "delta2": 5.729,
-   "psize_nm": 1.61,
+   "delta2": 5.089,
+   "psize_nm": 1.312,
    "r_range": [
     1.5,
     25.0
@@ -214,7 +239,7 @@
    ]
   },
   "pdf.fit.PtO2": {
-   "rw": 0.9286,
+   "rw": 0.9309,
    "lattice": {
     "a": 4.349,
     "b": 4.402,
@@ -226,11 +251,11 @@
     "c": 3.136
    },
    "uiso": {
-    "O": 0.01093,
-    "Pt": 0.01436
+    "O": 0.003611,
+    "Pt": 0.01928
    },
-   "delta2": 1.981e-10,
-   "psize_nm": 0.974,
+   "delta2": 0.5,
+   "psize_nm": 1.092,
    "r_range": [
     1.5,
     25.0
@@ -241,26 +266,45 @@
    "absorber": "Pt",
    "edge": "L3",
    "model": "Pt",
-   "rfactor": 0.003549,
-   "e0_shift_eV": -0.03232,
+   "rfactor": 0.007087,
+   "e0_shift_eV": -0.07284,
    "window": {
     "kmin": 3.0,
     "kmax": 10.0,
     "rmin": 1.0,
-    "rmax": 3.855,
-    "kweight": 1
+    "rmax": 3.856,
+    "kweight": 2.0
    },
    "shells": [
     {
      "neighbor": "Pt",
-     "N": 11.54,
-     "N_err": 0.5504,
-     "R_A": 2.852,
-     "R_err": 0.003918,
-     "sigma2": 0.0114,
+     "N": 11.25,
+     "N_err": 1.497,
+     "R_A": 2.851,
+     "R_err": 0.007623,
+     "sigma2": 0.01122,
      "extra": null
+    },
+    {
+     "neighbor": "O",
+     "N": 0.09113,
+     "N_err": 0.2938,
+     "R_A": 2.06,
+     "R_err": 0.106,
+     "sigma2": 0.001,
+     "extra": true
     }
    ]
+  },
+  "exafs.extra_shell": {
+   "pair": "Pt-O",
+   "N": 0.09113,
+   "N_err": 0.2938,
+   "R_A": 2.06,
+   "sigma2": 0.001,
+   "rfactor_without": 0.008379,
+   "rfactor_with": 0.007087,
+   "significant": false
   },
   "xanes": {
    "absorber": "Pt",
@@ -284,11 +328,11 @@
     "Pt"
    ],
    "theta_K_range": [
-    97.02,
-    97.64
+    106.8,
+    107.6
    ],
    "vs_measured": {
-    "rfactor_R": 0.6027,
+    "rfactor_R": 0.5381,
     "band_coverage_k": 0.0,
     "r_window": [
      1.0,
@@ -296,9 +340,9 @@
     ]
    },
    "per_candidate_rfactor": {
-    "Pt": 0.603,
+    "Pt": 0.5385,
     "Pt3Co": 0.7813,
-    "PtO2": 0.9108
+    "PtO2": 0.941
    },
    "recommendation": "This edge was measured, so the prediction serves as a consistency check against the measurement."
   },
@@ -307,14 +351,14 @@
    "status": "fail",
    "values": {
     "xrd_phase": "Pt",
-    "xrd_score": 0.738,
-    "xrd_area_explained": 0.548,
-    "peak_rel_intensity": 0.793,
+    "xrd_score": 0.9,
+    "xrd_area_explained": 0.931,
+    "peak_rel_intensity": 0.808,
     "pdf_phase": "Pt",
-    "pdf_rw": 0.505,
+    "pdf_rw": 0.509,
     "pdf_runner_up": "Pt3Co",
     "pdf_runner_up_rw": 0.656,
-    "lattice_rel_change": 0.0294
+    "lattice_rel_change": 0.03
    },
    "tolerance": {
     "pdf_good_rw": 0.25,
@@ -330,13 +374,13 @@
     "pairs": [
      {
       "pair": "Pt-Pt",
-      "exafs_R_A": 2.852,
-      "exafs_err": 0.0039,
-      "pdf_model_R_A": 2.855,
-      "diff_A": -0.0031
+      "exafs_R_A": 2.85,
+      "exafs_err": 0.0076,
+      "pdf_model_R_A": 2.856,
+      "diff_A": -0.0058
      }
     ],
-    "max_abs_diff_A": 0.0031
+    "max_abs_diff_A": 0.0058
    },
    "tolerance": {
     "warn_A": 0.02,
@@ -351,16 +395,16 @@
     "pairs": [
      {
       "pair": "Pt-Pt",
-      "exafs_N": 11.54,
-      "exafs_err": 0.55,
+      "exafs_N": 11.25,
+      "exafs_err": 1.5,
       "model_N_bulk": 12.0,
-      "surface_factor": 0.737,
-      "model_N": 8.84,
-      "diff": 2.69
+      "surface_factor": 0.679,
+      "model_N": 8.14,
+      "diff": 3.1
      }
     ],
     "extra_shell": null,
-    "max_abs_diff": 2.69
+    "max_abs_diff": 3.1
    },
    "tolerance": {
     "warn_abs": 1.0,
@@ -368,7 +412,7 @@
     "extra_min_sigma": 3.0,
     "extra_min_rfactor_drop": 0.3
    },
-   "explanation": "EXAFS coordination differs from the model by up to 2.7: segregation, vacancies or a disordered surface."
+   "explanation": "EXAFS coordination differs from the model by up to 3.1: segregation, vacancies or a disordered surface."
   },
   "check.C4": {
    "name": "Oxidation state (XANES vs bond-valence sum)",
@@ -404,10 +448,10 @@
     "pairs": [
      {
       "pair": "Pt-Pt",
-      "exafs_sigma2": 0.0114,
-      "pdf_uncorrelated_sigma2": 0.04743,
-      "pdf_with_delta2_sigma2": 0.01409,
-      "ratio_exafs_to_pdf": 0.24
+      "exafs_sigma2": 0.01122,
+      "pdf_uncorrelated_sigma2": 0.0391,
+      "pdf_with_delta2_sigma2": 0.01471,
+      "ratio_exafs_to_pdf": 0.287
      }
     ]
    },
@@ -415,16 +459,16 @@
     "ratio_low": 0.3,
     "ratio_high": 1.3
    },
-   "explanation": "EXAFS/PDF disorder ratio 0.24\u20130.24 is outside 0.3\u20131.3: static disorder (a distorted or split first shell) or a surface layer seen differently by the two probes."
+   "explanation": "EXAFS/PDF disorder ratio 0.29\u20130.29 is outside 0.3\u20131.3: static disorder (a distorted or split first shell) or a surface layer seen differently by the two probes."
   },
   "check.C6": {
    "name": "Size (XRD vs PDF)",
    "status": "fail",
    "values": {
-    "xrd_sphere_diameter_nm": 2.66,
-    "xrd_scherrer_nm": 2.16,
-    "pdf_diameter_nm": 1.61,
-    "rel_diff": 0.65
+    "xrd_sphere_diameter_nm": 2.63,
+    "xrd_scherrer_nm": 1.59,
+    "pdf_diameter_nm": 1.31,
+    "rel_diff": 1.007
    },
    "tolerance": {
     "warn_rel": 0.25,
@@ -439,27 +483,27 @@
     "candidates": [
      {
       "candidate": "Pt",
-      "xrd": 0.1356,
-      "pdf": 0.5054,
-      "exafs": 0.603,
-      "score": 0.4147
+      "xrd": 0.1203,
+      "pdf": 0.5095,
+      "exafs": 0.5385,
+      "score": 0.3894
      },
      {
       "candidate": "Pt3Co",
-      "xrd": 0.3067,
+      "xrd": 0.2461,
       "pdf": 0.6557,
       "exafs": 0.7813,
-      "score": 0.5812
+      "score": 0.561
      },
      {
       "candidate": "PtO2",
-      "xrd": 0.9045,
-      "pdf": 0.9286,
-      "exafs": 0.9108,
-      "score": 0.9147
+      "xrd": 0.8916,
+      "pdf": 0.9309,
+      "exafs": 0.941,
+      "score": 0.9212
      }
     ],
-    "margin": 0.1665,
+    "margin": 0.1716,
     "techniques": [
      "exafs",
      "pdf",
@@ -469,7 +513,7 @@
    "tolerance": {
     "min_margin": 0.02
    },
-   "explanation": "Pt has the best joint score (margin 0.167)."
+   "explanation": "Pt has the best joint score (margin 0.172)."
   },
   "prior.1": {
    "quantity": "bond_length",
@@ -536,15 +580,15 @@
    "inspector": "gpt-oss judge",
    "issues": [
     {
-     "region": "10.0-26.0",
-     "pattern": "10.06\u202f\u00b02\u03b8",
-     "likely_cause": "A crystallographic phase present in the sample is not included in the current model, producing an extra diffraction peak.",
+     "region": "10.0-24.0",
+     "pattern": "10.06\u00b0",
+     "likely_cause": "missing crystalline phase producing a diffraction peak",
      "suggested_action": "xrd_add_phase"
     },
     {
-     "region": "26.0-42.0",
-     "pattern": "38.1\u202f\u00b02\u03b8",
-     "likely_cause": "A second, unmodelled phase contributes a diffraction peak that the refined background cannot explain.",
+     "region": "38.0-52.0",
+     "pattern": "38.35\u00b0",
+     "likely_cause": "missing crystalline phase producing a diffraction peak",
      "suggested_action": "xrd_add_phase"
     }
    ],
@@ -556,13 +600,13 @@
    "structured_regions": [],
    "unexplained_peaks": [
     10.06,
-    38.1
+    38.35
    ],
    "fixes_tried": [
     {
      "iteration": 1,
      "action": "xrd_add_phase",
-     "finding": "adding PtO2 (6 % of the simulated intensity) takes the XRD residual RMS from 562.2 to 561.4",
+     "finding": "adding PtO2 (23 % of the simulated intensity) takes the XRD residual RMS from 540 to 519.6",
      "kept": false
     }
    ]
@@ -574,7 +618,7 @@
    "issues": [
     {
      "region": "1.5\u201325 \u00c5",
-     "pattern": "peak positions drift steadily by +1.687% across the fit range, so the lattice is too small",
+     "pattern": "peak positions drift steadily by +0.448% across the fit range, so the lattice is too small",
      "likely_cause": "lattice parameter",
      "suggested_action": ""
     },
@@ -587,16 +631,16 @@
    ],
    "numerical": {
     "ok": false,
-    "reason": "Rw 0.505 above 0.25"
+    "reason": "Rw 0.509 above 0.25"
    },
-   "durbin_watson": 2.285,
+   "durbin_watson": 2.231,
    "structured_regions": [],
    "unexplained_peaks": [],
    "fixes_tried": [
     {
      "iteration": 1,
      "action": "pdf_toggle_envelope",
-     "finding": "Pt without the particle envelope: Rw 0.672 (was 0.505)",
+     "finding": "Pt without the particle envelope: Rw 0.672 (was 0.509)",
      "kept": false
     }
    ]
@@ -610,10 +654,56 @@
     "ok": true,
     "reason": "within limits"
    },
-   "durbin_watson": 2.058,
+   "durbin_watson": 1.199,
    "structured_regions": [],
    "unexplained_peaks": [],
    "fixes_tried": []
+  },
+  "rerun.R1.1.exafs_window_scan": {
+   "fits": [
+    {
+     "kmax": 10.0,
+     "neighbor": "Pt",
+     "N": 11.61,
+     "sigma2": 0.01145,
+     "R_A": 2.849
+    },
+    {
+     "kmax": 11.0,
+     "neighbor": "Pt",
+     "N": 11.58,
+     "sigma2": 0.01141,
+     "R_A": 2.847
+    },
+    {
+     "kmax": 12.0,
+     "neighbor": "Pt",
+     "N": 13.13,
+     "sigma2": 0.01308,
+     "R_A": 2.847
+    }
+   ],
+   "N_range": {
+    "Pt": [
+     11.58,
+     13.13
+    ]
+   },
+   "confirms": true
+  },
+  "rerun.R2.1.xrd_add_phase": {
+   "second_phase": "Pt3Co",
+   "intensity_share": 0.0,
+   "rms_before": 540.0,
+   "rms_after": 540.0,
+   "confirms": false
+  },
+  "rerun.R3.1.xrd_add_phase": {
+   "second_phase": "PtO2",
+   "intensity_share": 0.2295,
+   "rms_before": 540.0,
+   "rms_after": 519.6,
+   "confirms": false
   }
  },
  "vision": {
@@ -623,39 +713,39 @@
   "xrd": {
    "plot": "results/runs/s0031/xrd_fit.png",
    "features": {
-    "n_independent": 4001,
+    "n_independent": 3501,
     "thinned_by": 1,
-    "rms_rel": 0.37368800601596974,
+    "rms_rel": 0.32410126690115243,
     "durbin_watson": null,
     "regions": [
      {
-      "region": "10.0-26.0",
-      "misfit_share": 0.03635230636579178,
-      "rms_rel": 0.15923669730690976,
+      "region": "10.0-24.0",
+      "misfit_share": 0.07759937730274061,
+      "rms_rel": 0.2017654931377322,
       "durbin_watson": null
      },
      {
-      "region": "26.0-42.0",
-      "misfit_share": 0.4501348657704222,
-      "rms_rel": 0.5603359709438616,
+      "region": "24.0-38.0",
+      "misfit_share": 0.21406056055635067,
+      "rms_rel": 0.3351090096090682,
       "durbin_watson": null
      },
      {
-      "region": "42.0-58.0",
-      "misfit_share": 0.31262956783547935,
-      "rms_rel": 0.4669734633155553,
+      "region": "38.0-52.0",
+      "misfit_share": 0.5118577991565623,
+      "rms_rel": 0.5181940685528791,
       "durbin_watson": null
      },
      {
-      "region": "58.0-74.0",
-      "misfit_share": 0.15850358688650193,
-      "rms_rel": 0.3325038848506182,
+      "region": "52.0-66.0",
+      "misfit_share": 0.06412040223826307,
+      "rms_rel": 0.18340699450224898,
       "durbin_watson": null
      },
      {
-      "region": "74.0-90.0",
-      "misfit_share": 0.04284020848219315,
-      "rms_rel": 0.1728633655968808,
+      "region": "66.0-80.0",
+      "misfit_share": 0.13508467393256643,
+      "rms_rel": 0.26620782338652876,
       "durbin_watson": null
      }
     ],
@@ -663,22 +753,22 @@
     "concentrated_regions": [],
     "unexplained_peaks": [
      10.06,
-     38.1
+     38.35
     ]
    },
    "visual": {
     "verdict": "reject",
     "issues": [
      {
-      "region": "10.0-26.0",
-      "pattern": "10.06\u202f\u00b02\u03b8",
-      "likely_cause": "A crystallographic phase present in the sample is not included in the current model, producing an extra diffraction peak.",
+      "region": "10.0-24.0",
+      "pattern": "10.06\u00b0",
+      "likely_cause": "missing crystalline phase producing a diffraction peak",
       "suggested_action": "xrd_add_phase"
      },
      {
-      "region": "26.0-42.0",
-      "pattern": "38.1\u202f\u00b02\u03b8",
-      "likely_cause": "A second, unmodelled phase contributes a diffraction peak that the refined background cannot explain.",
+      "region": "38.0-52.0",
+      "pattern": "38.35\u00b0",
+      "likely_cause": "missing crystalline phase producing a diffraction peak",
       "suggested_action": "xrd_add_phase"
      }
     ],
@@ -693,7 +783,7 @@
     {
      "iteration": 1,
      "action": "xrd_add_phase",
-     "finding": "adding PtO2 (6 % of the simulated intensity) takes the XRD residual RMS from 562.2 to 561.4",
+     "finding": "adding PtO2 (23 % of the simulated intensity) takes the XRD residual RMS from 540 to 519.6",
      "kept": false
     }
    ]
@@ -703,36 +793,36 @@
    "features": {
     "n_independent": 139,
     "thinned_by": 17,
-    "rms_rel": 0.5049443261097142,
-    "durbin_watson": 2.284840800058353,
+    "rms_rel": 0.5089247585714671,
+    "durbin_watson": 2.231317247555749,
     "regions": [
      {
       "region": "1.5-6.2",
-      "misfit_share": 0.4017551932887997,
-      "rms_rel": 0.7131036028926321,
-      "durbin_watson": 2.500386665991963
+      "misfit_share": 0.37837047681690017,
+      "rms_rel": 0.6974941747647716,
+      "durbin_watson": 2.5100833216325387
      },
      {
       "region": "6.2-10.9",
-      "misfit_share": 0.4061244620639489,
-      "rms_rel": 0.7169707785240698,
-      "durbin_watson": 2.290995732279568
+      "misfit_share": 0.4179941501332386,
+      "rms_rel": 0.7331064924254304,
+      "durbin_watson": 2.215186748773761
      },
      {
       "region": "10.9-15.6",
-      "misfit_share": 0.13827288765201273,
-      "rms_rel": 0.42602739921665406,
-      "durbin_watson": 1.4763077136670104
+      "misfit_share": 0.15064294708308135,
+      "rms_rel": 0.44818105956775917,
+      "durbin_watson": 1.3698740354250094
      },
      {
       "region": "15.6-20.3",
-      "misfit_share": 0.0382777355300568,
-      "rms_rel": 0.22011264863581356,
-      "durbin_watson": 1.4408706877819715
+      "misfit_share": 0.03766530172432045,
+      "rms_rel": 0.22006586799987637,
+      "durbin_watson": 1.4405421146066952
      },
      {
       "region": "20.3-25.0",
-      "misfit_share": 0.015569721465181713,
+      "misfit_share": 0.015327124242459349,
       "rms_rel": 0.14038228355178442,
       "durbin_watson": 2.0760105700034805
      }
@@ -746,7 +836,7 @@
     "issues": [
      {
       "region": "1.5\u201325 \u00c5",
-      "pattern": "peak positions drift steadily by +1.687% across the fit range, so the lattice is too small",
+      "pattern": "peak positions drift steadily by +0.448% across the fit range, so the lattice is too small",
       "likely_cause": "lattice parameter",
       "suggested_action": ""
      },
@@ -761,14 +851,14 @@
    },
    "numerical": {
     "ok": false,
-    "reason": "Rw 0.505 above 0.25"
+    "reason": "Rw 0.509 above 0.25"
    },
    "accepted": false,
    "steps": [
     {
      "iteration": 1,
      "action": "pdf_toggle_envelope",
-     "finding": "Pt without the particle envelope: Rw 0.672 (was 0.505)",
+     "finding": "Pt without the particle envelope: Rw 0.672 (was 0.509)",
      "kept": false
     }
    ]
@@ -778,14 +868,14 @@
    "features": {
     "n_independent": 14,
     "thinned_by": 7,
-    "rms_rel": 0.0400700106847549,
-    "durbin_watson": 2.0577556418575385,
+    "rms_rel": 0.06532577116194731,
+    "durbin_watson": 1.198935587136422,
     "regions": [
      {
       "region": "1.0-3.8",
       "misfit_share": 1.0,
-      "rms_rel": 0.0400700106847549,
-      "durbin_watson": 2.0577556418575385
+      "rms_rel": 0.06532577116194731,
+      "durbin_watson": 1.198935587136422
      }
     ],
     "structured_regions": [],
@@ -810,40 +900,43 @@
    "agent": "xrd_fitter",
    "metric": "score",
    "start": 0.7376771882986649,
-   "end": 0.7376771882986649,
-   "values": {},
+   "end": 0.9003303604333617,
+   "values": {
+    "two_theta_max": 80.0,
+    "baseline_log10_lambda": 9.0
+   },
    "steps": [
     {
      "step": 1,
      "changes": {
-      "peak_height": 0.01,
-      "peak_prominence": 0.01
+      "peak_height": 0.02,
+      "peak_prominence": 0.015
      },
      "metric": 0.7363451023539888,
      "kept": false,
-     "reason": "Only one peak indexed out of seven; weak peaks likely missed due to high detection thresholds. Lowering both peak_height and peak_prominence should reveal additional peaks and improve indexing and overall score.",
+     "reason": "Only one peak is indexed despite 7 detected peaks. Lowering the peak detection thresholds may capture additional weak peaks, improving indexing and overall score. Baseline stiffness is already high; keep it unchanged for now.",
      "error": null
     },
     {
      "step": 2,
      "changes": {
-      "baseline_log10_lambda": 9.0,
-      "peak_height": 0.005
+      "peak_height": 0.015,
+      "peak_prominence": 0.01
      },
-     "metric": 0.726516008493407,
+     "metric": 0.7363451023539888,
      "kept": false,
-     "reason": "A broad background hump may be suppressing weak peaks; a stiffer baseline (higher lambda) will preserve peak shape. Additionally, lowering the peak height threshold to the minimum may reveal additional weak peaks and improve indexing.",
+     "reason": "Only one peak is indexed despite 7 detected peaks. Further lowering the detection thresholds may reveal additional weak peaks and improve indexing and overall score.",
      "error": null
     },
     {
      "step": 3,
      "changes": {
-      "peak_height": 0.005,
-      "peak_prominence": 0.005
+      "baseline_log10_lambda": 9.0,
+      "two_theta_max": 80.0
      },
-     "metric": 0.7319514662902528,
-     "kept": false,
-     "reason": "Only one peak is indexed; weak peaks are likely missed. Lower both detection thresholds to the minimum to reveal additional peaks while keeping the baseline stiffness unchanged, preserving peak shapes.",
+     "metric": 0.9003303604333617,
+     "kept": true,
+     "reason": "Baseline is already high; increasing stiffness may preserve a broad hump under the peaks. Narrowing the 2\u03b8 window to exclude noisy high-angle data could improve the profile fit and overall score.",
      "error": null
     }
    ],
@@ -852,41 +945,40 @@
   "pdf": {
    "agent": "pdf_fitter",
    "metric": "rw",
-   "start": 0.5054287325207233,
-   "end": 0.5054287325207233,
+   "start": 0.5094421715564315,
+   "end": 0.5094421715564315,
    "values": {},
    "steps": [
     {
      "step": 1,
      "changes": {
-      "envelope": false,
-      "rmin": 0.8
+      "candidate": "Pt3Co",
+      "rmax": 30.0
      },
-     "metric": 0.6705440957716902,
+     "metric": 0.6572251585427787,
      "kept": false,
-     "reason": "Remove nanoparticle envelope and extend fit to lower r to capture the first shell better, which may lower Rw.",
+     "reason": "Attempt runner-up candidate and extend fit range to capture longer-range correlations.",
      "error": null
     },
     {
      "step": 2,
      "changes": {
-      "rmax": 30.0,
-      "rmin": 2.0
+      "candidate": "PtO2",
+      "rmax": 30.0
      },
-     "metric": 0.5105552304988707,
+     "metric": 0.9311202246290808,
      "kept": false,
-     "reason": "Current fit (Rw 0.505) is poor; envelope is needed per earlier step. Adjust the fitting range to possibly capture better medium\u2011range order: increase rmax to extend the range and raise rmin to avoid low\u2011r noise.",
+     "reason": "Try runner-up candidate PtO2 and extend rmax to capture longer-range correlations.",
      "error": null
     },
     {
      "step": 3,
      "changes": {
-      "rmin": 0.8,
-      "rmax": 22.0
+      "candidate": "PtNi"
      },
-     "metric": 0.5024833994029434,
+     "metric": 0.9822660026966789,
      "kept": false,
-     "reason": "Current fit (Rw 0.505) is poor; envelope is needed. Reduce rmin to capture the first shell more accurately and slightly lower rmax to limit medium\u2011range noise while respecting the minimum allowed data\u2011window span.",
+     "reason": "All other candidates have been attempted; try the remaining candidate PtNi with current fit window.",
      "error": null
     }
    ],
@@ -895,12 +987,11 @@
   "exafs": {
    "agent": "exafs_fitter",
    "metric": "rfactor",
-   "start": 0.06095255987817227,
-   "end": 0.0035488379606056736,
+   "start": 0.06096700169803074,
+   "end": 0.0070874006678399454,
    "values": {
     "kmax": 10.0,
-    "kweight": 1,
-    "probe": "off"
+    "probe": "on"
    },
    "steps": [
     {
@@ -909,35 +1000,13 @@
       "probe": "on",
       "kmax": 10.0
      },
-     "metric": 0.007087383473439045,
+     "metric": 0.0070874006678399454,
      "kept": true,
-     "reason": "The fit rfactor is above the good threshold (0.06 > 0.05) and coordination mismatch (C3) suggests a missing neighbour shell. Enabling the probe shell may capture the extra coordination, and reducing kmax can lessen high\u2011k noise that may be inflating the R\u2011factor.",
-     "error": null
-    },
-    {
-     "step": 2,
-     "changes": {
-      "probe_neighbor": "N",
-      "kmax": 9.0
-     },
-     "metric": null,
-     "kept": false,
-     "reason": "Switch probe neighbour to N to test whether a light\u2011atom shell better accounts for the coordination deficit (C3). Reduce kmax slightly to see if high\u2011k noise influences the already low R\u2011factor.",
-     "error": "the kmin to kmax window would shrink below 70% of its default span"
-    },
-    {
-     "step": 3,
-     "changes": {
-      "probe": "off",
-      "kweight": 1
-     },
-     "metric": 0.0035488379606056736,
-     "kept": true,
-     "reason": "Fit rfactor is already excellent (<0.05). The probe shell is not significant and may be unnecessary; turning it off simplifies the model. Additionally, reducing k-weight to 1 will lessen emphasis on high\u2011k data, potentially improving chi2 without harming the already low rfactor.",
+     "reason": "R\u2011factor (0.061) is above the good\u2011fit threshold and the extra Pt\u2011O shell is insignificant. Lowering kmax reduces high\u2011k noise, and enabling the probe shell tests for a missing light neighbour that could improve coordination and fit quality.",
      "error": null
     }
    ],
-   "verdict": "step budget used"
+   "verdict": "The current fit already has an excellent R\u2011factor (0.007\u202f<\u202f0.05) and reduced chi\u2011square near 1.4, the probe shell is insignificant, and further changes cannot improve the metric by the required 2\u202f% without violating window constraints."
   }
  }
 }
