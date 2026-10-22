@@ -1,14 +1,14 @@
 # Concord report — s0019 (Pt3Co)
 
-**Concord analysis confirms Pt₃Co intermetallic phase with consistent structural parameters across XRD, PDF, and XAFS.**
+**Pt3Co phase confirmed with metallic character and consistent structural parameters.**
 
 Phase: **Pt3Co**
 
-Concord analysis of the Pt3Co sample integrates XRD, PDF and XAFS data to produce a consistent structural model.
+All cross‑technique checks passed, confirming Pt3Co as the consistent phase with metallic character, appropriate lattice, size, bond lengths, coordination numbers, and disorder.
 
 ## Key numbers (from the tools)
 
-- **XRD**: best match Pt3Co (profile correlation 0.956, 93 % of the peak area explained); sphere diameter 3.4 nm from 7 indexed reflections
+- **XRD**: best match Pt3Co (profile correlation 0.962, 99 % of the peak area explained); sphere diameter 3.4 nm from 6 indexed reflections
 - **PDF**: Pt3Co refines to Rw 0.074; a 3.8315 Å; U_iso Co 0.0051 Å², Pt 0.0033 Å²; particle diameter 2.9 nm
 - **EXAFS** (Pt L3): Pt–Co N 3.2 ± 0.5 at 2.702 Å, σ² 0.0073 Å²; Pt–Pt N 7.8 ± 0.8 at 2.710 Å, σ² 0.0048 Å²; R-factor 0.0019
 - **XANES**: Pt valence 0.07 from a linear combination of standards, -0.04 from the edge position
@@ -16,10 +16,10 @@ Concord analysis of the Pt3Co sample integrates XRD, PDF and XAFS data to produc
 
 ## Evidence by technique
 
-- **XRD**: X‑ray diffraction ranks Pt₃Co highest (score 0.9469) and yields a sphere‑diameter of 3.384 nm, matching the PDF‑derived size of 2.933 nm (relative difference 0.154).
-- **PDF**: Pair distribution function refinement gives lattice parameters a = b = c = 3.832 Å (reference 3.831 Å) and a particle size of 2.933 nm, with the best‑fit phase identified as Pt₃Co (rw = 0.07356).
-- **EXAFS**: EXAFS fits provide coordination numbers N(Pt‑Co) = 3.21 ± 0.49 and N(Pt‑Pt) = 7.79 ± 0.80, Debye‑Waller factors σ² = 0.00731 Å² (Pt‑Co) and 0.00484 Å² (Pt‑Pt) corresponding to ratios of 0.87 and 0.73 to the PDF‑derived pair widths, and no significant Pt‑O shell (N = 4.305e‑10).
-- **XANES**: XANES linear‑combination fitting shows Pt is primarily metallic (Pt⁰ = 0.9832, Pt⁴⁺ = 0.01676) giving a valence of ~0.07, consistent with the bond‑valence sum of 0.0.
+- **XRD**: Joint score 0.972 (profile_corr 0.9622, area explained 0.9863) confirms Pt3Co; lattice parameters a = b = c = 3.832 Å match the reference 3.831 Å; sphere diameter 3.41 nm (Scherrer median 2.49 nm); one peak remains unindexed but further threshold lowering risks over‑fitting.
+- **PDF**: Rw 0.07356 (well below 0.25) with lattice a = b = c = 3.832 Å matching reference; particle size from PDF envelope 2.93 nm; Δ2 0.5168 and u_iso values Co 0.005079, Pt 0.003309.
+- **EXAFS**: R‑factor 0.001883 (well below 0.05) gives Pt‑Co bond length 2.702 Å (Δ 0.007 Å vs PDF model 2.709 Å) and Pt‑Pt bond length 2.71 Å (Δ 0.0003 Å); coordination numbers Pt‑Co 3.211 and Pt‑Pt 7.786; σ² values 0.007307 and 0.00484 respectively; no significant extra Pt‑O shell (N ≈ 4.3e‑10).
+- **XANES**: Valence 0.06703 (edge shift –0.03727) and BVS valence 0.0 indicate metallic Pt3Co; linear combination fit shows Pt⁰ weight 0.9832 and Pt⁴⁺ weight 0.01676.
 
 ## Cross-technique checks
 
@@ -31,7 +31,7 @@ Concord analysis of the Pt3Co sample integrates XRD, PDF and XAFS data to produc
 | C4 Oxidation state (XANES vs bond-valence sum) | pass | XANES and the bond-valence sum agree. |
 | C5 Disorder (EXAFS σ² vs PDF pair width) | pass | EXAFS σ² is 0.73–0.87 × the uncorrelated PDF width, as expected: EXAFS measures the relative motion of bonded neighbours, which move together, while U_i + U_j counts their motions independently. |
 | C6 Size (XRD vs PDF) | pass | XRD and PDF sizes agree once the Scherrer column length is converted to a sphere diameter. |
-| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | Pt3Co has the best joint score (margin 0.037). |
+| C7 Joint simulation score (XRD + PDF + EXAFS) | pass | Pt3Co has the best joint score (margin 0.055). |
 
 ## Virtual XAFS — PREDICTED, NOT MEASURED
 
@@ -50,28 +50,26 @@ Against the measured spectrum: R-factor 0.0054 in R 1.0–3.5 Å.
 
 ## Claims
 
-0. The sample consists of the intermetallic Pt3Co phase. _(evidence: check.C1, pdf.best, xrd.ranking)_
-1. The refined lattice parameter is a = b = c = 3.832 Å. _(evidence: pdf.fit.Pt3Co)_
-2. Average particle size is ~3.38 nm (XRD sphere diameter) and ~2.93 nm (PDF), with a relative difference of 0.154. _(evidence: xrd.size, pdf.fit.Pt3Co, check.C6)_
-3. EXAFS coordination numbers are N(Pt‑Co) = 3.21 ± 0.49 and N(Pt‑Pt) = 7.79 ± 0.80, which differ from the surface‑truncated model values (3.45 and 6.89) by 0.24 and 0.89 respectively; both differences are below the warning threshold of 1.0 defined in check.C3, so the coordination numbers are considered consistent. _(evidence: exafs.fit, check.C3, rerun.R2.1.exafs_window_scan)_
-4. XANES linear combination fit indicates the Pt is primarily metallic (Pt⁰ fraction 0.9832, minor Pt⁴⁺ fraction 0.0168), giving a valence of ~0.07, in agreement with the bond‑valence sum of 0.0. _(evidence: xanes, bvs, check.C4)_
-5. EXAFS Debye‑Waller factors are σ² = 0.00731 Å² for Pt‑Co and σ² = 0.00484 Å² for Pt‑Pt; these correspond to ratios of 0.87 and 0.73 relative to the PDF uncorrelated pair widths, indicating consistent disorder. _(evidence: exafs.fit, check.C5)_
-6. No significant Pt‑O coordination shell is detected (N = 4.305e-10, not significant). _(evidence: exafs.extra_shell)_
-7. Joint simulation of XRD, PDF and EXAFS ranks Pt3Co as the best candidate (score 0.041) with a margin of 0.0366 over PtNi, confirming the phase assignment. _(evidence: check.C7)_
-8. The measured XAFS edge is consistent with the predicted spectrum for Pt3Co (rfactor ≈ 0.0055). _(evidence: virtual_xafs)_
-9. The particle size is comparable to previously reported Pt3Co nanoparticle sizes of approximately 3.9–5.0 nm. _(evidence: prior.1, prior.4, prior.6)_
+0. Phase identified as Pt3Co, consistent across XRD, PDF, and EXAFS. _(evidence: check.C1, xrd.ranking, pdf.best, exafs.fit)_
+1. Lattice parameters a = b = c = 3.832 Å, matching reference value 3.831 Å. _(evidence: pdf.fit.Pt3Co)_
+2. Particle diameter ≈ 3.41 nm from XRD and ≈ 2.93 nm from PDF, agreement within tolerance. _(evidence: xrd.size, pdf.fit.Pt3Co, check.C6)_
+3. EXAFS Pt–Co bond length 2.702 Å, PDF model 2.709 Å; EXAFS Pt–Pt bond length 2.71 Å, PDF model 2.709 Å; differences within tolerance. _(evidence: check.C2, exafs.fit)_
+4. EXAFS Pt–Co coordination number 3.211, model truncated value 3.45; EXAFS Pt–Pt coordination number 7.786, model truncated value 6.89; differences within tolerance. _(evidence: check.C3, exafs.fit)_
+5. XANES valence 0.06703 and BVS valence 0.0 indicate metallic Pt3Co; LCF shows Pt+0 weight 0.9832 and Pt+4 weight 0.01676. _(evidence: check.C4, xanes, bvs)_
+6. EXAFS σ2 values (Pt–Co 0.007307, Pt–Pt 0.00484) are 0.871 and 0.731 times the PDF uncorrelated σ2, as expected for correlated motion. _(evidence: check.C5, exafs.fit)_
+7. Joint simulation score best for Pt3Co (score 0.039) with margin 0.0549 over the next candidate. _(evidence: check.C7)_
+8. No significant extra Pt–O shell detected (N ≈ 4.305e-10, not significant). _(evidence: exafs.extra_shell)_
+9. XRD joint score 0.972; one peak remains unindexed but further lowering thresholds may over–fit. _(evidence: fitting.xrd)_
 
 ## Objections and resolutions
 
 | id | objection | cited | re-run | finding | status |
 |---|---|---|---|---|---|
-| R1.guard | numbers not in the evidence: 4.3 | – | – | copy numbers from the evidence or remove them | number_guard |
-| R2.1 | The Pt‑Pt coordination number from EXAFS (7.79 ± 0.80) differs from the surface‑truncated model value (6.89) by 0.89, which is close to the warning threshold of 1.0 defined in check.C3. This near‑threshold discrepancy suggests the coordination number may be sensitive to fitting parameters and should be verified. | check.C3 | exafs_window_scan | N over kmax 10-12: Pt 7.31-8.23, Co 2.77-3.62 | not confirmed |
+| R1.1 | The Pt‑Pt coordination number from EXAFS (7.786) differs from the surface‑truncated PDF model value (6.89) by 0.90, which is close to the warning threshold (1.0) for coordination‑number differences. This borderline discrepancy may indicate an inconsistency between the EXAFS fit and the PDF‑derived structural model. | check.C3, exafs.fit | exafs_window_scan | N over kmax 10-12: Pt 7.31-8.23, Co 2.77-3.62 | not confirmed |
 
 ## Limitations
 
-- The Pt‑Pt coordination discrepancy of 0.89 approaches the warning threshold of 1.0 defined in check.C3, indicating sensitivity to fitting parameters despite the re‑run window scan (Pt N ranging 7.31–8.23).
-- XANES analysis has low fidelity (simple edge model) and relies on a modest valence shift, limiting confidence in oxidation‑state quantification.
-- The Pt‑O extra shell is not statistically significant (N ≈ 4.3e‑10, significance = false).
-- Particle‑size comparison relies on conversion of Scherrer breadth to a sphere diameter; the relative size difference, though within the 0.25 warning, remains non‑negligible.
-- The virtual XAFS spectrum is a predicted consistency check (rfactor ≈ 0.0055) and not a direct measurement.
+- One XRD peak remains unindexed; improving the score to ~0.991 would require threshold changes that may over‑fit.
+- The Pt‑Pt coordination number from EXAFS (7.786) differs from the surface‑truncated PDF model (6.89) by 0.90, close to the warning threshold of 1.0 (borderline discrepancy, not confirmed).
+- XANES analysis has low fidelity due to a simple edge model, limiting confidence in the precise valence determination.
+- Size estimates differ between XRD (3.41 nm) and PDF (2.93 nm) with a relative difference of 0.162, still within the warning limit of 0.25.
