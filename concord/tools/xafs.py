@@ -109,13 +109,15 @@ def first_shell_paths(paths: list, rmin: float, rmax: float) -> dict:
 @tool
 def shell_fit(k: np.ndarray, chi: np.ndarray, paths: list, s02: float, kmin: float = 3.0, kmax: float = 12.0,
               rmin: float = 1.0, rmax: float | None = None, kweight: float = 2.0, dk: float = 1.0, shell_tol: float = 0.35,
-              outer: float = 2.0, extra: list | None = None, staged: bool = False) -> dict:
+              outer: float = 2.0, extra: list | None = None, staged: bool = False, extra_n0: float = 0.5,
+              extra_sigma2: float | None = None) -> dict:
     """First-coordination-shell fit: N, ΔR, σ² per neighbour element whose nearest path lies within `shell_tol`
     of the overall nearest neighbour (e.g. Pt and Co in Pt3Co), plus a shared ΔE0, in the R window [rmin, rmax]
     (default: nearest + 1.0 Å). Every other path out to nearest + `outer` Å enters as a structural background
     (degeneracy × site weight × spherical truncation γ0(R; D), ΔR = α·reff, one σ²): tails of strong outer shells leaking into a
     first-shell-only window bias N and σ² upward (+10–20 % for Co–O in Co3O4, from tests on noise-free spectra).
-    `extra`: paths for a shell the structural model lacks (see probe_path), fitted with free N, ΔR and σ²."""
+    `extra`: paths for a shell the structural model lacks (see probe_path), fitted with free N (from extra_n0), ΔR and σ²
+    (held at extra_sigma2 when given)."""
     ss = [p for p in paths if p.nleg == 2]
     nearest = min(p.reff for p in ss)
     shells = first_shell_paths(paths, 0.0, nearest + shell_tol)
@@ -130,8 +132,8 @@ def shell_fit(k: np.ndarray, chi: np.ndarray, paths: list, s02: float, kmin: flo
                      f"ss{i}": param(0.005, vary=True, min=0.0005, max=0.05)})
         fit_paths[el] = feffpath(p.filename, degen=1.0, s02=f"s02*n{i}", e0="de0", deltar=f"dr{i}", sigma2=f"ss{i}")
     for j, p in enumerate(extra or []):  # a test shell stays a plausible bond: ±0.15 Å, σ² of a stiff bond at most 0.01 Å²
-        pars.update({f"nx{j}": param(0.5, vary=True, min=0.0, max=12.0), f"drx{j}": param(0.0, vary=True, min=-0.15, max=0.15),
-                     f"ssx{j}": param(0.004, vary=True, min=0.001, max=0.01)})
+        pars.update({f"nx{j}": param(extra_n0, vary=True, min=0.0, max=12.0), f"drx{j}": param(0.0, vary=True, min=-0.15, max=0.15),
+                     f"ssx{j}": param(extra_sigma2 or 0.004, vary=extra_sigma2 is None, min=0.001, max=0.01)})
         fit_paths[f"extra{j}"] = feffpath(p.filename, degen=1.0, s02=f"s02*nx{j}", e0="de0", deltar=f"drx{j}", sigma2=f"ssx{j}")
     background = [p for p in paths if p.reff <= nearest + outer and not (p.nleg == 2 and p.reff <= nearest + shell_tol)]
     if background:

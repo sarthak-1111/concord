@@ -134,7 +134,19 @@ reduction code was not copied. Copied, from `bitbucket.org/fccubic/pdf_backend` 
   `concord/agents/exafs_specialist.py`; its `SYSTEM` prompt follows the style of `SPECIALIST`/`REFINEMENT_NOTES`. New
   in Concord: the EXAFS stages (ΔE0; ΔE0 + ΔR; σ²; N with σ²; consolidate), the EXAFS bounds and the staged mode of
   `concord/tools/xafs.py` `shell_fit(staged=True)`. `run_exafs` does not use it (on s0019 it ends at R 0.0030
-  against 0.0019 for the one-shot fit). Nothing from fccubicsaxs/xafs_backend was copied.
+  against 0.0019 for the one-shot fit).
+
+## 3a-x. Copied from fccubicsaxs/xafs_backend (branch `ai-agent`, commit f637212) by the author's decision, 2026-10-23
+
+From `app/modules/agent/fitflow.py` (the EXAFS platform's fitting agent), in `concord/tools/xafs_fitflow.py`:
+`SIGNIFICANT` (2.0), `F_TEST_P` (0.05), `LIGHT_SIGMA2` (0.004 Å²), the light-shell starting points of `select_model`
+(N0 1, 0.5, 2, 4), `_f_test` (verbatim) and `_minor_verdict` (adapted to `shell_fit`'s result). `light_shell` follows
+`select_model` for one light shell: fitted from each start with σ² held, lowest reduced χ² wins, kept only when N is
+above 2σ, within 0.15 Å and better by an F-test at p < 0.05, then its own σ² freed when the data fixes it. This rule
+now decides the probe shell in `run_exafs` and the critic's `exafs_probe_shell` re-run, replacing Concord's earlier
+rule (N above 3σ and the R-factor down 30 %). On s0009, s0010, s0019 and s0024 it reaches the same decision as the
+earlier rule (no probe shell kept). Not copied: the platform plumbing (tool runs, workspace, database), the foil S0²
+fit, fitting k-weights 1, 2 and 3 together, `robustness`, multi-shell fits and report saving.
 
 ## 3b. Concord Forge (the user's own repository, used at run time)
 

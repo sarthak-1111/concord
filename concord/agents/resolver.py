@@ -13,6 +13,7 @@ from concord.analysis import candidates
 from concord.config import settings
 from concord.tools import pdf as pdft
 from concord.tools import xafs, xrd
+from concord.tools import xafs_fitflow as fitflow
 
 ACTIONS = {
     "pdf_fit_candidate": "Refine the PDF with another candidate phase. args: {candidate: name from sample.candidates}",
@@ -74,16 +75,15 @@ def _exafs_data(run: dict):
 
 
 def exafs_probe_shell(run: dict, neighbor: str = "O", distance_A: float = 2.0) -> tuple[dict, str]:
-    """Confirms by the rule check C3 uses for a missing shell (N above extra_min_sigma σ, R-factor drop)."""
+    """Confirms by the rule run_exafs uses for a missing shell (the EXAFS platform's: N above 2σ and an F-test)."""
     k, chi, paths, s02, absorber, edge, kmax = _exafs_data(run)
     base = xafs.shell_fit(k, chi, paths, s02=s02, kmax=kmax)
-    fit = xafs.shell_fit(k, chi, paths, s02=s02, kmax=kmax, extra=[xafs.probe_path(absorber, edge, neighbor, float(distance_A))])
+    path = xafs.probe_path(absorber, edge, neighbor, float(distance_A))
+    light = fitflow.light_shell(base, lambda n0, s2: xafs.shell_fit(k, chi, paths, s02=s02, kmax=kmax, extra=[path], extra_n0=n0, extra_sigma2=s2))
+    fit = light["fit"]
     x = next(s for s in fit["shells"] if s.get("extra"))
-    tol = settings()["checks"]["C3_coordination"]
     res = {"pair": f"{absorber}-{neighbor}", "N": x["N"], "N_err": x["N_err"], "R_A": x["R_A"],
-           "rfactor_without": base["rfactor"], "rfactor_with": fit["rfactor"],
-           "confirms": bool(x["N_err"] and x["N"] / x["N_err"] >= tol["extra_min_sigma"]
-                            and fit["rfactor"] <= (1 - tol["extra_min_rfactor_drop"]) * base["rfactor"])}
+           "rfactor_without": base["rfactor"], "rfactor_with": fit["rfactor"], "confirms": light["keep"], "verdict": light["text"]}
     res["_new"] = {**run["res"]["exafs"], "fit": fit, "fit_without_extra": base,
                    "extra_shell": {k: res[k] for k in ("pair", "N", "N_err", "R_A", "rfactor_without", "rfactor_with")}
                    | {"sigma2": x["sigma2"], "significant": res["confirms"]}}

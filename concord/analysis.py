@@ -17,6 +17,7 @@ from concord.config import settings
 from concord.data_builder.fetch import load_structures, systems
 from concord.tools import pdf as pdft
 from concord.tools import virtual_xafs, xafs, xrd
+from concord.tools import xafs_fitflow as fitflow
 
 INPUT_KEYS = ("sample_id", "composition", "techniques", "instrument", "origin", "assumed")
 B_BV = 0.37  # bond-valence softness b (Å), Brown & Altermatt (1985), doi:10.1107/S0108768185002063
@@ -166,13 +167,13 @@ def run_exafs(folder: Path, meta: dict, structure: Structure, kmin: float = 3.0,
     if probe == "on" and in_model:
         raise ValueError(f"the model already has a {absorber}-{probe_neighbor} shell, so there is nothing to probe")
     if probe != "off" and not in_model:  # e.g. metal model: test for an oxide shell it lacks
-        tol = settings()["checks"]["C3_coordination"]
-        with_o = xafs.shell_fit(k, chi, paths, **win, extra=[xafs.probe_path(absorber, edge, probe_neighbor, probe_r)])
+        path = xafs.probe_path(absorber, edge, probe_neighbor, probe_r)
+        light = fitflow.light_shell(fit, lambda n0, s2: xafs.shell_fit(k, chi, paths, **win, extra=[path], extra_n0=n0, extra_sigma2=s2))
+        with_o, significant = light["fit"], light["keep"]
         x = next(s for s in with_o["shells"] if s.get("extra"))
-        significant = bool(x["N_err"] and x["N"] / x["N_err"] >= tol["extra_min_sigma"]
-                           and with_o["rfactor"] <= (1 - tol["extra_min_rfactor_drop"]) * fit["rfactor"])
         out["extra_shell"] = {"pair": f"{absorber}-{probe_neighbor}", "N": x["N"], "N_err": x["N_err"], "R_A": x["R_A"], "sigma2": x["sigma2"],
-                              "rfactor_without": fit["rfactor"], "rfactor_with": with_o["rfactor"], "significant": significant}
+                              "rfactor_without": fit["rfactor"], "rfactor_with": with_o["rfactor"], "significant": significant,
+                              "f_test_p": light["p"], "verdict": light["text"]}
         if significant or probe == "on":
             out["fit"], out["fit_without_extra"] = with_o, fit
     ft = xafs.fourier_transform(k, chi, kmin=3.0, kmax=kmax0)

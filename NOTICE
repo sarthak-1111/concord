@@ -11,3 +11,7 @@ See docs/PRIOR_WORK.md for exactly what came from CrystaLenz and what is new.
 The PDF refinement ladder, its keep-or-revert gate and the PDF Refinement specialist's prompt
 (concord/agents/pdf_specialist/) were copied from fccubic/pdf_backend (bitbucket.org/fccubic/pdf_backend,
 commit 3bf4be1) by the author's decision on 2026-10-23; see docs/PRIOR_WORK.md section 3a.
+
+The EXAFS minor-shell rules (concord/tools/xafs_fitflow.py: the F-test, the 2-sigma N rule and the light-shell starts)
+were copied from fccubicsaxs/xafs_backend (branch ai-agent, commit f637212) by the author's decision on 2026-10-23;
+see docs/PRIOR_WORK.md section 3a-x.
