@@ -30,7 +30,7 @@ eval:  # README results table regenerated from results/eval.json; exit status is
 	uv run python -W ignore -m concord.evaluate; s=$$?; uv run python scripts/update_readme.py; exit $$s
 
 eval-agents:  # adds visual inspection + generator-critic loop (LLM, ~minutes per sample)
-	uv run python -W ignore -m concord.evaluate --agents
+	uv run python -W ignore -m concord.evaluate --agents; s=$$?; uv run python scripts/update_readme.py; exit $$s
 
 analyze:  # make analyze S=dataset/samples/s0010
 	uv run python -W ignore -m concord.analysis $(S)

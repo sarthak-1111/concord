@@ -96,9 +96,12 @@ sample folder ─► XRD   peaks, phase ranking, Scherrer/WH size (Voigt, instru
   must cite evidence ids; it can ask for one of five re-runs (another candidate, envelope on/off, a probe shell, a
   k-range scan, size from the strongest peak), and the re-run decides. A number guard rejects any number in the
   prose that is not in the evidence.
-- **Visual inspection.** Fit plots are rendered deterministically and judged by the eye module when
-  `EYE_MODULE_PATH` is set, otherwise by an open fallback (residual features + gpt-oss judge). A fit is accepted only
-  if the visual and numerical criteria both pass.
+- **Visual inspection.** Fit plots are rendered deterministically (XRD with reflection ticks, PDF, EXAFS in k and R,
+  and a zoom on the largest misfit) and judged by the eye module when `EYE_MODULE_PATH` is set, otherwise by an open
+  fallback (residual features calibrated on the development split + gpt-oss judge). A fit is accepted only if the
+  visual and the numerical and physicality criteria all pass. A rejected fit gets one fix from a fixed menu (second
+  XRD phase, PDF envelope on/off, EXAFS O shell); the fix is kept only if its re-run confirms it and the verdict does
+  not get worse, otherwise it is reverted (at most 3 iterations).
 - **Literature priors.** OpenAlex, Crossref and arXiv abstracts, local embeddings and FAISS; values are read with
   fixed patterns and kept with their DOI and sentence. They are context for the critic and the report, never fit
   constraints for this sample.

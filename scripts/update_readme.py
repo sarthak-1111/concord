@@ -32,7 +32,11 @@ def table(ev: dict) -> str:
     extra = [f"Virtual EXAFS against the hidden spectrum (XAFS withheld): median R-factor {m['virtual_xafs_hidden_rfactor_median']:.3f}"
              if m.get("virtual_xafs_hidden_rfactor_median") is not None else "",
              f"Faults that only raise a warning: {m['fault_warn_or_fail_rate'] - m['fault_detection_rate']:.0%} of fault samples."
-             if m.get("fault_warn_or_fail_rate") is not None else ""]
+             if m.get("fault_warn_or_fail_rate") is not None else "",
+             f"With the critic (`make eval-agents`): faults flagged by a check or a re-run-confirmed objection "
+             f"{m['fault_detection_rate_agents']:.0%}, clean samples flagged {m['false_alarm_rate_agents']:.0%}, numbers in the "
+             f"agents' prose not found in the evidence: {m['unsupported_numbers_total']}, {m['agent_wall_s_mean'] / 60:.0f} min "
+             f"and {m['llm_tokens_per_sample'] / 1000:.0f}k tokens per sample." if m.get("fault_detection_rate_agents") is not None else ""]
     return "\n".join([head, "", *rows, "", *[f"{x}  " for x in extra if x], "", "Per-sample details: [`results/eval.md`](results/eval.md)."])
 
 

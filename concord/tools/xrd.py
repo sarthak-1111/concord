@@ -282,7 +282,7 @@ def scale_with_background(two_theta: np.ndarray, y: np.ndarray, patterns: list[n
     both left in by the stiff baseline. 8 terms: on the dev split (dataset_big s0060+) 1/44 clean patterns keep a
     residual peak above 15 % of the maximum, against 3/44 with 6 terms. Returns (scales, background)."""
     tt = np.asarray(two_theta, float)
-    bkg = np.column_stack([np.polynomial.chebyshev.chebvander(np.interp(tt, (tt.min(), tt.max()), (-1.0, 1.0)), terms - 1), 1.0 / tt])
+    bkg = np.column_stack([np.polynomial.chebyshev.chebvander(np.interp(tt, (tt.min(), tt.max()), (-1.0, 1.0)), terms - 1), 1.0 / np.maximum(tt, 1.0)])  # 2θ from Q can start at 0
     a, k = np.column_stack([*patterns, bkg]), len(patterns)
     sol = lsq_linear(a, np.asarray(y, float), bounds=(np.r_[np.zeros(k), np.full(bkg.shape[1], -np.inf)], np.inf), method="bvls")
     return sol.x[:k], bkg @ sol.x[k:]

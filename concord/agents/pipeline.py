@@ -216,9 +216,12 @@ def report_markdown(st: dict) -> str:
     """Final report: LLM prose (number-guarded) plus tables built from the data."""
     a, model, text = st["analysis"], st.get("model") or {}, st.get("report_text") or {}
     sym = {"pass": "pass", "warn": "**warn**", "fail": "**FAIL**", "skip": "skip"}
-    lines = [f"# Concord report — {a['sample_id']} ({a['inputs']['composition']})", "",
-             f"**{text.get('headline', '')}**", "", f"Phase: **{model['phase'] if model else a['phase']}**", "", model.get("summary", ""), "",
-             "## Key numbers (from the tools)", ""] + key_numbers(a)
+    lines = [f"# Concord report — {a['sample_id']} ({a['inputs']['composition']})", ""]
+    lines += [f"**{text['headline']}**", ""] if text.get("headline") else []
+    lines += [f"Phase: **{model['phase'] if model else a['phase']}**", ""] + ([model["summary"], ""] if model.get("summary") else [])
+    lines += [f"Assumed (not in the file headers): {', '.join(a['inputs']['assumed'])}.", ""] if a["inputs"].get("assumed") else []
+    lines += [f"Not analysed: {'; '.join(f'{k} ({v})' for k, v in a['errors'].items())}.", ""] if a.get("errors") else []
+    lines += ["## Key numbers (from the tools)", ""] + key_numbers(a)
     if text.get("techniques"):
         lines += ["", "## Evidence by technique", ""] + [f"- **{k.upper()}**: {v}" for k, v in text["techniques"].items()]
     lines += ["", "## Cross-technique checks", "", "| check | status | explanation |", "|---|---|---|"]
