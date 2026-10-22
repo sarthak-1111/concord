@@ -130,18 +130,22 @@ def run_pdf(folder: Path, meta: dict, cands: dict, xrd_res: dict | None) -> dict
     return {"fits": sorted(fits, key=lambda f: f["rw"])}
 
 
+def measured_chi(folder: Path) -> tuple[np.ndarray, np.ndarray, str]:
+    """The measured χ(k): as given, else extracted from μ(E) with autobk."""
+    if (folder / "xafs_chi.k").exists():
+        k, chi = np.loadtxt(folder / "xafs_chi.k", unpack=True)
+        return k, chi, "xafs_chi.k"
+    e, mu = np.loadtxt(folder / "xafs_mu.dat", unpack=True)
+    c = xafs.chi_from_mu(e, mu)
+    return c["k"], c["chi"], "autobk(xafs_mu.dat)"
+
+
 def run_exafs(folder: Path, meta: dict, structure: Structure) -> dict:
     xa = meta["instrument"]["xafs"]
     absorber, edge = xa["edge"].split()
     if absorber not in {el.symbol for el in structure.composition.elements}:
         raise ValueError(f"absorber {absorber} is not in the refined model {structure.composition.reduced_formula}")
-    if (folder / "xafs_chi.k").exists():
-        k, chi = np.loadtxt(folder / "xafs_chi.k", unpack=True)
-        source = "xafs_chi.k"
-    else:
-        e, mu = np.loadtxt(folder / "xafs_mu.dat", unpack=True)
-        c = xafs.chi_from_mu(e, mu)
-        k, chi, source = c["k"], c["chi"], "autobk(xafs_mu.dat)"
+    k, chi, source = measured_chi(folder)
     kmax = min(12.0, float(xa.get("kmax", 12.0)))
     paths = xafs.structure_paths(structure, absorber, edge)
     fit = xafs.shell_fit(k, chi, paths, s02=xa["s02"], kmin=3.0, kmax=kmax)
@@ -188,12 +192,12 @@ def run_virtual_xafs(folder: Path, meta: dict, fits: list[dict], absorber: str, 
     xa = meta["instrument"].get("xafs", {})
     s02, kmax = float(xa.get("s02", 0.9)), min(12.0, float(xa.get("kmax", 12.0)))
     pred = virtual_xafs.predict_exafs(fits, absorber, edge, s02=s02, kmax=kmax)
-    measured = folder / "xafs_chi.k"
-    if xa.get("edge") and xa["edge"].split()[0] != absorber:  # never score against another element's spectrum
+    measured = (folder / "xafs_chi.k").exists() or (folder / "xafs_mu.dat").exists()
+    if measured and xa.get("edge", absorber).split()[0] != absorber:  # never score against another element's spectrum
         pred["recommendation"] = (f"The measured {xa['edge']} edge belongs to an element the refined model does not contain, so this "
                                   f"is the model's own {absorber} {edge} edge. " + pred["recommendation"])
-    elif measured.exists():
-        k, chi = np.loadtxt(measured, unpack=True)
+    elif measured:
+        k, chi, _ = measured_chi(folder)
         pred["vs_measured"] = virtual_xafs.score_against(pred, k, chi)
         pred["recommendation"] = "This edge was measured, so the prediction serves as a consistency check against the measurement."
         pred["per_candidate"] = {}
