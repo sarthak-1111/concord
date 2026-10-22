@@ -58,7 +58,14 @@ export type Prior = {
   snippet: string;
 };
 
-export type Vision = { accepted: boolean; verdict: string; inspector: string; issues: Record<string, string>[]; numerical: { ok: boolean; reason: string } };
+export type Vision = {
+  accepted: boolean;
+  verdict: string;
+  inspector: string;
+  issues: Record<string, string>[];
+  numerical: { ok: boolean; reason: string };
+  steps: { iteration: number; action: string; finding: string; kept: boolean }[];
+};
 
 export type View = {
   sample_id: string;

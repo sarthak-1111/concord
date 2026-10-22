@@ -83,9 +83,13 @@ def fit_pdf(r: np.ndarray, g: np.ndarray, dg: np.ndarray, structure: Structure, 
             recipe.fix("all")
             recipe.free(*stage)
             least_squares(recipe.residual, recipe.values, bounds=recipe.getBounds2(), x_scale="jac", max_nfev=400)
-    res = FitResults(recipe)
-    vals = dict(zip(res.varnames, map(float, res.varvals)))
-    unc = dict(zip(res.varnames, map(float, res.varunc)))
+        lo, hi = recipe.getBounds2()
+        pinned = [n for n, v, a, b in zip(recipe.get_names(), recipe.values, lo, hi) if min(v - a, b - v) <= 1e-6 * max(abs(v), 1.0)]
+        if pinned:  # a parameter on its bound has no uncertainty and makes the covariance singular (seen: U_iso ± 0.7 Å²)
+            recipe.fix(*pinned)
+        res = FitResults(recipe)
+    vals = {**dict(zip(res.fixednames, map(float, res.fixedvals))), **dict(zip(res.varnames, map(float, res.varvals)))}
+    unc = {**dict.fromkeys(res.fixednames), **dict(zip(res.varnames, map(float, res.varunc)))}
     lattice = {k: vals[f"lat_{ties[k]}"] for k in ("a", "b", "c")}
     refined = structure.copy()
     refined.lattice = Lattice.from_parameters(lattice["a"], lattice["b"], lattice["c"], base["alpha"], base["beta"], base["gamma"])
@@ -96,7 +100,7 @@ def fit_pdf(r: np.ndarray, g: np.ndarray, dg: np.ndarray, structure: Structure, 
         "lattice": {k: v for k, v in lattice.items()}, "lattice_err": {k: unc[f"lat_{ties[k]}"] for k in lattice},
         "uiso": {el: vals[f"u_{el}"] for el in elements}, "uiso_err": {el: unc[f"u_{el}"] for el in elements},
         "delta2": vals["delta2"], "delta2_err": unc["delta2"], "scale": vals["scale"],
-        "psize_nm": vals["psize"] / 10 if nanoparticle else None, "psize_err_nm": unc["psize"] / 10 if nanoparticle else None,
+        "psize_nm": vals["psize"] / 10 if nanoparticle else None, "psize_err_nm": unc["psize"] / 10 if nanoparticle and unc["psize"] is not None else None,
         "qmax": qmax, "qdamp": qdamp, "qbroad": qbroad, "r_range": [float(r[0]), float(r[-1])],
         "shells": shells, "structure": refined,
         "curves": {"r": r, "obs": g, "calc": np.asarray(gfit), "diff": g - np.asarray(gfit), "sigma": dg},

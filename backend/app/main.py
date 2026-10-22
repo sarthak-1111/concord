@@ -79,7 +79,7 @@ def view(sid: str) -> dict | None:
         "agents": ag and {**{k: ag.get(k) for k in ("model", "log", "rounds", "confirmed", "unsupported_numbers", "wall_s", "llm")},
                           "stale": (RUNS / sid / "agents.json").stat().st_mtime < mtime},  # analysis re-run after the agents
         "vision": ag and {t: {"accepted": x["accepted"], "verdict": x["visual"]["verdict"], "inspector": x["visual"]["inspector"],
-                              "issues": x["visual"]["issues"], "numerical": x["numerical"]}
+                              "issues": x["visual"]["issues"], "numerical": x["numerical"], "steps": x.get("steps", [])}
                           for t, x in (ag.get("vision") or {}).items() if "visual" in x},
         "report_md": ag["report_md"] if ag else report_markdown({"analysis": {**a, "priors": priors}}),
         "priors": priors,

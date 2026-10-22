@@ -212,16 +212,18 @@ def c7_joint(xrd: dict | None, pdf: dict | None, virtual: dict | None) -> dict:
         return skip("C7", name, "needs XRD and PDF")
     corr = {r["phase"]: r["profile_corr"] for r in xrd["ranking"]}
     exafs = (virtual or {}).get("per_candidate", {})
-    rows = []
+    parts = []
     for f in pdf["fits"][:3]:
-        parts = {"xrd": 1 - max(corr.get(f["candidate"], 0.0), 0.0), "pdf": f["rw"]}
+        p = {"xrd": 1 - max(corr.get(f["candidate"], 0.0), 0.0), "pdf": f["rw"]}
         if f["candidate"] in exafs:
-            parts["exafs"] = exafs[f["candidate"]]
-        rows.append({"candidate": f["candidate"], **{k: round(v, 4) for k, v in parts.items()}, "score": round(sum(parts.values()) / len(parts), 4)})
+            p["exafs"] = exafs[f["candidate"]]
+        parts.append((f["candidate"], p))
+    used = set.intersection(*(set(p) for _, p in parts))  # every candidate scored on the same techniques
+    rows = [{"candidate": c, **{k: round(v, 4) for k, v in p.items()}, "score": round(sum(p[k] for k in used) / len(used), 4)} for c, p in parts]
     rows.sort(key=lambda r: r["score"])
     reported = pdf["fits"][0]["candidate"]
     margin = rows[1]["score"] - rows[0]["score"] if len(rows) > 1 else None
-    vals = {"candidates": rows, "margin": margin and round(margin, 4), "techniques": sorted({k for r in rows for k in r} - {"candidate", "score"})}
+    vals = {"candidates": rows, "margin": margin and round(margin, 4), "techniques": sorted(used)}
     if rows[0]["candidate"] != reported:
         return result("C7", name, "fail", vals, tol, f"Scored on all techniques together, {rows[0]['candidate']} beats the reported {reported}.")
     if margin is not None and margin < tol["min_margin"]:

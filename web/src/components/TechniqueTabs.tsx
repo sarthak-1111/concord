@@ -32,10 +32,21 @@ export default function TechniqueTabs({ view }: { view: View }) {
           {view.plots[tab.key] ? (
             <img src={API + view.plots[tab.key]} alt={`${tab.label} fit: data, model and difference`} className="w-full rounded border border-slate-100" />
           ) : <p className="text-sm text-slate-500">No fit plot for this technique.</p>}
+          {view.plots[`${tab.key}_zoom`] ? (
+            <figure className="mt-3">
+              <img src={API + view.plots[`${tab.key}_zoom`]} alt={`${tab.label} fit zoomed on the largest misfit`} className="w-full rounded border border-slate-100" />
+              <figcaption className="mt-1 text-xs text-slate-500">Zoom on the window where the difference is largest relative to the noise.</figcaption>
+            </figure>
+          ) : null}
           {vision ? (
             <p className={`mt-2 text-sm ${vision.accepted ? "text-emerald-700" : "text-red-700"}`}>
               Visual inspection ({vision.inspector}): {vision.verdict}; numerical: {vision.numerical.reason}. Fit {vision.accepted ? "accepted" : "rejected"}.
               {vision.issues?.length ? <span className="block text-slate-600">{vision.issues.map((i) => Object.values(i).join(" · ")).join(" | ")}</span> : null}
+              {vision.steps?.length ? (
+                <span className="block text-slate-600">
+                  Fixes tried: {vision.steps.map((s) => `${s.action} (${s.kept ? "kept" : "reverted"}): ${s.finding}`).join(" | ")}
+                </span>
+              ) : null}
             </p>
           ) : null}
         </div>

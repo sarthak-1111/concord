@@ -15,6 +15,7 @@ import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as spla
 from lmfit.lineshapes import voigt
+from scipy.optimize import lsq_linear
 from scipy.signal import find_peaks, peak_widths, savgol_filter
 
 from concord.tools import tool
@@ -206,16 +207,19 @@ def scherrer_wh(peaks: list[dict], wavelength_A: float = CU_KA1, instrument: dic
             inst = instrument.get("fwhm_deg") or caglioti_fwhm_deg(tt, instrument["U"], instrument["V"], instrument["W"])
         if "sigma_deg" in pk:
             beta_deg = voigt_fwhm(math.sqrt(max(pk["sigma_deg"] ** 2 - (inst / 2.3548) ** 2, 0.0)), pk["gamma_deg"])
+            lorentz = min(1.0, 2 * pk["gamma_deg"] / max(beta_deg, 1e-9))  # Lorentzian share of the sample broadening
         else:
-            beta_deg = math.sqrt(max(float(pk["fwhm_deg"]) ** 2 - inst ** 2, 1e-12))
+            beta_deg, lorentz = math.sqrt(max(float(pk["fwhm_deg"]) ** 2 - inst ** 2, 1e-12)), None
         theta, beta = math.radians(tt / 2), math.radians(max(beta_deg, 1e-6))
         rows.append({"two_theta": tt, "beta_deg": beta_deg, "L_nm": K * wavelength_A / (beta * math.cos(theta)) / 10,
-                     "D_sphere_nm": K_SPHERE_D * wavelength_A / (beta * math.cos(theta)) / 10})
+                     "D_sphere_nm": K_SPHERE_D * wavelength_A / (beta * math.cos(theta)) / 10, "lorentz_fraction": lorentz})
         X.append(4 * math.sin(theta))
         Y.append(beta * math.cos(theta))
     out = {"scherrer": rows, "K": K, "wavelength_A": wavelength_A,
            "scherrer_median_nm": float(np.median([r["L_nm"] for r in rows])) if rows else None,
            "sphere_diameter_nm": _weighted_median([r["D_sphere_nm"] for r in rows], [pk.get("area", 1.0) for pk in peaks]) if rows else None,
+           "lorentz_fraction": _weighted_median([r["lorentz_fraction"] for r in rows], [pk.get("area", 1.0) for pk in peaks])
+           if rows and all(r["lorentz_fraction"] is not None for r in rows) else None,
            "williamson_hall": None}
     if len(X) >= 3:
         slope, intercept = np.polyfit(X, Y, 1)
@@ -272,6 +276,18 @@ def match_reference(peaks: list[dict], ref_lines: list[dict], wavelength_A: floa
 
 
 # -- pattern simulation (used for phase scoring, C7 and the data builder) ------------------------------
+def scale_with_background(two_theta: np.ndarray, y: np.ndarray, patterns: list[np.ndarray], terms: int = 8) -> tuple[np.ndarray, np.ndarray]:
+    """Non-negative scales of simulated patterns refined together with a smooth background, as in Rietveld refinement:
+    Chebyshev terms for amorphous and diffuse scattering plus a 1/2θ term for the low-angle rise of small particles,
+    both left in by the stiff baseline. 8 terms: on the dev split (dataset_big s0060+) 1/44 clean patterns keep a
+    residual peak above 15 % of the maximum, against 3/44 with 6 terms. Returns (scales, background)."""
+    tt = np.asarray(two_theta, float)
+    bkg = np.column_stack([np.polynomial.chebyshev.chebvander(np.interp(tt, (tt.min(), tt.max()), (-1.0, 1.0)), terms - 1), 1.0 / tt])
+    a, k = np.column_stack([*patterns, bkg]), len(patterns)
+    sol = lsq_linear(a, np.asarray(y, float), bounds=(np.r_[np.zeros(k), np.full(bkg.shape[1], -np.inf)], np.inf), method="bvls")
+    return sol.x[:k], bkg @ sol.x[k:]
+
+
 def tch_pseudo_voigt(x: np.ndarray, center: float, h_g: float, h_l: float) -> np.ndarray:
     """Unit-area pseudo-Voigt with Thompson–Cox–Hastings mixing (doi:10.1107/S0021889887087090)."""
     h = (h_g ** 5 + 2.69269 * h_g ** 4 * h_l + 2.42843 * h_g ** 3 * h_l ** 2 + 4.47163 * h_g ** 2 * h_l ** 3
@@ -286,8 +302,11 @@ def tch_pseudo_voigt(x: np.ndarray, center: float, h_g: float, h_l: float) -> np
 
 @tool
 def simulate_pattern(structure, two_theta: np.ndarray, wavelength_A: float = CU_KA1, size_nm: float | None = None,
-                     strain: float = 0.0, instrument: dict | None = None, debye_waller: dict | None = None) -> np.ndarray:
-    """Powder pattern of a periodic structure: pymatgen stick pattern broadened by size, strain and instrument."""
+                     strain: float = 0.0, instrument: dict | None = None, debye_waller: dict | None = None,
+                     lorentz_fraction: float | None = None) -> np.ndarray:
+    """Powder pattern of a periodic structure: pymatgen stick pattern broadened by size, strain and instrument.
+    Size broadening is Lorentzian unless lorentz_fraction (the Lorentzian share of the size FWHM measured on the
+    pattern's own peaks) gives its shape."""
     inst = instrument or {"U": 0.004, "V": -0.002, "W": 0.002}
     x = np.asarray(two_theta, float)
     y = np.zeros_like(x)
@@ -298,6 +317,9 @@ def simulate_pattern(structure, two_theta: np.ndarray, wavelength_A: float = CU_
         h_g = caglioti_fwhm_deg(tt, inst["U"], inst["V"], inst["W"])
         h_g = math.sqrt(h_g ** 2 + math.degrees(4 * strain * math.tan(theta)) ** 2)
         h_l = math.degrees(K_SCHERRER * wavelength_A / (size_nm * 10 * math.cos(theta))) if size_nm else 1e-4
+        if size_nm and lorentz_fraction is not None:  # split the size FWHM into Voigt parts (Olivero–Longbothum inverted)
+            beta, h_l = h_l, max(lorentz_fraction * h_l, 1e-4)
+            h_g = math.sqrt(h_g ** 2 + max((beta - 0.5346 * h_l) ** 2 - 0.2166 * h_l ** 2, 0.0))
         y += line["intensity"] * tch_pseudo_voigt(x, tt, h_g, h_l)
     return y
 

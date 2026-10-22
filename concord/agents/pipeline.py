@@ -142,7 +142,7 @@ class AnalysisAgent(BaseAgent):
             res["priors"] = await asyncio.to_thread(literature.for_result, res, True)
         except Exception as exc:  # literature is context: a failed search never stops the analysis
             res["priors"], res.setdefault("errors", {})["priors"] = [], f"literature search failed ({type(exc).__name__})"
-        RUNS[ctx.session.id] = {"folder": folder, "meta": load_inputs(folder, comp), "res": res}
+        RUNS[ctx.session.id] = {"folder": folder, "meta": load_inputs(folder, comp), "res": res, "out_dir": ctx.session.state["out_dir"]}
         statuses = ", ".join(f"{c['id']} {c['status']}" for c in res["checks"])
         yield _event(ctx, self.name, f"analysis done: phase {res['phase']}; {statuses}",
                      {"analysis": to_json(res), "evidence": bundle(to_json(res)), "log": [], "round": 0})
@@ -153,17 +153,19 @@ class VisionAgent(BaseAgent):
 
     async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
         run = RUNS[ctx.session.id]
-        vis = await asyncio.to_thread(inspect_fits, run["res"], Path(ctx.session.state["out_dir"]))
-        ev = dict(ctx.session.state["evidence"])
+        vis = await asyncio.to_thread(inspect_fits, run["res"], Path(ctx.session.state["out_dir"]), run)
+        analysis = to_json(run["res"])  # a kept fix changes the fits and the checks
+        ev = bundle(analysis)
         for tech, v in vis.items():
             if "visual" not in v:  # the virtual XAFS plot is shown, not judged
                 continue
             ev[f"vision.{tech}"] = _r({"accepted": v["accepted"], "verdict": v["visual"]["verdict"], "inspector": v["visual"]["inspector"],
                                        "issues": v["visual"]["issues"], "numerical": v["numerical"],
                                        "durbin_watson": v["features"]["durbin_watson"], "structured_regions": v["features"]["structured_regions"],
-                                       "unexplained_peaks": v["features"]["unexplained_peaks"]})
-        text = "; ".join(f"{t} {'accepted' if v['accepted'] else 'rejected'} ({v['visual']['inspector']})" for t, v in vis.items() if "visual" in v)
-        yield _event(ctx, self.name, f"visual inspection: {text}", {"evidence": ev, "vision": to_json(vis)})
+                                       "unexplained_peaks": v["features"]["unexplained_peaks"], "fixes_tried": v["steps"]})
+        text = "; ".join(f"{t} {'accepted' if v['accepted'] else 'rejected'} ({v['visual']['inspector']})"
+                         + "".join(f", {s['action']} {'kept' if s['kept'] else 'reverted'}" for s in v["steps"]) for t, v in vis.items() if "visual" in v)
+        yield _event(ctx, self.name, f"visual inspection: {text}", {"analysis": analysis, "evidence": ev, "vision": to_json(vis)})
 
 
 class ResolverAgent(BaseAgent):
@@ -183,7 +185,7 @@ class ResolverAgent(BaseAgent):
             elif o.get("action"):
                 result, finding = await asyncio.to_thread(run_action, run, o["action"], o.get("args"))
                 key = f"rerun.{entry['id']}.{o['action']}"
-                ev[key] = _r(to_json(result))
+                ev[key] = _r(to_json({k: v for k, v in result.items() if not k.startswith("_")}))
                 entry.update(status="confirmed" if result.get("confirms") else "not confirmed", finding=finding, result_id=key)
             else:
                 entry.update(status="open", finding="no re-run requested; the analyst must answer it")

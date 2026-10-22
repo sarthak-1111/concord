@@ -1,6 +1,10 @@
 """Deterministic re-runs that settle a critic's objection. Each action returns (result, finding): numbers from
 tools, a one-line templated finding, and result["confirms"]: whether the re-run supports the objection, decided by
-the same tolerances the checks use (config.yaml), never by the LLM. The critic may only request actions in ACTIONS."""
+the same tolerances the checks use (config.yaml), never by the LLM. The critic may only request actions in ACTIONS.
+Re-fits also return the new technique result under "_new" (private: never put into the evidence), which the
+visual-inspection loop uses as a fix."""
+from pathlib import Path
+
 import numpy as np
 from pymatgen.core import Structure
 
@@ -15,6 +19,8 @@ ACTIONS = {
     "exafs_probe_shell": "Add a shell the model lacks to the EXAFS fit. args: {neighbor: element symbol, distance_A: number}",
     "exafs_window_scan": "Refit EXAFS with kmax 10, 11 and 12 to test whether N and sigma2 are stable. args: {}",
     "xrd_size_strongest": "XRD sphere diameter from the strongest indexed reflection alone. args: {}",
+    "xrd_add_phase": "Add a second candidate phase to the XRD model. args: {candidate: name, optional}",
+    "inspect_region": "Visual inspection of one fit zoomed on a window. args: {technique: xrd|pdf|exafs, x_min: number, x_max: number}",
 }
 
 
@@ -52,7 +58,9 @@ def pdf_toggle_envelope(run: dict) -> tuple[dict, str]:
     fit = pdft.fit_pdf(*data, candidates(run["meta"]["composition"])[best["candidate"]], label=best["candidate"],
                        nanoparticle=nanoparticle, **kw)
     mode = "with" if nanoparticle else "without"
-    return ({**_fit_summary(fit), "confirms": fit["rw"] < 0.9 * best["rw"]},
+    fit["lattice_ref"] = best.get("lattice_ref")
+    new = {**run["res"]["pdf"], "fits": sorted([fit] + run["res"]["pdf"]["fits"][1:], key=lambda f: f["rw"])}
+    return ({**_fit_summary(fit), "confirms": fit["rw"] < 0.9 * best["rw"], "_new": new},
             f"{best['candidate']} {mode} the particle envelope: Rw {fit['rw']:.3f} (was {best['rw']:.3f})")
 
 
@@ -75,6 +83,9 @@ def exafs_probe_shell(run: dict, neighbor: str = "O", distance_A: float = 2.0) -
            "rfactor_without": base["rfactor"], "rfactor_with": fit["rfactor"],
            "confirms": bool(x["N_err"] and x["N"] / x["N_err"] >= tol["extra_min_sigma"]
                             and fit["rfactor"] <= (1 - tol["extra_min_rfactor_drop"]) * base["rfactor"])}
+    res["_new"] = {**run["res"]["exafs"], "fit": fit, "fit_without_extra": base,
+                   "extra_shell": {k: res[k] for k in ("pair", "N", "N_err", "R_A", "rfactor_without", "rfactor_with")}
+                   | {"sigma2": x["sigma2"], "significant": res["confirms"]}}
     err = f" ± {x['N_err']:.2f}" if x["N_err"] else ""
     return res, (f"adding {absorber}-{neighbor} gives N {x['N']:.2f}{err} at {x['R_A']:.2f} Å; R-factor "
                  f"{base['rfactor']:.4f} → {fit['rfactor']:.4f}")
@@ -106,6 +117,42 @@ def xrd_size_strongest(run: dict) -> tuple[dict, str]:
     off = abs(d - x["sphere_diameter_nm"]) / x["sphere_diameter_nm"] > settings()["checks"]["C6_size"]["warn_rel"]
     return ({"two_theta": strongest["two_theta"], "sphere_diameter_nm": d, "confirms": off},
             f"strongest reflection ({strongest['two_theta']:.2f}°) alone gives {d:.2f} nm against {x['sphere_diameter_nm']:.2f} nm")
+
+
+def xrd_add_phase(run: dict, candidate: str | None = None) -> tuple[dict, str]:
+    """Confirms when a second candidate phase (scales and background refined together, as for the first phase) lowers
+    the residual RMS of the background-corrected pattern by more than 20 %."""
+    x, cands = run["res"]["xrd"], candidates(run["meta"]["composition"])
+    c, best = x["curves"], x["ranking"][0]["phase"]
+    others = [o for o in ([candidate] if candidate else [r["phase"] for r in x["ranking"][1:]]) if o in cands and o != best]
+    if not others:
+        return {"error": "no other candidate phase", "confirms": False}, "there is no second candidate phase to try"
+    tt, y, calc = (np.asarray(c[k], float) for k in ("two_theta", "corrected", "calc"))
+    sim = lambda name: xrd.simulate_pattern(cands[name], tt, x["wavelength_A"], size_nm=x.get("scherrer_median_nm"),
+                                            instrument=run["meta"]["instrument"]["xrd"].get("caglioti_deg2"),
+                                            lorentz_fraction=x.get("lorentz_fraction"))
+    s1, rms0 = sim(best), float(np.sqrt(np.mean((y - calc) ** 2)))
+    trials = []
+    for o in others:
+        s2 = sim(o)
+        coef, bkg = xrd.scale_with_background(tt, y, [s1, s2])
+        trials.append((float(np.sqrt(np.mean((y - coef[0] * s1 - coef[1] * s2 - bkg) ** 2))), o, coef, s2, bkg))
+    rms1, o, coef, s2, bkg = min(trials, key=lambda t: t[0])
+    fit = coef[0] * s1 + coef[1] * s2 + bkg
+    share = float(coef[1] * s2.sum() / max((coef[0] * s1 + coef[1] * s2).sum(), 1e-12))
+    res = {"second_phase": o, "intensity_share": share, "rms_before": rms0, "rms_after": rms1, "confirms": bool(coef[1] > 0 and rms1 < 0.8 * rms0),
+           "_new": {**x, "second_phase": o, "curves": {**c, "calc": fit, "background": bkg, "diff": y - fit}}}
+    return res, f"adding {o} ({100 * share:.0f} % of the simulated intensity) takes the XRD residual RMS from {rms0:.4g} to {rms1:.4g}"
+
+
+def inspect_region(run: dict, technique: str, x_min: float, x_max: float) -> tuple[dict, str]:
+    """The critic's call to the eye module (or the fallback judge): one fit zoomed on [x_min, x_max]. Confirms
+    (the fit is wrong there) when the verdict is reject."""
+    from concord.vision.check import inspect_one  # the vision package imports this module: imported late
+    v = inspect_one(technique, run["res"], Path(run["out_dir"]) / "zoom", xlim=(float(x_min), float(x_max)))
+    res = {"technique": technique, "window": [float(x_min), float(x_max)], "verdict": v["visual"]["verdict"],
+           "inspector": v["visual"]["inspector"], "issues": v["visual"]["issues"], "plot": v["plot"], "confirms": v["visual"]["verdict"] == "reject"}
+    return res, f"{technique} fit between {float(x_min):g} and {float(x_max):g}: {v['visual']['verdict']} ({v['visual']['inspector']})"
 
 
 def run_action(run: dict, action: str, args: dict | None) -> tuple[dict, str]:

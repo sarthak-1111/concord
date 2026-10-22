@@ -4,7 +4,7 @@
   "test",
   "faults"
  ],
- "wall_s": 128.9,
+ "wall_s": 134.5,
  "metrics": {
   "n_clean": 10,
   "n_faults": 9,
@@ -18,11 +18,11 @@
   "false_alarm_rate": 0.0,
   "warn_rate_clean": 0.2,
   "checks_reported": 1.0,
-  "virtual_xafs_rfactor_median": 0.040636521054007974,
+  "virtual_xafs_rfactor_median": 0.021892434358169125,
   "virtual_xafs_n": 10,
-  "virtual_xafs_hidden_rfactor_median": 0.009834937585625071,
-  "runtime_s_mean": 24.103157894736842,
-  "runtime_s_max": 52.12,
+  "virtual_xafs_hidden_rfactor_median": 0.01097670969326888,
+  "runtime_s_mean": 25.07947368421053,
+  "runtime_s_max": 53.28,
   "llm_tokens_per_sample": 0,
   "size_rel_mae_xrd": 0.09892335234634506,
   "size_n_xrd": 8,
@@ -92,12 +92,12 @@
    "pass": true
   },
   "runtime_s_mean": {
-   "value": 24.103157894736842,
+   "value": 25.07947368421053,
    "max": 120,
    "pass": true
   },
   "virtual_xafs_rfactor_median": {
-   "value": 0.040636521054007974,
+   "value": 0.021892434358169125,
    "max": 0.1,
    "pass": true
   }
@@ -122,7 +122,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 5.59,
+   "runtime_s": 5.35,
    "errors": {},
    "exafs": [
     {
@@ -164,7 +164,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 27.53,
+   "runtime_s": 28.55,
    "errors": {},
    "exafs": [
     {
@@ -179,8 +179,8 @@
    "valence_err": 0.0,
    "virtual_xafs": {
     "against": "measured",
-    "rfactor_R": 0.05521229115931128,
-    "band_coverage_k": 0.2983425414364641,
+    "rfactor_R": 0.05720431765036619,
+    "band_coverage_k": 0.292817679558011,
     "r_window": [
      1.0,
      3.5
@@ -210,7 +210,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 15.39,
+   "runtime_s": 15.78,
    "errors": {},
    "exafs": [
     {
@@ -226,8 +226,8 @@
    "valence_err": -0.4974075217837175,
    "virtual_xafs": {
     "against": "measured",
-    "rfactor_R": 0.44959378818294254,
-    "band_coverage_k": 0.850828729281768,
+    "rfactor_R": 0.0034861568755836176,
+    "band_coverage_k": 0.016574585635359115,
     "r_window": [
      1.0,
      3.5
@@ -256,7 +256,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 34.94,
+   "runtime_s": 36.39,
    "errors": {},
    "exafs": [
     {
@@ -308,7 +308,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 37.77,
+   "runtime_s": 40.46,
    "errors": {},
    "pdf_R_err": [
     0.00011968553204955157,
@@ -316,7 +316,7 @@
    ],
    "virtual_xafs": {
     "against": "hidden",
-    "rfactor_R": 0.009834937585625071,
+    "rfactor_R": 0.01097670969326888,
     "band_coverage_k": 0.425414364640884,
     "r_window": [
      1.0,
@@ -346,7 +346,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 22.75,
+   "runtime_s": 24.13,
    "errors": {},
    "exafs": [
     {
@@ -392,7 +392,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 18.72,
+   "runtime_s": 20.17,
    "errors": {},
    "exafs": [
     {
@@ -408,7 +408,7 @@
    "valence_err": -0.34502692190686135,
    "virtual_xafs": {
     "against": "measured",
-    "rfactor_R": 0.10230613661868244,
+    "rfactor_R": 0.10230486454882569,
     "band_coverage_k": 0.0055248618784530384,
     "r_window": [
      1.0,
@@ -438,7 +438,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 9.8,
+   "runtime_s": 10.8,
    "errors": {},
    "exafs": [
     {
@@ -484,7 +484,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 5.41,
+   "runtime_s": 5.88,
    "errors": {},
    "exafs": [
     {
@@ -526,7 +526,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 18.83,
+   "runtime_s": 19.11,
    "errors": {},
    "exafs": [
     {
@@ -541,7 +541,7 @@
    "valence_err": 0.0,
    "virtual_xafs": {
     "against": "measured",
-    "rfactor_R": 0.048464883084946585,
+    "rfactor_R": 0.05012065418010754,
     "band_coverage_k": 0.39226519337016574,
     "r_window": [
      1.0,
@@ -574,7 +574,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 35.21,
+   "runtime_s": 36.72,
    "errors": {},
    "exafs": [
     {
@@ -590,7 +590,7 @@
    "valence_err": -0.1169274896715291,
    "virtual_xafs": {
     "against": "measured",
-    "rfactor_R": 0.15439561137498817,
+    "rfactor_R": 0.1543882705554178,
     "band_coverage_k": 0.27624309392265195,
     "r_window": [
      1.0,
@@ -622,7 +622,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 20.64,
+   "runtime_s": 21.0,
    "errors": {},
    "exafs": [
     {
@@ -637,8 +637,8 @@
    "valence_err": -0.112,
    "virtual_xafs": {
     "against": "measured",
-    "rfactor_R": 0.0665416289737324,
-    "band_coverage_k": 0.3314917127071823,
+    "rfactor_R": 0.06758001147391132,
+    "band_coverage_k": 0.32044198895027626,
     "r_window": [
      1.0,
      3.5
@@ -670,10 +670,8 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 4.01,
-   "errors": {
-    "virtual_xafs": "ValueError: The function value at x=80.0 is NaN; solver cannot continue."
-   },
+   "runtime_s": 4.14,
+   "errors": {},
    "exafs": [
     {
      "pair": "Ce-O",
@@ -686,6 +684,15 @@
     -0.0004741483182320039
    ],
    "valence_err": 0.11920664601996078,
+   "virtual_xafs": {
+    "against": "measured",
+    "rfactor_R": 0.005271869019892707,
+    "band_coverage_k": 0.026490066225165563,
+    "r_window": [
+     1.0,
+     3.5
+    ]
+   },
    "size_rel_err": {
     "xrd": 0.026333304755966166,
     "pdf": -0.09372522075648153
@@ -711,10 +718,8 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 52.12,
-   "errors": {
-    "virtual_xafs": "ValueError: The function value at x=80.0 is NaN; solver cannot continue."
-   },
+   "runtime_s": 53.28,
+   "errors": {},
    "exafs": [
     {
      "pair": "Pt-Pt",
@@ -726,6 +731,15 @@
     0.00027755194614620393
    ],
    "valence_err": 0.05106370527199277,
+   "virtual_xafs": {
+    "against": "measured",
+    "rfactor_R": 0.04430133610881258,
+    "band_coverage_k": 0.7900552486187845,
+    "r_window": [
+     1.0,
+     3.5
+    ]
+   },
    "size_rel_err": {
     "xrd": 0.14774296768239314,
     "pdf": -0.34021884611414505,
@@ -752,7 +766,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 40.51,
+   "runtime_s": 42.49,
    "errors": {},
    "exafs": [
     {
@@ -799,7 +813,7 @@
    },
    "flagged": false,
    "warned": false,
-   "runtime_s": 17.45,
+   "runtime_s": 18.33,
    "errors": {},
    "exafs": [
     {
@@ -814,8 +828,8 @@
    "valence_err": 0.0,
    "virtual_xafs": {
     "against": "measured",
-    "rfactor_R": 0.02882464475811297,
-    "band_coverage_k": 0.4143646408839779,
+    "rfactor_R": 0.030279426112428762,
+    "band_coverage_k": 0.4088397790055249,
     "r_window": [
      1.0,
      3.5
@@ -847,7 +861,7 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 16.48,
+   "runtime_s": 16.93,
    "errors": {
     "exafs": "ValueError: absorber Ce is not in the refined model TiO2",
     "virtual_xafs": "ValueError: Ce is not in the refined model"
@@ -879,10 +893,8 @@
    },
    "flagged": true,
    "warned": true,
-   "runtime_s": 43.79,
-   "errors": {
-    "virtual_xafs": "ValueError: The function value at x=80.0 is NaN; solver cannot continue."
-   },
+   "runtime_s": 45.8,
+   "errors": {},
    "exafs": [
     {
      "pair": "Pt-O",
@@ -895,6 +907,15 @@
     0.06767279078072796
    ],
    "valence_err": -1.2110046701084372,
+   "virtual_xafs": {
+    "against": "measured",
+    "rfactor_R": 0.7568045075224353,
+    "band_coverage_k": 0.03314917127071823,
+    "r_window": [
+     1.0,
+     3.5
+    ]
+   },
    "size_rel_err": {
     "xrd": 0.20003513747472046,
     "pdf": 0.35337037826925544
@@ -920,7 +941,7 @@
    },
    "flagged": false,
    "warned": true,
-   "runtime_s": 31.02,
+   "runtime_s": 31.2,
    "errors": {},
    "exafs": [
     {

@@ -23,6 +23,7 @@ B_BV = 0.37  # bond-valence softness b (Å), Brown & Altermatt (1985), doi:10.11
 
 
 FILES = {"xrd": ["xrd.xy"], "pdf": ["pdf.gr"], "xafs": ["xafs_mu.dat", "xafs_chi.k"]}
+MIN_CRYSTALLITE_NM = 1.0  # a "peak" broader than a 1 nm sphere gives is amorphous scattering or background, not Bragg
 
 
 def _header(path: Path) -> dict:
@@ -90,7 +91,8 @@ def run_xrd(folder: Path, meta: dict, cands: dict) -> dict:
     # peaks and gave sphere-size MAE 10x; λ=1e8, p=0.001 gives MAE 0.098 (median +4.9 %)
     pre = xrd.preprocess(data["intensity"], baseline_lambda=1e8, baseline_p=0.001)
     tt, y = data["two_theta_deg"], pre["intensity_corr"]
-    peaks = xrd.find_and_fit_peaks(tt, y)
+    widest = lambda t: np.degrees(xrd.K_SPHERE_D * lam / (10 * MIN_CRYSTALLITE_NM * np.cos(np.radians(t / 2))))
+    peaks = [p for p in xrd.find_and_fit_peaks(tt, y) if p["fwhm_deg"] <= widest(p["two_theta"])]
     amax = max((p["area"] for p in peaks), default=0.0)  # drop noise spikes: narrower than the instrument, or tiny
     peaks = [p for p in peaks if p["area"] >= 0.01 * amax and (not inst or p["fwhm_deg"] >= 0.7 * xrd.caglioti_fwhm_deg(p["two_theta"], **inst))]
     size_nm = xrd.scherrer_wh(peaks, lam, instrument=inst)["scherrer_median_nm"]
@@ -102,12 +104,14 @@ def run_xrd(folder: Path, meta: dict, cands: dict) -> dict:
         size = xrd.scherrer_wh(indexed, lam, instrument=inst)
         size_nm = size["scherrer_median_nm"] or size_nm
     span = float(data["intensity"].max() - data["intensity"].min()) or 1.0
-    calc = xrd.simulate_pattern(cands[ranking[0]["phase"]], tt, lam, size_nm=size_nm, instrument=inst)
-    calc = calc * float(calc @ y / max(calc @ calc, 1e-12))  # least-squares scale onto the corrected pattern
+    calc = xrd.simulate_pattern(cands[ranking[0]["phase"]], tt, lam, size_nm=size_nm, instrument=inst, lorentz_fraction=size.get("lorentz_fraction"))
+    (scale,), bkg = xrd.scale_with_background(tt, y, [calc])
+    calc = scale * calc + bkg
     return {"wavelength_A": lam, "n_peaks": len(peaks), "n_indexed": len(indexed), "peaks": peaks, **size, "ranking": ranking,
+            "reflections": [line["two_theta"] for line in ref],
             "peak_rel_intensity": max((p["height"] for p in indexed), default=0.0) / span,
             "curves": {"two_theta": tt, "obs": data["intensity"], "baseline": pre["baseline"], "corrected": y,
-                       "calc": calc, "diff": y - calc, "sigma": data["sigma"]}}
+                       "calc": calc, "background": bkg, "diff": y - calc, "sigma": data["sigma"]}}
 
 
 def run_pdf(folder: Path, meta: dict, cands: dict, xrd_res: dict | None) -> dict:
@@ -249,14 +253,20 @@ def analyze(folder: str | Path, references: str | Path | None = None, compositio
         v_abs, v_edge = edge_meta if len(edge_meta) == 2 else (heavy, default_edge(heavy))
         v_res = step("virtual_xafs", run_virtual_xafs, folder, meta, p_res["fits"], v_abs, v_edge)
     out.update(xrd=x_res, pdf=p_res, exafs=e_res, xanes=n_res, bvs=b_res, virtual_xafs=v_res)
-    out["checks"] = [checks.c1_phase(x_res, p_res), checks.c2_bond_lengths(e_res, p_res, absorber),
-                     checks.c3_coordination(e_res, p_res, absorber), checks.c4_oxidation(n_res, b_res),
-                     checks.c5_disorder(e_res, p_res, absorber), checks.c6_size(x_res, p_res),
-                     checks.c7_joint(x_res, p_res, v_res)]
+    out["checks"] = run_checks(out)
     good = best and best["rw"] <= 2 * settings()["checks"]["C1_phase"]["pdf_good_rw"]
     out["phase"] = best["candidate"] if good else (x_res["ranking"][0]["phase"] if x_res and not best else None)
     out["timings_s"]["total"] = round(sum(out["timings_s"].values()), 2)
     return out
+
+
+def run_checks(res: dict) -> list[dict]:
+    """C1-C7 from the technique results (also after a fit was improved by the visual-inspection loop)."""
+    xa = res["inputs"]["instrument"].get("xafs", {})
+    absorber = xa.get("edge", "").split()[0] if "xafs" in res["inputs"]["techniques"] and xa.get("edge") else None
+    x, p, e, n, b, v = (res.get(k) for k in ("xrd", "pdf", "exafs", "xanes", "bvs", "virtual_xafs"))
+    return [checks.c1_phase(x, p), checks.c2_bond_lengths(e, p, absorber), checks.c3_coordination(e, p, absorber),
+            checks.c4_oxidation(n, b), checks.c5_disorder(e, p, absorber), checks.c6_size(x, p), checks.c7_joint(x, p, v)]
 
 
 def to_json(obj):

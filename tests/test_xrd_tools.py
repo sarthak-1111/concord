@@ -85,3 +85,15 @@ def test_xy_loader_reads_q_header(tmp_path):
     assert data["meta"]["unit"] == "q"
     expected = 2 * np.degrees(np.arcsin(8 * 1.5406 / (4 * np.pi)))
     assert abs(data["two_theta_deg"].max() - expected) < 1e-6
+
+
+def test_scale_with_background_separates_pattern_from_hump_and_low_angle_rise():
+    tt = np.arange(10, 90, 0.02)
+    pattern = sum(xrd.tch_pseudo_voigt(tt, c, 1.5, 0.2) for c in (39.8, 46.2, 67.5))
+    pattern *= 100 / pattern.max()
+    bkg = 40 * np.exp(-0.5 * ((tt - 25) / 8) ** 2) + 900 / tt  # amorphous hump + low-angle rise, peaks of 300 on top
+    (scale,), fitted = xrd.scale_with_background(tt, 3.0 * pattern + bkg, [pattern])
+    assert abs(scale - 3.0) < 0.06
+    assert np.max(np.abs(fitted - bkg)) < 0.05 * 300
+    (neg,), _ = xrd.scale_with_background(tt, bkg - pattern, [pattern])
+    assert neg == 0.0  # scales are non-negative

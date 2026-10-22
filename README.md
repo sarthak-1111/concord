@@ -54,10 +54,10 @@ Other commands: `uv run concord priors Pt3Co` (literature values with DOIs), `ma
 | Planted faults detected (a check fails) | 0.667 | ≥ 0.6 | pass |
 | False alarms on clean samples | 0 | ≤ 0.2 | pass |
 | C1–C6 reported for every sample | 1 | ≥ 1.0 | pass |
-| Runtime per sample, mean (s) | 24.1 | ≤ 120 | pass |
-| Virtual EXAFS vs spectrum, median R-factor | 0.0406 | ≤ 0.1 | pass |
+| Runtime per sample, mean (s) | 25.1 | ≤ 120 | pass |
+| Virtual EXAFS vs spectrum, median R-factor | 0.0219 | ≤ 0.1 | pass |
 
-Virtual EXAFS against the hidden spectrum (XAFS withheld): median R-factor 0.010  
+Virtual EXAFS against the hidden spectrum (XAFS withheld): median R-factor 0.011  
 Faults that only raise a warning: 11% of fault samples.  
 
 Per-sample details: [`results/eval.md`](results/eval.md).
@@ -114,7 +114,8 @@ plots from residual statistics; everything else is the same.
 - Pt3Co and Pt are hard to tell apart by PDF alone for small particles; C7 and EXAFS help, not always.
 - The eye module interface could not be inspected (the reference repositories were not available), so the adapter
   tries a list of common entry points.
-- The reference repositories `pdf_frontend` and `pdf_backend` were not cloned; nothing was taken from them.
+- The reference repositories `xafs_backend` and `xafs_frontend` are private and were not cloned (no credentials);
+  nothing was taken from them.
 
 ## Licence
 

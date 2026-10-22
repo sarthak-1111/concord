@@ -43,14 +43,14 @@ changes the boundary.
 |---|---|
 | `concord/llm/client.py` | LLM client for the bearer-token Ollama endpoint: thinking level per role, timeouts per level, retries with backoff, capability probe (`tools`, `format`) with JSON-in-text fallback and one repair, at most 2 requests in flight, streamed replies (Cloudflare tunnels cut idle requests), tokens and latency in the trace, endpoint address never logged |
 | `concord/llm/adk_model.py` | ADK `BaseLlm` adapter, so ADK agents run on gpt-oss |
-| `concord/tools/xrd.py` (new parts) | header-aware loader, Caglioti instrument correction, Voigt deconvolution, exact sphere Scherrer constant, width-aware indexing, whole-profile phase ranking, pattern simulation |
+| `concord/tools/xrd.py` (new parts) | header-aware loader, Caglioti instrument correction, Voigt deconvolution, exact sphere Scherrer constant, width-aware indexing, whole-profile phase ranking, pattern simulation with the size-broadening shape measured on the pattern's own peaks, phase scales refined with a Chebyshev + 1/2θ background |
 | `concord/tools/pdfcalc.py`, `concord/tools/pdf.py` | PDF calculator (Debye sum with Q-damping, spherical envelope) and diffpy.srfit refinement of lattice, U_iso, δ2 and particle size |
 | `concord/tools/feff.py`, `concord/tools/xafs.py` | FEFF6 paths from structures, correlated-Debye σ², normalisation and background, first-shell EXAFS fit with a structural background for outer shells, probe shells, XANES edge position and linear-combination fitting |
 | `concord/tools/virtual_xafs.py` | virtual EXAFS from the PDF model: ensemble band, PREDICTED, NOT MEASURED label, measurement recommendation, scoring against hidden or measured spectra |
 | `concord/analysis.py` | deterministic runner: input autodetection, all techniques, bond-valence sums with self-calibrated R0, virtual XAFS, checks |
 | `concord/checks.py` | cross-technique checks C1–C7 with tolerances from `config.yaml` |
 | `concord/agents/` | evidence bundle with citable ids and number guard; re-run actions that settle objections; ADK pipeline (analysis → visual inspection → generator–critic–resolver loop → reporter) |
-| `concord/vision/` | deterministic fit plots, residual features (Durbin–Watson on independent points, structured and concentrated misfit), eye-module adapter, open fallback judge, acceptance rule |
+| `concord/vision/` | deterministic fit plots (XRD with reflection ticks, PDF, EXAFS in k and R, zoom on the largest misfit), residual features calibrated on the dev split (Durbin–Watson on independent points, structured and concentrated misfit, grouped unexplained diffraction peaks), physicality checks, eye-module adapter, open fallback judge, acceptance rule, fix loop (a menu of deterministic re-fits, kept only when confirmed and not worse, otherwise reverted) |
 | `concord/literature.py` | paper miner: OpenAlex, Crossref and arXiv; abstracts split into sentences, local embeddings, FAISS; fixed-pattern extraction of bond lengths, coordination numbers, oxidation states and sizes, each with DOI and sentence; cached |
 | `concord/evaluate.py`, `eval/config.yaml` | `make eval`: metrics, registered thresholds, `results/eval.{json,md}` |
 | `concord/cli.py` | `concord analyze <folder> [--fast]`, `concord priors`, `concord eval`, `concord health` |
@@ -61,9 +61,10 @@ changes the boundary.
 
 ## 3. Reference repositories (read only, never copied)
 
-`pdf_frontend` and `pdf_backend` (bitbucket.org/fccubic) are meant to be cloned to `../concord-ref/` and read for workflow
-steps, parameter defaults and user flow only. **Status: not cloned** (cloning was blocked by this session's permission
-policy; see `docs/PROGRESS.md`). No ideas referenced from them.
+`xafs_backend` and `xafs_frontend` (bitbucket.org/fccubicsaxs, the XAFS agent) are to be cloned read-only to
+`../concord-ref/` and read for workflow steps, parameter defaults and user flow only. **Status: not cloned.** Both are
+private: SSH has no bitbucket.org host key or key on this machine, and `.env` has no HTTPS token
+(`REF_GIT_USERNAME`/`REF_GIT_TOKEN`). No ideas referenced from them.
 
 ## 4. Libraries, services and data used (not ours)
 

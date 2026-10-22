@@ -7,7 +7,7 @@ llm:
     generator: high
     critic: high
     tool_selection: medium
-    judge: medium
+    judge: low  # reads a short text summary of residual statistics
     summary: low
     report: low
   # Per-request timeout in seconds, by thinking level.
@@ -61,3 +61,5 @@ vision:
   durbin_watson_min: 1.0           # below this the residual is structured (misfit), on independent points
   exafs_rfactor_max: 0.05          # EXAFS fit R-factor accepted up to this
   xrd_area_explained_min: 0.5      # best XRD phase must explain this share of the fitted peak area
+  xrd_peak_min: 0.15               # residual peak (share of the data maximum) reported as unexplained; dev split
+                                   # (2026-10-22): 1/44 clean patterns, 5/5 wrong phases, 5/5 multi-domain, 4/5 mislabeled
