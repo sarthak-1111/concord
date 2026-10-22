@@ -23,6 +23,22 @@ def test_missing_peak_is_structured_and_localised():
     assert f["concentrated_regions"] == [f["regions"][0]["region"]]
 
 
+def test_eye_adapter_reads_a_residual_reviewer_for_pdf_only(tmp_path):
+    mod = tmp_path / "residual_stub.py"  # the PDF agent's interface: analyse/interpret, logging via its platform
+    mod.write_text("from app.core.logging_config import get_logger\n"
+                   "def analyse(r, gobs, gcalc):\n    return {'usable': True, 'r_range': [r[0], r[-1]], 'n': len(r)}\n"
+                   "def interpret(diag):\n    return [{'cause': 'instrument resolution (qdamp)', 'confidence': 'medium', "
+                   "'evidence': 'envelope', 'parameters': ['qdamp']}] + ([{'cause': 'wrong phase or bad reduction', "
+                   "'confidence': 'medium', 'evidence': 'Rw high', 'parameters': []}] if diag['n'] > 150 else [])\n")
+    fn = eye_adapter.load(str(mod))
+    curves = lambda n: {"x": np.linspace(1, 30, n), "obs": np.zeros(n), "calc": np.zeros(n)}
+    ok = eye_adapter.inspect(fn, "plot.png", {"technique": "pdf", "curves": curves(120)})
+    assert ok["verdict"] == "accept" and ok["issues"][0]["suggested_action"] == "pdf_toggle_envelope" and ok["inspector"] == "eye"
+    assert eye_adapter.inspect(fn, "plot.png", {"technique": "pdf", "curves": curves(200)})["verdict"] == "reject"
+    assert eye_adapter.inspect(fn, "plot.png", {"technique": "xrd", "curves": curves(120)}) is None  # fallback judge
+    assert "app" not in __import__("sys").modules  # the logging shim is gone after loading
+
+
 def test_eye_adapter_loads_module_from_path(tmp_path, monkeypatch):
     mod = tmp_path / "eye_stub.py"
     mod.write_text("def inspect(image, context):\n    return {'verdict': 'reject', 'issues': [{'region': 'r<5', 'pattern': 'ripple'}]}\n")

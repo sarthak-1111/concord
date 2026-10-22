@@ -99,8 +99,9 @@ sample folder ─► XRD   peaks, phase ranking, Scherrer/WH size (Voigt, instru
   decides. A re-run that cannot run leaves the objection unsettled. A number guard rejects any number in the prose
   that is not in the evidence.
 - **Visual inspection.** Fit plots are rendered deterministically (XRD with reflection ticks, PDF, EXAFS in k and R,
-  and a zoom on the largest misfit) and judged by the eye module when `EYE_MODULE_PATH` is set, otherwise by an open
-  fallback (residual features calibrated on the development split + gpt-oss judge). A fit is accepted only if the
+  and a zoom on the largest misfit). PDF fits are judged by the eye module when `EYE_MODULE_PATH` is set (the PDF
+  agent's residual reviewer, below); XRD and EXAFS fits, and PDF without it, by an open fallback (residual features
+  calibrated on the development split + gpt-oss judge). A fit is accepted only if the
   visual and the numerical and physicality criteria all pass. A rejected fit gets one fix from a fixed menu (second
   XRD phase, PDF envelope on/off, EXAFS O shell); the fix is kept only if its re-run confirms it and the verdict does
   not get worse, otherwise it is reverted (at most 3 iterations).
@@ -110,9 +111,12 @@ sample folder ─► XRD   peaks, phase ranking, Scherrer/WH size (Voigt, instru
 
 ## With or without the eye module
 
-Set `EYE_MODULE_PATH` in `.env` to the eye module (a file or package). It is loaded at run time through
-`concord/vision/eye_adapter.py` and never copied into this repository. Without it, the open fallback judges the
-plots from residual statistics; everything else is the same.
+Set `EYE_MODULE_PATH` in `.env` to the eye module. It is loaded at run time through `concord/vision/eye_adapter.py`
+and never copied into this repository. The eye is the reviewer of the PDF agent (`pdf_backend`,
+`app/modules/agent/residual.py`, private): it reads a PDF difference curve zone by zone and names the cause (lattice
+drift, scale, envelope, correlated motion, wrong phase). On the development split it rejected 2 of 44 clean PDF fits
+and 20 of 37 faulty ones. An image-judging module with an `inspect(image, context)` entry point also works. Without
+the eye, the open fallback judges every fit; everything else is the same.
 
 ## Limitations
 
@@ -126,10 +130,8 @@ plots from residual statistics; everything else is the same.
   quantity. On s0031 the analyst quoted the C5 ratio 0.276 next to the wrong PDF σ², and the critic let it pass.
 - The critic picks the re-run itself. On s0024 it rightly objected that C7 passes, then asked for a PDF re-fit that
   does not test that, so the log marks the objection refuted.
-- The eye module interface could not be inspected (the reference repositories were not available), so the adapter
-  tries a list of common entry points.
-- The reference repositories `xafs_backend` and `xafs_frontend` are private and were not cloned (no credentials);
-  nothing was taken from them.
+- The eye judges PDF fits only; XRD and EXAFS use the open judge. The 19 saved critic runs in `results/runs/` were
+  made before the eye was connected, so their PDF verdicts come from the open judge.
 
 ## Licence
 

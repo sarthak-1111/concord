@@ -7,7 +7,7 @@ Times below are JST on 2026-10-22.
 
 | # | Goal | Status |
 |---|---|---|
-| 1 | Fork runs, references cloned, `EYE_MODULE_PATH` set, docs, health and tests pass | Fork, docs, health and tests done (47 tests). References and eye module **blocked**, see "Blocked" |
+| 1 | Fork runs, references cloned, `EYE_MODULE_PATH` set, docs, health and tests pass | Done: references cloned read-only at 21:04, `EYE_MODULE_PATH` set to the PDF agent's reviewer at 21:12, 50 tests |
 | 2 | Dataset v1 valid | Done: 60 samples (31 train, 10 val, 10 test, 9 faults), validator 1149/1149 checks |
 | 3 | `make eval` end to end with C1–C6 | Done, passes every threshold (C7 added) |
 | 4 | UI shows cross-check panel, critic log and virtual XAFS for every test sample; `make eval` still passes | Done: all 19 test and fault samples show C1–C7, a current critic log and a virtual XAFS (checked through the API at 16:34); `make eval` passes |
@@ -125,10 +125,13 @@ false alarms 0.023 → 0, sizes and bond lengths unchanged.
 Oxide shell (s0010, s0059; C3 warns on s0059) and the low-concentration dopant (s0038) stay below the detection
 limits of these checks; the README lists them under limitations.
 
-## Blocked
+## Reference repositories and the eye (unblocked 21:04)
 
-- **Reference repositories** `xafs_backend` and `xafs_frontend` (bitbucket.org/fccubicsaxs): private. SSH has no
-  bitbucket.org host key or key on this machine, and `.env` has no `REF_GIT_USERNAME`/`REF_GIT_TOKEN` (a Bitbucket
-  API token with repository read scope, username `x-bitbucket-api-token-auth`). Nothing was taken from them.
-- **Eye module:** `EYE_MODULE_PATH` is not set. The open fallback (residual features + gpt-oss judge) runs instead;
-  the adapter loads the module at run time once the path is given.
+Blocked until the SSH key was added to Bitbucket (an API token was rejected for both usernames). All four repos were
+then cloned read-only over SSH into `../concord-ref/` with a temporary known_hosts file (host key checked against
+Atlassian's published fingerprint); `~/.ssh` was not changed. Only the analysis was read, not the preprocessing.
+
+The eye is the PDF agent's reviewer (`pdf_backend/app/modules/agent/residual.py`), loaded at run time for PDF fits.
+Accept/reject rule set before measuring; on the development split (PDF fits of s0060 and up) it rejected 2/44 clean
+and 20/37 faulty samples. Loading it once wrote a `__pycache__` into the clone; that folder was removed and the
+adapter no longer writes bytecode. The 19 saved critic runs predate the eye. See `PRIOR_WORK.md` §3.

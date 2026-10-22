@@ -61,10 +61,28 @@ changes the boundary.
 
 ## 3. Reference repositories (read only, never copied)
 
-`xafs_backend` and `xafs_frontend` (bitbucket.org/fccubicsaxs, the XAFS agent) are to be cloned read-only to
-`../concord-ref/` and read for workflow steps, parameter defaults and user flow only. **Status: not cloned.** Both are
-private: SSH has no bitbucket.org host key or key on this machine, and `.env` has no HTTPS token
-(`REF_GIT_USERNAME`/`REF_GIT_TOKEN`). No ideas referenced from them.
+Cloned read-only over SSH on 2026-10-22 at 21:04 into `../concord-ref/`, outside this repository; `git remote -v`
+shows no credentials and nothing in the clones was changed:
+
+- `pdf_frontend` (d0746ef) and `pdf_backend` (3bf4be1), bitbucket.org/fccubic, branch `main`: the PDF analysis
+  platform and its agent.
+- `xafs_backend` (4e9568a) and `xafs_frontend` (add424a), bitbucket.org/fccubicsaxs: upload and preprocessing only,
+  no analysis code; nothing referenced.
+
+They were cloned after Concord's pipeline was built (up to d2441bb), so its design does not come from them. Their
+preprocessing (raw data to S(Q) and G(r), PARA files, XAFS normalisation) was deliberately not used for ideas.
+
+**Used at run time, not copied: the eye.** The reviewer the PDF agent runs after each fit,
+`pdf_backend/app/modules/agent/residual.py`, is `EYE_MODULE_PATH`. `concord/vision/eye_adapter.py` loads it (with the
+standard logger in place of the platform's, so the platform itself is not imported) and judges PDF fits with its
+`analyse`/`interpret`: a fit is rejected when a cause has high confidence or no parameter can fix it (wrong phase).
+This rule was set before measuring. On the development split it rejected 2 of 44 clean PDF fits and 20 of 37 faulty
+ones (5/5 wrong phase, 5/5 multi-domain, 5/5 mislabelled, 0/5 oxide shell). XRD and EXAFS fits keep the open judge.
+
+Ideas found there that Concord had already built independently (nothing changed):
+- a fix is kept only when it improves the fit (their stage acceptance and fit check; Concord's keep-or-revert loop);
+- prose may state only numbers from saved results (their reporter's number check; Concord's number guard);
+- uncertainties scaled to the number of independent points (their PDF uncertainties; Concord's EXAFS windows).
 
 ## 4. Libraries, services and data used (not ours)
 

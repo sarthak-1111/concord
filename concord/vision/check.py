@@ -110,7 +110,8 @@ def inspect_one(tech: str, res: dict, out_dir: Path, xlim=None, eye: tuple | Non
     v = settings()["vision"]
     feats = residual_features(x, obs, calc, c["step"], dw_min=v["durbin_watson_min"], peak_width=c.get("peak_width", 1.0), peak_min=v["xrd_peak_min"])
     context = {"title": c["title"], "x_axis": c["xlabel"], "fit_window": c.get("window"), "zoom": xlim}
-    visual = eye_adapter.inspect(eye_mod, path, context) if eye_mod else judge.judge(tech, feats, context)
+    curves = {"technique": tech, "curves": {"x": x, "obs": obs, "calc": calc}}  # for a reviewer that reads the curves
+    visual = (eye_mod and eye_adapter.inspect(eye_mod, path, {**context, **curves})) or judge.judge(tech, feats, context)
     ok, why = numerical(tech, res, feats)
     return {"plot": path, "features": feats, "visual": visual, "numerical": {"ok": ok, "reason": why},
             "accepted": visual["verdict"] == "accept" and ok, **({"eye_error": eye_error} if eye_error else {})}
