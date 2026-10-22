@@ -19,6 +19,9 @@ data:
 	uv run python -W ignore -m concord.data_builder.build --n 60
 	uv run python -W ignore scripts/validate_dataset.py
 
+raw-pdf:  # raw I(Q) and container files for Open in preprocessing, added to an existing dataset (make data writes them for new samples)
+	uv run python -W ignore scripts/make_raw_pdf.py
+
 data-big:  # separate folder, so v1 (dataset/) stays fixed for development and eval
 	uv run python -W ignore -m concord.data_builder.build --n 320 --out dataset_big
 	uv run python -W ignore scripts/validate_dataset.py --root dataset_big

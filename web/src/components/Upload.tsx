@@ -4,14 +4,14 @@ import { Compass, FileArrowUp, Play, Sparkle, Trash, UploadSimple, X } from "@ph
 import { API } from "@/lib/api";
 import CompositionField from "@/components/PeriodicTable";
 
-type Kind = "xrd" | "pdf" | "xafs_mu" | "xafs_chi";
+type Kind = "xrd" | "pdf" | "pdf_iq" | "xafs_mu" | "xafs_chi";
 type Inspected = {
   name: string; technique: Kind | null; confidence: "high" | "medium" | "low"; reason: string; x_label: string; x_range: [number, number] | null;
   n_points: number; preview: { x: number[]; y: number[] } | null; edge: string | null; header: Record<string, unknown>; warnings: string[];
 };
 type Item = { file: File; info?: Inspected; kind: Kind | "skip" };
 
-const KINDS: [Kind, string][] = [["xrd", "XRD pattern"], ["pdf", "PDF, G(r)"], ["xafs_mu", "XAFS, μ(E)"], ["xafs_chi", "XAFS, χ(k)"]];
+const KINDS: [Kind, string][] = [["xrd", "XRD pattern"], ["pdf", "PDF, G(r)"], ["pdf_iq", "PDF, raw I(Q)"], ["xafs_mu", "XAFS, μ(E)"], ["xafs_chi", "XAFS, χ(k)"]];
 const LABEL = "grid min-w-0 gap-1 text-sm font-medium text-fg-2";
 
 function Spark({ p }: { p: Inspected["preview"] }) {
@@ -60,7 +60,7 @@ export default function Upload({ open, onClose, onUploaded, onExample, onPlan }:
       setBusy(undefined);
     }
   };
-  const add = (list: FileList | null) => inspect([...items.map((i) => i.file), ...Array.from(list ?? [])].slice(0, 3));
+  const add = (list: FileList | null) => inspect([...items.map((i) => i.file), ...Array.from(list ?? [])].slice(0, 4));
 
   const used = items.filter((i) => i.kind !== "skip");
   const dup = KINDS.find(([k]) => used.filter((i) => i.kind === k).length > 1 || (k.startsWith("xafs") && used.filter((i) => i.kind.startsWith("xafs")).length > 1));
@@ -96,7 +96,7 @@ export default function Upload({ open, onClose, onUploaded, onExample, onPlan }:
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id="upload-h" className="font-display text-2xl font-medium">Analyse your own data</h2>
-            <p className="mt-1 text-sm text-muted">Drop up to three files of one sample. Concord reads each one and works out which technique it is.</p>
+            <p className="mt-1 text-sm text-muted">Drop up to four files of one sample. Concord reads each one and works out which technique it is.</p>
           </div>
           <button type="button" onClick={onClose} className="btn btn-ghost -mr-2 -mt-1 px-2" aria-label="Close"><X size={18} weight="bold" /></button>
         </div>

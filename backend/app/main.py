@@ -2,7 +2,8 @@
 sample listing, per-sample result views and plot files. Run it with `make api` (binds to localhost).
 
   GET  /api/samples                  samples in dataset/samples and uploads/ (metadata only, never ground truth)
-  POST /api/uploads                  multipart: composition + any of xrd, pdf, xafs files (+ edge, wavelength, qmax) → {sample}
+  POST /api/uploads                  multipart: composition + any of xrd, pdf, pdf_iq (raw I(Q), reduced to G(r) with the
+                                     default settings), xafs files (+ edge, wavelength, qmax) → {sample}
   GET  /api/samples/{id}             result view: checks, evidence, plots, critic log, report (404 until analysed)
   GET  /api/samples/{id}/export      ?format=json (full analysis + agent run) or ?format=md (report)
   POST /api/samples/{id}/priors      search the open literature for the sample's material (cached afterwards)
@@ -16,6 +17,8 @@ sample listing, per-sample result views and plot files. Run it with `make api` (
   POST /api/samples/{id}/tweak/{t}   {values} → that fit redone with them: curve, metrics, checks and which ones change
   POST /api/samples/{id}/tweak-apply {overrides: {t: values}} → the whole analysis re-run with them (original kept) → view
   POST /api/samples/{id}/restore     back to the analysis before the user's settings → view
+  POST /api/samples/{id}/preprocess {params} → the raw I(Q) (pdf_iq.dat, pdf_bkg.dat) reduced step by step to G(r)
+  POST /api/samples/{id}/preprocess/save  {params} → that G(r) with the sample's other data as a new upload: {sample}
   POST /api/samples/{id}/generate    {realistic?} → the techniques the user did not measure, simulated from the fitted model
                                      (+ the GAN's instrument realism); GENERATED, NOT MEASURED, never analysed
   GET  /api/elements                 {phases: {element: [library phases with it as a cation]}} for the periodic table
@@ -52,6 +55,7 @@ from concord.data_builder.fetch import systems
 from concord import gan, generate, planner, tweak
 from concord.config import ROOT
 from concord.upload_inspect import columns, inspect_file
+from concord.tools import pdf as pdft, sq_to_gr
 from concord.llm.client import LLMError
 from concord.vision.check import plots
 from concord.vision.render import fit_curves
@@ -171,7 +175,7 @@ async def inspect_upload(request: Request) -> JSONResponse:
         return JSONResponse({"error": "forbidden"}, status_code=403)
     if int(request.headers.get("content-length") or 0) > MAX_UPLOAD:
         return JSONResponse({"error": f"upload larger than {MAX_UPLOAD // 2**20} MB"}, status_code=413)
-    async with request.form(max_files=3, max_fields=4) as form:
+    async with request.form(max_files=4, max_fields=4) as form:
         comp = str(form.get("composition") or "").strip() or None
         files = [f for _, f in form.multi_items() if getattr(f, "filename", None)]
         out = [await asyncio.to_thread(inspect_file, f.filename, await f.read(), comp) for f in files]
@@ -261,6 +265,79 @@ async def restore(request: Request) -> JSONResponse:
     return JSONResponse(await asyncio.to_thread(view, sid))
 
 
+PREPROCESS = {"bkg_scale": (0.0, 1.5), "qmin": (0.1, 3.0), "qmax": (5.0, 60.0), "qmaxinst": (5.0, 60.0), "rpoly": (0.1, 2.5),
+              "rmax": (10.0, 60.0), "lorch": None}  # what the user may set, and the allowed range
+
+
+def _reduce(folder: Path, composition: str, params: dict) -> dict:
+    """The folder's raw intensity reduced with the user's params over the file header's instrument values."""
+    raw = sq_to_gr.load_raw(folder / "pdf_iq.dat")
+    bkg = sq_to_gr.load_raw(folder / "pdf_bkg.dat") if (folder / "pdf_bkg.dat").exists() else None
+    h = raw["header"]
+    kw = {k: float(h[k]) for k in ("qmin", "qmax", "qmaxinst", "wavelength_A") if h.get(k) is not None}
+    for k, v in params.items():
+        if k not in PREPROCESS:
+            raise ValueError(f"unknown setting {k}; one of {', '.join(PREPROCESS)}")
+        if PREPROCESS[k] is None:
+            kw[k] = bool(v)
+            continue
+        lo, hi = PREPROCESS[k]
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not lo <= v <= hi:
+            raise ValueError(f"{k} must be a number from {lo} to {hi}")
+        kw[k] = float(v)
+    out = sq_to_gr.reduce(raw["q"], raw["i"], composition=composition, background=bkg and (bkg["q"], bkg["i"]), **kw)
+    out["instrument"] = {k: h[k] for k in ("qdamp", "qbroad") if h.get(k) is not None}
+    return out
+
+
+async def preprocess(request: Request) -> JSONResponse:
+    sid = request.path_params["sid"]
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    folder = _folder(sid)
+    if not folder or not (folder / "pdf_iq.dat").exists():
+        return JSONResponse({"error": "this sample has no raw PDF intensity (pdf_iq.dat)"}, status_code=404)
+    params = (await request.json()).get("params") or {}
+    if not isinstance(params, dict):
+        return JSONResponse({"error": "params must be an object"}, status_code=400)
+    try:
+        out = await asyncio.to_thread(_reduce, folder, load_inputs(folder)["composition"], params)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+    out.pop("gr_full")
+    if (folder / "pdf.gr").exists():  # the G(r) the analysis used, to compare with
+        r, g, _ = pdft.load_gr(folder / "pdf.gr")
+        out["current"] = {"r": _round(r, 6), "g": _round(g)}
+    return JSONResponse(to_json(out))
+
+
+async def preprocess_save(request: Request) -> JSONResponse:
+    sid = request.path_params["sid"]
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    src = _folder(sid)
+    if not src or not (src / "pdf_iq.dat").exists():
+        return JSONResponse({"error": "this sample has no raw PDF intensity (pdf_iq.dat)"}, status_code=404)
+    params, meta = (await request.json()).get("params") or {}, load_inputs(src)
+    if not isinstance(params, dict):
+        return JSONResponse({"error": "params must be an object"}, status_code=400)
+    try:
+        out = await asyncio.to_thread(_reduce, src, meta["composition"], params)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+    folder = UPLOADS / f"u{uuid.uuid4().hex[:7]}"
+    folder.mkdir(parents=True)
+    for name in ("xrd.xy", "xafs_mu.dat", "xafs_chi.k", "pdf_iq.dat", "pdf_bkg.dat"):
+        if (src / name).exists():
+            shutil.copy2(src / name, folder / name)
+    p, g = out["params"], out["gr_full"]
+    sq_to_gr.write_gr(folder / "pdf.gr", g["r"], g["y"], {"qmax": p["qmax"], "qmin": p["qmin"], **out["instrument"]}, g.get("dy"))
+    inst = {**meta["instrument"], "pdf": {**meta["instrument"].get("pdf", {}), "qmax": p["qmax"], "qmin": p["qmin"]}}
+    (folder / "sample.json").write_text(json.dumps({**meta, "sample_id": folder.name, "instrument": inst, "origin": f"G(r) re-reduced from {sid}",
+                                                    "preprocess": {k: p[k] for k in PREPROCESS if k in p}}, indent=1))
+    return JSONResponse({"sample": folder.name})
+
+
 async def generate_missing(request: Request) -> JSONResponse:
     sid, cached = request.path_params["sid"], RUNS / f"{request.path_params['sid']}.json"
     if _foreign(request):
@@ -302,7 +379,7 @@ async def upload(request: Request) -> JSONResponse:
         return JSONResponse({"error": "forbidden"}, status_code=403)
     if int(request.headers.get("content-length") or 0) > MAX_UPLOAD:
         return JSONResponse({"error": f"upload larger than {MAX_UPLOAD // 2**20} MB"}, status_code=413)
-    async with request.form(max_files=3, max_fields=10) as form:  # closes the spooled files
+    async with request.form(max_files=4, max_fields=10) as form:  # closes the spooled files
         return await _save_upload(form)
 
 
@@ -313,22 +390,22 @@ async def _save_upload(form) -> JSONResponse:
     try:
         comp = _composition(form.get("composition"))
         elements = set(re.findall(r"[A-Z][a-z]?", comp))
-        files = {k: form[k] for k in ("xrd", "pdf", "xafs") if getattr(form.get(k), "filename", None)}
+        files = {k: form[k] for k in ("xrd", "pdf", "pdf_iq", "xafs") if getattr(form.get(k), "filename", None)}
         if not files:
             raise ValueError("upload at least one of the XRD, PDF and XAFS files")
         edge = str(form.get("edge") or "").strip().replace(" ", "_")
         if "xafs" in files and not (re.fullmatch(r"([A-Z][a-z]?)_(K|L1|L2|L3)", edge) and edge.split("_")[0] in elements):
             raise ValueError("XAFS needs the edge of an element in the composition, e.g. Pt L3 or Co K")
         heads = {"xrd": {"wavelength_A": _number(form, "wavelength_A", 0.1, 3.0)}, "pdf": {"qmax": _number(form, "qmax", 5.0, 60.0)},
-                 "xafs": {"edge": edge}}
-        names = {"xrd": "xrd.xy", "pdf": "pdf.gr", "xafs": "xafs_chi.k" if form.get("xafs_kind") == "chi" else "xafs_mu.dat"}
+                 "pdf_iq": {"qmax": _number(form, "qmax", 5.0, 60.0)}, "xafs": {"edge": edge}}
+        names = {"xrd": "xrd.xy", "pdf": "pdf.gr", "pdf_iq": "pdf_iq.dat", "xafs": "xafs_chi.k" if form.get("xafs_kind") == "chi" else "xafs_mu.dat"}
         folder = UPLOADS / f"u{uuid.uuid4().hex[:7]}"
         folder.mkdir(parents=True)
         for kind, f in files.items():
             raw = await f.read()
             lines = raw.decode("utf-8", errors="replace").splitlines(keepends=True)
             n = next((i for i, line in enumerate(lines) if not line.startswith("#")), len(lines))
-            if kind == "xrd" and inspect_file(f.filename, raw, comp)["x_label"].startswith("Q"):
+            if kind in ("xrd", "pdf_iq") and inspect_file(f.filename, raw, comp)["x_label"].startswith("Q"):
                 heads[kind]["x"] = "q_inv_A"
             head = " ".join(f"{k}={v}" for k, v in heads[kind].items() if v is not None)
             body = "".join(lines[n:])
@@ -339,6 +416,10 @@ async def _save_upload(form) -> JSONResponse:
                     raise ValueError(f"{f.filename}: could not read two columns of numbers")
                 body = "".join(f"{a:.8g} {b:.8g}\n" for a, b in zip(*xy))
             (folder / names[kind]).write_text("".join(lines[:n]) + (f"# {head}\n" if head else "") + body)
+        if "pdf_iq" in files and "pdf" not in files:  # raw total scattering: reduced to G(r), re-reducible in preprocessing
+            out = _reduce(folder, comp, {})
+            p, g = out["params"], out["gr_full"]
+            sq_to_gr.write_gr(folder / "pdf.gr", g["r"], g["y"], {"qmax": p["qmax"], "qmin": p["qmin"]}, g.get("dy"))
         (folder / "sample.json").write_text(json.dumps(infer_inputs(folder, comp), indent=1))
     except ValueError as exc:
         if folder:
@@ -502,6 +583,8 @@ app = Starlette(routes=[
     Route("/api/uploads/inspect", inspect_upload, methods=["POST"]),
     Route("/api/plans", make_plan, methods=["POST"]),
     Route("/api/samples/{sid}/generate", generate_missing, methods=["POST"]),
+    Route("/api/samples/{sid}/preprocess", preprocess, methods=["POST"]),
+    Route("/api/samples/{sid}/preprocess/save", preprocess_save, methods=["POST"]),
     Route("/api/samples/{sid}/tweak/{tech}", tweak_params, methods=["GET"]),
     Route("/api/samples/{sid}/tweak/{tech}", tweak_refit, methods=["POST"]),
     Route("/api/samples/{sid}/tweak-apply", tweak_apply, methods=["POST"]),

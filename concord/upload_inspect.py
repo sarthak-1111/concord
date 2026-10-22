@@ -1,4 +1,5 @@
-"""What a dropped file holds: XRD, PDF, XAFS μ(E) or χ(k), told from its name and checked against its numbers,
+"""What a dropped file holds: XRD, PDF G(r), raw total scattering I(Q) for a PDF, XAFS μ(E) or χ(k), told from its
+name and checked against its numbers,
 with a small preview and the XAFS edge pre-filled for the upload form. Parsing reuses the XRD loader's table and
 '# key=value' header readers; nothing here is analysis, every call is fast."""
 import re
@@ -13,10 +14,13 @@ from pymatgen.core import Composition, Element
 from concord.analysis import default_edge
 from concord.tools import xafs, xrd
 
-LABELS = {"xrd": ("2θ (°)", "Intensity"), "pdf": ("r (Å)", "G(r)"), "xafs_mu": ("E (eV)", "μ(E)"), "xafs_chi": ("k (Å⁻¹)", "χ(k)")}
-WHAT = {"xrd": "an XRD pattern", "pdf": "a PDF G(r)", "xafs_mu": "an XAFS μ(E) scan", "xafs_chi": "an EXAFS χ(k)"}
-NAMES = {"pdf": r"\.gr$|(?<![a-z])pdf(?![a-z])", "xafs_chi": r"(?<![a-z])chi|\.k$", "xafs_mu": r"(?<![a-z])x?mu(?![a-z])",
-         "xrd": r"xrd|\.xye?$"}
+LABELS = {"xrd": ("2θ (°)", "Intensity"), "pdf": ("r (Å)", "G(r)"), "pdf_iq": ("Q (Å⁻¹)", "Intensity"),
+          "xafs_mu": ("E (eV)", "μ(E)"), "xafs_chi": ("k (Å⁻¹)", "χ(k)")}
+WHAT = {"xrd": "an XRD pattern", "pdf": "a PDF G(r)", "pdf_iq": "a raw total-scattering I(Q) for a PDF",
+        "xafs_mu": "an XAFS μ(E) scan", "xafs_chi": "an EXAFS χ(k)"}
+NAMES = {"pdf": r"\.gr$|(?<![a-z])pdf(?![a-z]|_(iq|sq|bkg))", "pdf_iq": r"(?<![a-z])(iq|sq|bkg)(?![a-z])|\.(iq|sq)$|total.?scatter",
+         "xafs_chi": r"(?<![a-z])chi|\.k$", "xafs_mu": r"(?<![a-z])x?mu(?![a-z])", "xrd": r"xrd|\.xye?$"}
+TOTAL_SCATTERING_QMAX = 15.0  # Å⁻¹; lab XRD stops at 8.2 (Cu Kα) or 17.7 (Mo Kα, only at 2θ = 180°)
 LEVELS = ("low", "medium", "high")
 EDGES = ("K", "L1", "L2", "L3")  # the edges the upload form accepts
 PREVIEW = 240
@@ -85,6 +89,9 @@ def _by_content(x: np.ndarray, y: np.ndarray, q_hint: bool | None) -> tuple[str 
     if lo < 0 or hi > 180:
         return None, "low", f"{span} with mostly positive values, outside any 2θ, Q or XAFS energy range", False
     q = q_hint if q_hint is not None else hi <= 30
+    if q and hi >= TOTAL_SCATTERING_QMAX:
+        return ("pdf_iq", "high" if q_hint else "medium", f"{span} Å⁻¹ with {'non-negative' if neg == 0 else 'mostly positive'} "
+                f"intensities, past the Q a lab diffractometer reaches: raw total scattering for a PDF", True)
     peaks = y.max() - y.min() > 2 * (np.median(y) - y.min())  # peaks over the background, unlike a μ(E) step
     conf = "low" if not peaks else "medium" if q_hint is None and q else "high"
     sign = "non-negative" if neg == 0 else "mostly non-negative"
@@ -167,7 +174,7 @@ def inspect_file(name: str, data: bytes, composition: str | None = None) -> dict
     elif named:
         warnings.append(f"the name suggests {WHAT[named]} but the content is {WHAT[tech]}")
         conf = "medium" if conf == "high" else "low"
-    if tech == "xrd" and q and q_hint is None:  # the name cannot settle Q against 2θ
+    if tech in ("xrd", "pdf_iq") and q and q_hint is None and named != "pdf_iq":  # only an iq/sq name settles Q against 2θ
         warnings.append(f"x ends at {_n(x[-1])}: read as Q in Å⁻¹, not 2θ")
         conf = "medium" if conf == "high" else conf
     if len(x) < MIN_POINTS:

@@ -78,3 +78,27 @@ def test_short_q_space_pattern_is_flagged():
     r = inspect_file("data.txt", "".join(f"{a} {b}\n" for a, b in zip(q, rows[:, 1])).encode())
     assert (r["technique"], r["confidence"], r["x_label"]) == ("xrd", "medium", "Q (Å⁻¹)")
     assert "only 81 points" in r["warnings"]
+
+
+RAW = pytest.mark.skipif(not (SAMPLES / "s0000" / "pdf_iq.dat").exists(), reason="run scripts/make_raw_pdf.py")
+
+
+@RAW
+@pytest.mark.parametrize("sample", ["s0000", "s0004", "s0009", "s0032"])  # bulk Pt, bulk CeO2, Pt and TiO2 particles
+@pytest.mark.parametrize("file", ["pdf_iq.dat", "pdf_bkg.dat"])
+def test_raw_total_scattering_is_told_from_the_content(sample, file):
+    r = inspect_file("data.txt", _data(sample, file))
+    assert (r["technique"], r["confidence"], r["x_label"], r["y_label"]) == ("pdf_iq", "high", "Q (Å⁻¹)", "Intensity"), r["reason"]
+    assert r["x_range"][1] >= 15 and r["edge"] is None and r["warnings"] == []
+    assert inspect_file(file, _data(sample, file))["warnings"] == []  # pdf_iq / pdf_bkg names agree, unlike pdf.gr's "pdf"
+
+
+@RAW
+def test_raw_total_scattering_without_a_header():
+    data = _data("s0009", "pdf_iq.dat", header=False)
+    r = inspect_file("data.txt", data)
+    assert (r["technique"], r["confidence"]) == ("pdf_iq", "medium") and any("read as Q" in w for w in r["warnings"])
+    r = inspect_file("sample.iq", data)
+    assert (r["technique"], r["confidence"], r["warnings"]) == ("pdf_iq", "high", [])
+    r = inspect_file("xrd.xy", _data("s0009", "pdf_iq.dat"))
+    assert r["technique"] == "pdf_iq" and any("name suggests an XRD pattern" in w for w in r["warnings"])

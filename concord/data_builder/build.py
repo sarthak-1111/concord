@@ -1,7 +1,9 @@
 """Build the dataset in the shared data contract: `make data` (v1, 60 samples), `make data-big` (grow to 320).
 
 The sample plan is prefix-stable (sample i depends only on i and the seed), so growing the dataset never
-changes existing samples or their split. Every sample is one structural model simulated three ways.
+changes existing samples or their split. Every sample is one structural model simulated three ways. Beside pdf.gr each
+sample gets the raw total scattering it was reduced from (pdf_iq.dat, pdf_bkg.dat), drawn from its own random stream so
+no other file changes; spec["raw_pdf_only"] replays a sample up to its PDF and writes only those two files.
 """
 import argparse
 import csv
@@ -91,6 +93,7 @@ def _env_classes(atoms, absorber: str, r1: float, center_only: float | None, rng
 def build_sample(spec: dict) -> dict:
     t0 = time.time()
     OUT = Path(spec["out"])
+    raw_only = spec.get("raw_pdf_only", False)
     cfg = instruments()
     rng = np.random.default_rng(spec["seed"])
     sysdefs = {s["name"]: s for s in systems()}
@@ -204,8 +207,9 @@ def build_sample(spec: dict) -> dict:
         clean = S.xrd_cluster(atoms, tt, x["wavelength_A"], cag, S.biso_of(uiso[heavy]))
     counts_max = float(np.exp(rng.uniform(*np.log(x["counts_max"]))))
     inten, sig = S.xrd_measure(tt, clean, rng, x["background"], counts_max)
-    np.savetxt(sample_dir / "xrd.xy", np.c_[tt, inten, sig], fmt="%.4f %.2f %.3f",
-               header=f"x=2theta_deg wavelength_A={x['wavelength_A']}\ncolumns: 2theta_deg intensity sigma")
+    if not raw_only:
+        np.savetxt(sample_dir / "xrd.xy", np.c_[tt, inten, sig], fmt="%.4f %.2f %.3f",
+                   header=f"x=2theta_deg wavelength_A={x['wavelength_A']}\ncolumns: 2theta_deg intensity sigma")
     params.update({"caglioti": cag, "counts_max": counts_max})
 
     # -- PDF -------------------------------------------------------------------------------------------
@@ -218,10 +222,26 @@ def build_sample(spec: dict) -> dict:
     else:
         qbroad, delta2 = 0.0, 0.0
         g = S.pdf_cluster(atoms, r, p["qmin"], qmax, qdamp, S.biso_of(uiso[heavy]))
-    g_obs, g_sig = S.pdf_measure(r, g, rng, p["qmin"], qmax, S._u(rng, p["noise_rel"]))
-    np.savetxt(sample_dir / "pdf.gr", np.c_[r, g_obs, g_sig], fmt="%.3f %.6f %.6f",
-               header=f"qmax={qmax:.3f} qdamp={qdamp:.4f} qbroad={qbroad:.4f} qmin={p['qmin']}\ncolumns: r_A G sigma")
+    g_obs, g_sig, (qn, dfq) = S.pdf_measure(r, g, rng, p["qmin"], qmax, S._u(rng, p["noise_rel"]))
+    if not raw_only:
+        np.savetxt(sample_dir / "pdf.gr", np.c_[r, g_obs, g_sig], fmt="%.3f %.6f %.6f",
+                   header=f"qmax={qmax:.3f} qdamp={qdamp:.4f} qbroad={qbroad:.4f} qmin={p['qmin']}\ncolumns: r_A G sigma")
     params.update({"qmax": qmax, "qdamp": qdamp, "qbroad": qbroad, "delta2": delta2, "uiso": uiso})
+    raw_rng = np.random.default_rng([*spec["seed"], 1])
+    q_raw = np.arange(p["qmin"], qmax + p["raw"]["beyond_qmax"], qn[1] - qn[0])  # starts with pdf_measure's grid
+    beyond = q_raw[len(qn):]  # recorded past Qmax, noisier, as a user would cut it
+    dfq = np.r_[dfq, raw_rng.normal(0, 1, len(beyond)) * beyond / qmax * np.std(dfq * qmax / qn)]
+    fq = (S.fq_bulk(structure, q_raw, r, uiso, qdamp, qbroad, delta2) if spec["form"] == "bulk"
+          else S.fq_cluster(atoms, q_raw, qdamp, S.biso_of(uiso[heavy])))
+    formula = "".join(f"{el}{n}" for el, n in sorted(Counter(symbols).items()))  # what is in the beam, not the label
+    i_raw, i_bkg = S.pdf_raw(q_raw, fq + dfq, formula, raw_rng)
+    head = (f"x=q_inv_A wavelength_A={p['raw']['wavelength_A']} qmax={qmax:.3f} qmaxinst={q_raw[-1]:.3f} "
+            f"qdamp={qdamp:.4f} qbroad={qbroad:.4f} qmin={p['qmin']}")
+    np.savetxt(sample_dir / "pdf_iq.dat", np.c_[q_raw, i_raw], fmt="%.4f %.3f", header=f"{head}\ncolumns: q_inv_A intensity")
+    np.savetxt(sample_dir / "pdf_bkg.dat", np.c_[q_raw, i_bkg], fmt="%.4f %.3f",
+               header=f"{head}\nempty container (capillary and air), same counting time\ncolumns: q_inv_A intensity")
+    if raw_only:
+        return {"sample_id": spec["sample_id"], "g": g_obs}
 
     # -- XAFS ------------------------------------------------------------------------------------------
     xa = cfg["xafs"]

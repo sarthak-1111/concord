@@ -57,6 +57,20 @@ Times below are JST on 2026-10-22.
   realism in the planner (XRD separates Pt from Pt3Co by 1.62 times the noise, PDF keeps 39 times) and Real or GAN?
   with the repository's own classifier scores (XRD 66 %, PDF 95 %, EXAFS 91 %). 96 tests.
 
+- [x] **23:45 Preprocessing, refits, generated techniques, periodic table.** Concord's own S(Q)→G(r) reduction
+  (`concord/tools/sq_to_gr.py`: background, normalisation with Compton, F(Q), a low-r-constrained polynomial
+  correction, sine transform); every sample now has the raw I(Q) and empty-container files it was reduced from, drawn
+  from a separate random stream so no other file changed. Default settings reproduce the stored G(r) at Rw 0.006 to
+  0.026 in under 0.15 s. Open in preprocessing shows raw, S(Q), F(Q) and G(r) live and saves a re-reduced G(r) as a
+  new sample; raw I(Q) uploads are reduced on upload. Open in analysis refits one technique with the user's settings
+  and shows every check that changes (s0019 PDF as Pt: Rw 0.074 → 0.103, C1, C3, C7 pass → fail, 0.8 s); Keep
+  re-analyses, Original restores the identical file. A sample missing a technique can have it generated from the
+  fitted model plus the GAN's realism (GENERATED, NOT MEASURED, never analysed). Composition from a periodic table.
+  138 tests.
+  An `rm -rf` with an empty variable in a manual test deleted `results/runs/` and `uploads/` (empty at the time). The
+  19 critic reviews came back from git; the analyses were rebuilt from the deterministic tools (no visual fix had
+  been kept in any run) and all 19 views match their reviews again. The runs' trace logs were lost.
+
 ## Agent runs (`make eval-agents`, test + faults)
 
 First batch (4.2 h, ended 14:12): 14 of 19 samples complete, 0 unsupported numbers in the reports, 1.6 critic

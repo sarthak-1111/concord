@@ -58,6 +58,9 @@ changes the boundary.
 | `concord/upload_inspect.py` | technique detection from file content (with the file name as a hint), previews, absorption edge from a μ(E) energy range; used to rewrite CSV and text-header uploads as plain columns |
 | `concord/planner.py` | measurement planner: candidate phases simulated with Concord's XRD, PDF and FEFF code, pairwise separation per technique, separation over instrument noise when a realism model is given |
 | `concord/gan.py` | run-time adapter for the realism GANs of Concord Forge (below) |
+| `concord/tools/sq_to_gr.py`, `scripts/make_raw_pdf.py` | raw I(Q) to G(r): background subtraction, normalisation with Compton (xraydb form factors), F(Q), a polynomial correction constrained at low r, sine transform with optional Lorch window; written without the reference repositories' preprocessing. The script writes each sample's raw I(Q) and empty-container files from the builder's own simulation |
+| `concord/tweak.py` | the fit settings per technique, a refit of one technique with the checks it changes, and a re-analysis with the user's settings |
+| `concord/generate.py` | the techniques a user did not measure, simulated from the fitted model (plus GAN realism), GENERATED, NOT MEASURED |
 | `backend/app/main.py`, `web/src/components/*.tsx`, `web/src/lib/{api,thread,insight}.ts` | sample workbench API and UI: conversation (`Chat`), results workbench (`Workbench`, `CheckPanel` with Settle this, `TechniqueTabs`, `VirtualXafs`, `CriticLog`, `Priors`), interactive SVG plots (`Plot`), measurement planner (`Planner`), Real or GAN? (`RealOrGan`), sample rail, upload dialog |
 | `config.yaml`, `concord/config.py`, `concord/trace.py`, `scripts/secret_scan.py`, `.githooks/pre-commit`, `Makefile` | configuration, JSONL trace, pre-commit secret scan, make targets |
 | `tests/` except the four ported XRD tests | 40+ tests: physics of every tool, checks, evidence, literature extraction, LLM client, vision, secret scan |

@@ -16,6 +16,7 @@ pdf:
   delta2: [1.0, 3.0]                         # correlated motion, bulk simulation only
   r: {min: 1.0, max: 30.0, step: 0.01}
   noise_rel: [0.005, 0.02]                   # Gaussian noise in F(Q), relative to max|G|
+  raw: {wavelength_A: 0.1665, beyond_qmax: 2.0}   # raw I(Q) files: 74.5 keV beamline, Q recorded 2 Å⁻¹ past Qmax
 
 xafs:
   temperature_K: 300

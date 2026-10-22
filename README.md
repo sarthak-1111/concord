@@ -38,6 +38,16 @@ candidate, a second XRD phase, an EXAFS k-range scan, a probe shell, envelope on
 peak), and the re-run's numbers decide. Numbers in the analyst's answers are linked to the evidence value they came
 from. Light and dark themes; phone layouts switch between the two panes.
 
+Under every fit plot, **Open in analysis** changes that fit's settings (XRD range, baseline and peak finding; PDF
+candidate, r range, Qdamp, envelope; EXAFS k and R windows, k-weight, probe shell) and shows the refit and every
+cross-check that would change, in about a second; **Keep and re-analyse** records the settings in the report, and
+**Original** restores the analysis before them. For PDF, **Open in preprocessing** reduces the raw total scattering
+step by step (raw and container, S(Q), F(Q), G(r)) with Concord's own code (`concord/tools/sq_to_gr.py`) and can
+analyse the new G(r) as a new sample; raw I(Q) files can be uploaded directly. When a sample lacks a technique, the
+conversation offers to generate it from the fitted model with the GAN's instrument realism, labelled GENERATED, NOT
+MEASURED and never used by the checks. Compositions can be picked from a periodic table that marks the elements with
+library structures.
+
 ```bash
 make api    # http://127.0.0.1:8000
 make ui     # http://127.0.0.1:3000/console#s0031

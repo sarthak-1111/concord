@@ -2,7 +2,8 @@
 
 XRD: pymatgen stick pattern + TCH profiles (bulk) or the Debye scattering equation via DebyeCalculator (particles).
 PDF: concord's real-space calculator (bulk) or DebyeCalculator G(r) (particles); noise is added in F(Q), so it is
-correlated in r as in real data. EXAFS: FEFF6L around sampled absorber sites, averaged, with correlated-Debye σ².
+correlated in r as in real data. Raw total scattering: the same F(Q) and noise as the beamline would record them,
+I(Q) = α[⟨f²⟩ + ⟨f⟩²(S(Q) - 1) + C(Q)] + container, and the empty container on its own (Egami & Billinge ch. 5). EXAFS: FEFF6L around sampled absorber sites, averaged, with correlated-Debye σ².
 μ(E): χ(k) on a simple arctan edge + white line; XANES from this model is lower fidelity and flagged as such.
 """
 import warnings
@@ -14,7 +15,8 @@ from pymatgen.core import Element, Structure
 
 from concord.tools import xrd as xrd_tools
 from concord.tools.feff import cluster_around, feff_input, run_feff
-from concord.tools.pdfcalc import PDFCalculator
+from concord.tools.pdfcalc import PDFCalculator, site_label
+from concord.tools.sq_to_gr import scattering_factors
 from concord.tools.xafs import KTOE, simulate_chi
 
 warnings.filterwarnings("ignore", module="debyecalculator")
@@ -73,16 +75,83 @@ def pdf_cluster(atoms: Atoms, r: np.ndarray, qmin: float, qmax: float, qdamp: fl
     return np.interp(r, rr, g)
 
 
-def pdf_measure(r: np.ndarray, g: np.ndarray, rng, qmin: float, qmax: float, noise_rel: float) -> tuple[np.ndarray, np.ndarray]:
-    """White noise in F(Q) transformed to r: correlated over ~π/Qmax, like measured PDFs."""
+def pdf_measure(r: np.ndarray, g: np.ndarray, rng, qmin: float, qmax: float, noise_rel: float) -> tuple[np.ndarray, np.ndarray, tuple]:
+    """White noise in F(Q) transformed to r: correlated over ~π/Qmax, like measured PDFs. Also returns that noise as
+    (Q, ΔF(Q)) for the raw files."""
     dq = 0.02
     q = np.arange(qmin, qmax, dq)
     w = q / qmax  # F(Q) = Q[S(Q)-1]: errors grow with Q
     s = np.sin(np.outer(r, q))
-    noise = (2 / np.pi) * dq * (s @ (rng.normal(0, 1, len(q)) * w))
+    e = rng.normal(0, 1, len(q)) * w
+    noise = (2 / np.pi) * dq * (s @ e)
     sigma = (2 / np.pi) * dq * np.sqrt((s ** 2) @ w ** 2)
     scale = noise_rel * np.abs(g).max() / sigma.mean()
-    return g + noise * scale, sigma * scale
+    return g + noise * scale, sigma * scale, (q, e * scale)
+
+
+def bragg_fq(structure: Structure, q: np.ndarray, uiso: dict, qdamp: float, step: float = 0.002) -> np.ndarray:
+    """F(Q) = Q[S(Q) - 1] of a powder of the infinite crystal, with PDFCalculator's weights (site Z, per-label U):
+    (2π)³/(4π n V ⟨z⟩²) Σ_G |F_G|²/|G| broadened by a normal of σ = Qdamp, minus Q Σ_i z_i² exp(-U_i Q²)/(n ⟨z⟩²)."""
+    z = np.array([sum(sp.Z * occ for sp, occ in site.species.items()) for site in structure])
+    n = sum(sum(site.species.values()) for site in structure)
+    u = np.array([uiso.get(site_label(site), 0.005) for site in structure])
+    zbar2 = (z.sum() / n) ** 2
+    qtop = float(q[-1]) + 6 * qdamp
+    hmax = np.ceil(qtop * np.array(structure.lattice.abc) / (2 * np.pi)).astype(int)
+    hkl = np.stack(np.meshgrid(*[np.arange(-m, m + 1) for m in hmax], indexing="ij"), -1).reshape(-1, 3)
+    glen = np.linalg.norm(hkl @ structure.lattice.reciprocal_lattice.matrix, axis=1)
+    keep = (glen > 1e-6) & (glen < qtop)
+    hkl, glen = hkl[keep], glen[keep]
+    edges = np.arange(0, qtop + step, step)
+    hist = np.zeros(len(edges) - 1)
+    for i in range(0, len(hkl), 20000):  # chunks: a 56-atom cell has ~10^5 reflections below 30 Å⁻¹
+        h, g = hkl[i:i + 20000], glen[i:i + 20000]
+        fg = (z * np.exp(-0.5 * u * g[:, None] ** 2) * np.exp(2j * np.pi * h @ structure.frac_coords.T)).sum(1)
+        hist += np.histogram(g, edges, weights=np.abs(fg) ** 2 / g)[0]
+    x = np.arange(-int(5 * qdamp / step) - 1, int(5 * qdamp / step) + 2) * step
+    kern = np.exp(-0.5 * (x / qdamp) ** 2)
+    peaks = (2 * np.pi) ** 3 / (4 * np.pi * n * structure.volume * zbar2) * np.convolve(hist, kern / (kern.sum() * step), mode="same")
+    self_term = sum(zi ** 2 * np.exp(-ui * q ** 2) for zi, ui in zip(z, u)) / (n * zbar2)
+    return np.interp(q, edges[:-1] + step / 2, peaks) - q * self_term
+
+
+def fq_bulk(structure: Structure, q: np.ndarray, r: np.ndarray, uiso: dict, qdamp: float, qbroad: float, delta2: float) -> np.ndarray:
+    """F(Q) of pdf_bulk's model as a powder records it. pdf_bulk's G(r) stops at rmax + 8 Å; the transform of that
+    window has negative side lobes that push the intensity below zero between Bragg peaks, so the long range comes from
+    the Bragg sum and the window adds only what δ2 and Qbroad change at short range. pdf.gr differs from this by the
+    pairs beyond the window and by Q < Qmin (pdf_bulk transforms from Q = 0)."""
+    calc = PDFCalculator(structure, rmax=float(r[-1]), rstep=float(r[1] - r[0]))
+    sin = np.sin(np.outer(q, calc.r_int)) * calc.rstep
+    window = lambda **kw: sin @ (calc(calc.r_int, uiso=uiso, qdamp=qdamp, **kw) * calc._taper)
+    return bragg_fq(structure, q, uiso, qdamp) + window(qbroad=qbroad, delta2=delta2) - window()
+
+
+def fq_cluster(atoms: Atoms, q: np.ndarray, qdamp: float, biso: float) -> np.ndarray:
+    """F(Q) behind pdf_cluster's G(r), with its Qdamp envelope as the equivalent resolution in Q: G(r)·exp(-(Qdamp r)²/2)
+    is F(Q) convolved with a normal of σ = Qdamp. Sampled at 0.01 Å⁻¹: pdf_cluster's default step π/rmax folds pairs
+    beyond rmax back into G(r), so pdf.gr of particles above ~3 nm differs from this (correct) F(Q)."""
+    from debyecalculator import DebyeCalculator
+    step = 0.01
+    dc = DebyeCalculator(qmin=float(q[0]), qmax=float(q[-1]) + 6 * qdamp + step, qstep=step, biso=biso, device="cpu",
+                         radiation_type="xray")
+    qq, f = dc.fq(atoms)
+    if qdamp > 0:
+        x = np.arange(-int(5 * qdamp / step) - 1, int(5 * qdamp / step) + 2) * step
+        kern = np.exp(-0.5 * (x / qdamp) ** 2)
+        f = np.convolve(f, kern / kern.sum(), mode="same")
+    return np.interp(q, qq, f)
+
+
+def pdf_raw(q: np.ndarray, fq: np.ndarray, composition: str, rng) -> tuple[np.ndarray, np.ndarray]:
+    """(sample, empty container) intensities as recorded: α[⟨f²⟩ + ⟨f⟩²F/Q + C] + container, where the container is a
+    Kapton capillary (its own self and Compton scattering plus two amorphous humps) and air scatter at low Q."""
+    f2, fa2, compton = scattering_factors(composition, q)
+    alpha = float(np.exp(rng.uniform(np.log(200.0), np.log(2000.0))))  # counts per electron² and atom
+    k2, ka2, kc = scattering_factors("C22H10N2O5", q)
+    humps = 0.9 * np.exp(-0.5 * ((q - 1.3) / 0.35) ** 2) + 0.3 * np.exp(-0.5 * ((q - 3.0) / 0.8) ** 2)
+    level = _u(rng, (0.03, 0.10)) * f2[0] / k2[0]  # container 3-10 % of the sample at low Q
+    bkg = alpha * level * (k2 + kc + ka2 * humps + _u(rng, (0.5, 2.0)) * k2[0] * np.exp(-q / 0.5))
+    return alpha * (f2 + fa2 * fq / q + compton) + bkg, bkg
 
 
 # -- XAFS ----------------------------------------------------------------------------------------------
