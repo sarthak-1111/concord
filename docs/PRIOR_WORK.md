@@ -66,7 +66,7 @@ changes the boundary.
 | `config.yaml`, `concord/config.py`, `concord/trace.py`, `scripts/secret_scan.py`, `.githooks/pre-commit`, `Makefile` | configuration, JSONL trace, pre-commit secret scan, make targets |
 | `tests/` except the four ported XRD tests | 40+ tests: physics of every tool, checks, evidence, literature extraction, LLM client, vision, secret scan |
 
-## 3. Reference repositories (read only, never copied)
+## 3. Reference repositories (read only; copied only as §3a lists)
 
 Cloned read-only over SSH on 2026-10-22 at 21:04 into `../concord-ref/`, outside this repository; `git remote -v`
 shows no credentials and nothing in the clones was changed:
@@ -86,7 +86,8 @@ candidates (`GET /api/elements`), which the reference does not do.
 `pdf_backend/app/modules/agent/refinement.py`: the order of steps and the guardrails live in code, and the model makes
 the judgment calls (which region or candidate to try next, whether a stage's result is physically acceptable, when
 nothing is left worth trying). Its 3 % lattice drift limit is reused as a guardrail. No code was copied: Concord's
-agent covers XRD and EXAFS as well as PDF, and every refit is done by Concord's own `concord.tweak.refit`.
+agent covers XRD and EXAFS as well as PDF, and every refit is done by Concord's own `concord.tweak.refit`. Since
+2026-10-23 the PDF agent's prompt and keep-or-revert gate, and the PDF refinement ladder, are copied code: see §3a.
 
 They were cloned after Concord's pipeline was built (up to d2441bb), so its design does not come from them. Their
 preprocessing (raw data to S(Q) and G(r), PARA files, XAFS normalisation) was deliberately not used for ideas.
@@ -102,6 +103,28 @@ Ideas found there that Concord had already built independently (nothing changed)
 - a fix is kept only when it improves the fit (their stage acceptance and fit check; Concord's keep-or-revert loop);
 - prose may state only numbers from saved results (their reporter's number check; Concord's number guard);
 - uncertainties scaled to the number of independent points (their PDF uncertainties; Concord's EXAFS windows).
+
+## 3a. Copied from fccubic/pdf_backend (commit 3bf4be1) by the author's decision, 2026-10-23
+
+Until 2026-10-23 the reference repositories were used for ideas only. On 2026-10-23 the author (Sarthak Verma) decided
+to copy the PDF platform's fitting agent, the Refinement specialist, into Concord; its preprocessing and data
+reduction code was not copied. Copied, from `bitbucket.org/fccubic/pdf_backend` at commit `3bf4be1`:
+
+- `app/modules/agent/refinement.py` into `concord/agents/pdf_specialist/refinement.py`: the module docstring,
+  `NEVER_REFINE`, `BOUNDS`, `MAX_LATTICE_DRIFT`, the `STAGES` ladder (scale and lattice, thermal factors, particle size,
+  correlated motion, instrument, consolidate), `stage_by_key`, `check_physical` and `should_accept` (1 % minimum Rw
+  gain), verbatim except that the unused `app.*` logger and `AgentContext` imports were dropped. Not copied: the
+  pdffit2 request builder, the symmetry helpers, `particle_size_estimate`, `sanitize_decision` and the free-text
+  instruction parser. New in Concord: `as_result`, which puts Concord's srfit values in the result schema
+  `should_accept` reads.
+- `app/modules/agent/science/prompts.py` (`SPECIALIST`, `REFINEMENT_NOTES`) and the guidance of `_ask_next_action` in
+  `app/modules/agent/agents.py` into `concord/agents/pdf_specialist/prompts.py`: the specialist's role, the ladder's
+  rules and the refinement guidance, adapted so it calls no platform tools and answers with Concord's JSON decision.
+- How Concord uses them (new code): `concord/tools/pdf.py` `fit_pdf` runs the copied ladder on Concord's diffpy.srfit
+  engine in place of the platform's pdffit2 job service (`_await_fit` in `_analysis_body`), keeps or reverts each stage
+  with the copied `should_accept`, skips the instrument stage (Qdamp is never fitted in Concord) and returns the
+  stages; `concord/agents/fitter.py` gives the PDF fitting agent the copied prompt and judges each of its refits with
+  the copied `should_accept`. The XRD and EXAFS agents are unchanged by this.
 
 ## 3b. Concord Forge (the user's own repository, used at run time)
 

@@ -7,3 +7,7 @@ Copyright (c) 2025 CrystaLens Contributors
 
 The original MIT licence and copyright notice are kept in LICENSE.
 See docs/PRIOR_WORK.md for exactly what came from CrystaLenz and what is new.
+
+The PDF refinement ladder, its keep-or-revert gate and the PDF Refinement specialist's prompt
+(concord/agents/pdf_specialist/) were copied from fccubic/pdf_backend (bitbucket.org/fccubic/pdf_backend,
+commit 3bf4be1) by the author's decision on 2026-10-23; see docs/PRIOR_WORK.md section 3a.

@@ -127,7 +127,7 @@ def _metrics(technique: str, res: dict) -> dict:
         f = res["fits"][0]
         return {"candidate": f["candidate"], "rw": f["rw"], "chi2_reduced": f["chi2_reduced"], "lattice": f["lattice"],
                 "lattice_ref": f["lattice_ref"], "psize_nm": f["psize_nm"], "psize_err_nm": f["psize_err_nm"], "delta2": f["delta2"],
-                "uiso": f["uiso"], "r_range": f["r_range"], "ranking": [{"candidate": x["candidate"], "rw": x["rw"]} for x in res["fits"]]}
+                "uiso": f["uiso"], "r_range": f["r_range"], "stages": f.get("stages"), "ranking": [{"candidate": x["candidate"], "rw": x["rw"]} for x in res["fits"]]}
     fit = res["fit"]
     return {"rfactor": fit["rfactor"], "chi2_reduced": fit["chi2_reduced"], "e0_shift": fit["e0_shift"],
             "shells": [{k: s[k] for k in ("neighbor", "N", "N_err", "R_A", "R_err", "sigma2")} | {"extra": bool(s.get("extra"))} for s in fit["shells"]],

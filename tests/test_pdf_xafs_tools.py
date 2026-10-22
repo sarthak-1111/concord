@@ -77,6 +77,8 @@ def test_fit_pdf_recovers_lattice_adp_and_size(pt_fcc, ceo2):
     assert fit["rw"] < 0.1
     assert abs(fit["lattice"]["a"] - 3.95) < 0.003 and abs(fit["uiso"]["Pt"] - 0.006) < 0.0008
     assert abs(fit["psize_nm"] - 5.0) < 0.5
+    assert [s["key"] for s in fit["stages"]] == ["scale_lattice", "adp", "particle_size", "delta", "consolidate"]  # no instrument stage: qdamp is never fitted
+    assert fit["stages"][0]["kept"] and fit["stages"][-1]["rw"] == min(s["rw"] for s in fit["stages"] if s["kept"])
     assert fit_pdf(r, g, dg, ceo2, qmax=24.0, qdamp=0.03, psize0_A=40.0, label="CeO2")["rw"] > 3 * fit["rw"]
 
 

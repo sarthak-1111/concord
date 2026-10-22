@@ -75,6 +75,13 @@ Times below are JST on 2026-10-22.
   number. Guardrails in code: values clipped to ranges, at most 3 refits, no window below 70 % of its default span,
   a refit kept only on a 2 % metric gain, PDF lattice drift at most 3 %, Qdamp never fitted. Kept settings re-run the
   analysis before visual inspection and the critic; steps saved in `agents.json` and shown under each fit plot.
+- [x] **2026-10-23 05:46 PDF Refinement specialist copied from the PDF platform.** By the author's decision
+  (`PRIOR_WORK.md` §3a), `fit_pdf` now runs fccubic/pdf_backend's ladder (scale + lattice, U_iso, particle size, δ2,
+  consolidate; the instrument stage skipped as Qdamp is never fitted) and keeps a stage only if its `should_accept`
+  passes it (converged, Rw at least 1 % lower, physical), else reverts it; the PDF fitting agent uses that specialist's
+  prompt and gate. s0019 (Pt3Co) re-fitted with its saved settings: Rw 0.0736 before and 0.0736 after (stages 0.2445,
+  0.1121, 0.0772 kept; δ2 0.0767 reverted, 0.7 % gain; consolidate 0.0736 kept). The held-out evaluation numbers
+  above predate this change.
 
 ## Agent runs (`make eval-agents`, test + faults)
 

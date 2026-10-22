@@ -1,9 +1,10 @@
 """Fitting agents: one LLM agent per technique drives its fit; a deterministic tool does every fitting step.
 
-The idea follows the PDF platform's agent (concord-ref/pdf_backend, analysis workflow only, no code taken): what may be
-tried and the guardrails live in code, and the model makes the judgment calls, namely which candidate or data window to
-try next, whether a refit is acceptable, and when nothing is left worth trying. Every number comes from
-concord.tweak.refit, never from the model.
+The idea follows the PDF platform's agent (fccubic/pdf_backend): what may be tried and the guardrails live in code, and
+the model makes the judgment calls, namely which candidate or data window to try next, whether a refit is acceptable,
+and when nothing is left worth trying. The PDF agent is that platform's Refinement specialist, copied by the author's
+decision on 2026-10-23 (concord.agents.pdf_specialist): its prompt, and its should_accept gate for every refit. Every
+number comes from concord.tweak.refit, never from the model.
 """
 import json
 from pathlib import Path
@@ -12,6 +13,8 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from concord import tweak
+from concord.agents.pdf_specialist import prompts as pdf_prompts
+from concord.agents.pdf_specialist.refinement import as_result, should_accept
 from concord.llm.adk_model import shared_client
 
 TECHS = ("xrd", "pdf", "exafs")
@@ -21,17 +24,15 @@ FREE = {"xrd": {"two_theta_min", "two_theta_max", "baseline_log10_lambda", "peak
         "pdf": {"candidate", "rmin", "rmax", "envelope"},  # qdamp is the instrument's calibration: never fitted here
         "exafs": {"kmin", "kmax", "rmax", "probe", "probe_neighbor"}}  # not kweight: the R-factor is not comparable across k-weights
 MAX_STEPS, MAX_CHANGES = 3, 2
-MIN_GAIN = 0.02  # relative improvement a refit needs to be kept
+MIN_GAIN = 0.02  # relative improvement an XRD or EXAFS refit needs to be kept; PDF uses the specialist's should_accept
 MIN_SPAN = 0.7  # a data window may not shrink below this share of its default span
-MAX_DRIFT = 0.03  # PDF lattice drift from the database value; more means a wrong phase or scale-lattice trade-off
 
 SYSTEM = """You are Concord's {T} fitting agent. A tested, deterministic tool fits the data; you decide what to try next and judge the result.
 Each turn, either try new settings (action "try", at most two changes, values as strings) or stop (action "accept") when the fit is good or nothing is left worth trying.
 Rules enforced in code: values outside the ranges are clipped; a data window may not shrink below 70 % of its default span, since a smaller window lowers the metric without fitting better; a refit is kept only if {metric} improves by at least 2 % and is physical.
 {good}
 Reason only from the numbers given; never invent one. Reply with JSON only."""
-GOOD = {"pdf": "Rw below 0.25 is a good PDF fit. A poor Rw with a close runner-up suggests trying that candidate; a nanoparticle needs the envelope; a lattice that drifts more than 3 % means the wrong phase.",
-        "exafs": "An R-factor below 0.05 is a good EXAFS fit. A misfit at low R can need a light-neighbour probe shell; noise at high k can need a shorter k range.",
+GOOD = {"exafs": "An R-factor below 0.05 is a good EXAFS fit. A misfit at low R can need a light-neighbour probe shell; noise at high k can need a shorter k range.",
         "xrd": "A score near 1 is good. Unindexed weak peaks can need a lower peak threshold; a broad hump under the peaks a stiffer baseline (higher baseline_log10_lambda)."}
 
 
@@ -65,13 +66,15 @@ def _window(tech: str, spec: list[dict], values: dict) -> None:
             raise ValueError(f"the {lo} to {hi} window would shrink below {MIN_SPAN:.0%} of its default span")
 
 
-def _unphysical(tech: str, r: dict) -> str | None:
+def _keep(tech: str, best: dict, r: dict, name: str, sign: int) -> tuple[bool, str | None]:
+    """Whether a refit is kept, and the error to report when it is unphysical."""
     if tech == "pdf":
-        lat, ref = r["metrics"]["lattice"], r["metrics"]["lattice_ref"]
-        drift = max(abs(lat[k] / ref[k] - 1) for k in ("a", "b", "c") if ref.get(k))
-        if drift > MAX_DRIFT:
-            return f"lattice drifts {drift:.1%} from the database value (limit {MAX_DRIFT:.0%})"
-    return None
+        m = r["metrics"]
+        ok, why = should_accept(best["metrics"]["rw"], as_result(m["rw"], m["lattice"], m["uiso"], m["delta2"],
+                                                                 m["psize_nm"] and 10 * m["psize_nm"]), m["lattice_ref"])
+        return ok, why if why.startswith("Unphysical") else None
+    gain = sign * (r["metrics"][name] - best["metrics"][name]) / max(abs(best["metrics"][name]), 1e-9)
+    return gain >= MIN_GAIN, None
 
 
 def fit(folder: str | Path, analysis: dict, tech: str) -> dict | None:
@@ -89,7 +92,8 @@ def fit(folder: str | Path, analysis: dict, tech: str) -> dict | None:
         state = {"settings": [{k: p[k] for k in ("name", "label", "kind", "min", "max", "choices", "help")} | {"value": values[p["name"]]} for p in free],
                  "current_fit": best["metrics"], "checks": [{k: c[k] for k in ("id", "status", "explanation")} for c in best["checks"]],
                  "steps_so_far": steps, "steps_left": MAX_STEPS - i + 1}
-        d = shared_client().chat("fitter", [{"role": "system", "content": SYSTEM.format(T=LABEL[tech], metric=name, good=GOOD[tech])},
+        system = pdf_prompts.SYSTEM if tech == "pdf" else SYSTEM.format(T=LABEL[tech], metric=name, good=GOOD[tech])
+        d = shared_client().chat("fitter", [{"role": "system", "content": system},
                                             {"role": "user", "content": json.dumps(state, default=str)}], schema=Decision).data
         if d.action == "accept" or not d.changes:
             verdict = d.reason
@@ -103,10 +107,8 @@ def fit(folder: str | Path, analysis: dict, tech: str) -> dict | None:
             _window(tech, spec, trial)
             r = tweak.refit(folder, analysis, tech, trial)
             rec["metric"] = r["metrics"][name]
-            gain = sign * (r["metrics"][name] - best["metrics"][name]) / max(abs(best["metrics"][name]), 1e-9)
-            if bad := _unphysical(tech, r):
-                rec["error"] = bad
-            elif gain >= MIN_GAIN:
+            ok, rec["error"] = _keep(tech, best, r, name, sign)
+            if ok:
                 best, values, rec["kept"] = r, trial, True
         except (ValueError, KeyError, TypeError) as exc:  # a bad request is reported back to the agent, never applied
             rec["error"] = str(exc)

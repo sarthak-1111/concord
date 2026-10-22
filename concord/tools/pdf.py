@@ -1,8 +1,10 @@
 """PDF structure refinement with diffpy.srfit: periodic model × spherical envelope (attenuated crystal).
 
-Profile generator: concord.tools.pdfcalc (diffpy.srreal's arm64 wheel cannot load). Refinement is staged as in
-PDFgui practice: scale + lattice, then + U_iso + particle diameter, then + δ2 (correlated motion). Qdamp and Qbroad
-are instrument calibration values and stay fixed.
+Profile generator: concord.tools.pdfcalc (diffpy.srreal's arm64 wheel cannot load). Refinement runs the PDF platform's
+staged ladder (concord.agents.pdf_specialist, copied from fccubic/pdf_backend): scale + lattice, + U_iso, + particle
+diameter, + δ2, then all kept groups together; each stage is kept only if the platform's should_accept passes it
+(converged, Rw at least 1 % lower, physical), else its values are reverted. Qdamp and Qbroad are instrument
+calibration values and stay fixed.
 """
 import warnings
 
@@ -12,6 +14,7 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from scipy.optimize import least_squares
 
+from concord.agents.pdf_specialist.refinement import STAGES, as_result, should_accept
 from concord.tools import tool
 from concord.tools.pdfcalc import PDFCalculator, first_shells, site_label, spherical_envelope
 
@@ -76,13 +79,35 @@ def fit_pdf(r: np.ndarray, g: np.ndarray, dg: np.ndarray, structure: Structure, 
     recipe.addVar(contrib.delta2, 0.5, tag="d2").boundRange(0.0, 8.0)
     if nanoparticle:
         recipe.addVar(contrib.psize, psize0_A or 40.0, tag="size").boundRange(8.0, 400.0)
+    tags = {"scale": "scale", "lattice": "lat", "adp": "adp", "spdiameter": "size", "delta2": "d2"}
+    yw2 = float(np.sum((g / dg) ** 2))
+
+    def judged():  # the current values in the reference's result schema, for its should_accept
+        v = dict(zip(recipe.names, recipe.values)) | dict(zip(recipe.fixednames, recipe.fixedvalues))
+        return dict(lattice={k: v[f"lat_{ties[k]}"] for k in ("a", "b", "c")}, uiso={el: v[f"u_{el}"] for el in elements},
+                    delta2=v["delta2"], psize_A=v.get("psize"))
+
+    ladder, best_rw, kept = [], None, set()
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        stages = [["scale", "lat"], ["scale", "lat", "adp"] + (["size"] if nanoparticle else []), ["all"]]
-        for stage in stages:
+        for stage in STAGES:  # the reference ladder; a stage is kept only if should_accept passes it
+            if stage["key"] == "instrument" or (stage.get("requires_particle_size") and not nanoparticle):
+                continue  # qdamp is the instrument's calibration, never fitted in Concord
+            free = stage["free"] + (["spdiameter"] if stage.get("with_kept") and "spdiameter" in kept else [])
             recipe.fix("all")
-            recipe.free(*stage)
-            least_squares(recipe.residual, recipe.values, bounds=recipe.getBounds2(), x_scale="jac", max_nfev=400)
+            recipe.free(*[tags[x] for x in free])
+            x0 = np.array(recipe.values)
+            sol = least_squares(recipe.residual, x0, bounds=recipe.getBounds2(), x_scale="jac", max_nfev=400)
+            rw = float(np.sqrt(np.sum(recipe.residual(sol.x) ** 2) / yw2))  # residual(p) also sets the free values to p
+            status = "converged" if sol.status > 0 else "max_iterations" if sol.status == 0 else "stagnating"
+            ok, why = should_accept(best_rw, as_result(rw, status=status, **judged()), base)
+            if ok:
+                best_rw, kept = rw, kept | set(free)
+            else:
+                recipe.residual(x0)  # revert: back to the values before this stage, the group stays where it was
+            ladder.append({"key": stage["key"], "label": stage["label"], "free": free, "rw": rw, "kept": ok, "why": why})
+        recipe.fix("all")
+        recipe.free(*[tags[x] for x in kept] or ["scale"])  # uncertainties for what the kept stages refined
         lo, hi = recipe.getBounds2()
         pinned = [n for n, v, a, b in zip(recipe.get_names(), recipe.values, lo, hi) if min(v - a, b - v) <= 1e-6 * max(abs(v), 1.0)]
         if pinned:  # a parameter on its bound has no uncertainty and makes the covariance singular (seen: U_iso ± 0.7 Å²)
@@ -102,6 +127,6 @@ def fit_pdf(r: np.ndarray, g: np.ndarray, dg: np.ndarray, structure: Structure, 
         "delta2": vals["delta2"], "delta2_err": unc["delta2"], "scale": vals["scale"],
         "psize_nm": vals["psize"] / 10 if nanoparticle else None, "psize_err_nm": unc["psize"] / 10 if nanoparticle and unc["psize"] is not None else None,
         "qmax": qmax, "qdamp": qdamp, "qbroad": qbroad, "r_range": [float(r[0]), float(r[-1])],
-        "shells": shells, "structure": refined,
+        "shells": shells, "structure": refined, "stages": ladder,
         "curves": {"r": r, "obs": g, "calc": np.asarray(gfit), "diff": g - np.asarray(gfit), "sigma": dg},
     }
