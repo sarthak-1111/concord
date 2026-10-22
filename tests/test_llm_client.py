@@ -64,6 +64,18 @@ def test_retries_then_succeeds_and_uses_role_thinking():
     assert [e["kind"] for e in c.trace.events].count("llm_retry") == 2
 
 
+class CutStream(FakeResponse):
+    def iter_lines(self):  # the tunnel drops the connection mid-reply
+        yield json.dumps({"message": {"role": "assistant", "content": "O"}, "done": False}).encode()
+        raise requests.exceptions.ChunkedEncodingError("Connection broken: IncompleteRead")
+
+
+def test_stream_cut_midway_is_retried():
+    c = client([CutStream({}), msg("OK")])
+    assert c.chat("critic", [{"role": "user", "content": "hi"}]).content == "OK"
+    assert [e["error"] for e in c.trace.events if e["kind"] == "llm_retry"] == ["ChunkedEncodingError"]
+
+
 def test_endpoint_down_is_clear():
     c = client([requests.ConnectionError("x")] * 3)
     with pytest.raises(EndpointDown, match="LLM_BASE_URL"):

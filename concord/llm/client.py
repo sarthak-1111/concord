@@ -91,7 +91,7 @@ class LLMClient:
                         raise LLMError(f"LLM endpoint returned HTTP {r.status_code}: {r.text[:200]}")
                     data = self._collect(r, t0, self.timeout_s[level]) if body.get("stream") else r.json()
                 return data, time.time() - t0
-            except (requests.ConnectionError, requests.Timeout, _Retryable) as exc:
+            except (requests.RequestException, ValueError, _Retryable) as exc:  # also a stream cut midway (ChunkedEncodingError) or a garbled line
                 last = exc
                 # HTTP status only: connection errors embed the endpoint URL, which counts as a secret here
                 self._trace().log("llm_retry", role=role, attempt=attempt + 1, error=str(exc) if isinstance(exc, _Retryable) else type(exc).__name__)
