@@ -89,7 +89,8 @@ def view(sid: str) -> dict | None:
         "virtual_xafs": v and {k: v.get(k) for k in ("label", "absorber", "edge", "candidates", "members", "theta_K_range",
                                                       "recommendation", "vs_measured", "per_candidate")},
         "agents": ag and {**{k: ag.get(k) for k in ("model", "log", "rounds", "confirmed", "unsupported_numbers", "wall_s", "llm")},
-                          "stale": (RUNS / sid / "agents.json").stat().st_mtime < mtime},  # analysis re-run after the agents
+                          "stale": {k[6:]: v["status"] for k, v in ag["evidence"].items() if k.startswith("check.")}
+                          != {c["id"]: c["status"] for c in a["checks"]}},  # the critic saw other check results
         "vision": ag and {t: {"accepted": x["accepted"], "verdict": x["visual"]["verdict"], "inspector": x["visual"]["inspector"],
                               "issues": x["visual"]["issues"], "numerical": x["numerical"], "steps": x.get("steps", [])}
                           for t, x in (ag.get("vision") or {}).items() if "visual" in x},

@@ -302,7 +302,8 @@ async def run_sample_async(folder: str | Path, out: Path | None = None, on_event
               "llm": trace.totals(), "out_dir": str(out)}
     (out / "report.md").write_text(md)
     (out / "analysis.json").write_text(json.dumps(st["analysis"]))  # before agents.json: the UI marks agents older than the analysis stale
-    (out / "agents.json").write_text(json.dumps({**result, "evidence": st["evidence"], "vision": st.get("vision")}, default=str, indent=1))
+    (out / "agents.json").write_text(json.dumps({**result, "evidence": st["evidence"], "vision": st.get("vision")}, default=str, indent=1)
+                                     .replace(f"{ROOT}/", ""))  # repo-relative paths: the file is committed for the test samples
     RUNS.pop(session.id, None)
     return result
 

@@ -15,10 +15,14 @@ xrd_outputs/
 
 papers/
 *.egg-info/
-runs/
+/runs/
 .cache/
 dataset/
 dataset_big/
-results/runs/
+results/runs/*
+!results/runs/*/
+results/runs/*/*
+!results/runs/*/agents.json
+!results/runs/*/report.md
 web/*.tsbuildinfo
 uploads/

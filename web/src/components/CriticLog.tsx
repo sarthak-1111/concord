@@ -30,7 +30,7 @@ export default function CriticLog({ view }: { view: View }) {
         <h2 id="critic-h" className="text-lg font-semibold text-slate-900">Critic log</h2>
         <span className="text-sm text-slate-600">{a.rounds} round(s) · {a.llm?.llm_calls ?? 0} LLM calls · {tokens} tokens · {a.wall_s} s</span>
       </div>
-      {a.stale ? <p className="mt-1 text-sm text-amber-800">The tools were re-run after this log was written; run full analysis again to refresh it.</p> : null}
+      {a.stale ? <p className="mt-1 text-sm text-amber-800">The checks have changed since this log was written; run the full analysis again to refresh it.</p> : null}
       {m ? (
         <div className="mt-3 rounded-lg bg-slate-50 p-3">
           <div className="text-sm"><span className="text-slate-500">Generator&apos;s model:</span> <b>{m.phase ?? "no phase"}</b></div>
