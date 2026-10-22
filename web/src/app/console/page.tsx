@@ -10,6 +10,7 @@ import VirtualXafs from "@/components/VirtualXafs";
 import CriticLog from "@/components/CriticLog";
 import EventCard from "@/components/EventCard";
 import Priors from "@/components/Priors";
+import Upload from "@/components/Upload";
 
 const BUTTON = "rounded-lg px-3 py-2 text-sm font-medium shadow-sm transition disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -46,10 +47,15 @@ export default function Workbench() {
     setSid(id);
     history.replaceState(null, "", `#${id}`);
   };
-  const start = async (mode: "fast" | "full") => {
-    const r = await fetch(`${API}/api/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sample: sid, mode }) });
+  const start = async (mode: "fast" | "full", id = sid) => {
+    const r = await fetch(`${API}/api/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sample: id, mode }) });
     const d = await r.json();
-    if (d.run_id && sid) setRun({ id: d.run_id, sample: sid, mode });
+    if (d.run_id && id) setRun({ id: d.run_id, sample: id, mode });
+  };
+  const uploaded = async (id: string) => {
+    await refreshSamples();
+    select(id);
+    start("fast", id);
   };
   const composition = view?.composition ?? samples?.find((s) => s.id === sid)?.composition;
 
@@ -60,6 +66,7 @@ export default function Workbench() {
           <div className="text-xl font-semibold text-slate-900">Concord</div>
           <p className="text-xs text-slate-600">XRD, PDF and XAFS of one sample, cross-checked</p>
         </div>
+        <Upload onUploaded={uploaded} />
         {samples ? <SampleList samples={samples} selected={sid} onSelect={select} />
           : <p className="text-sm text-slate-600">{listError ? "Cannot reach the API. Start it with make api." : "Loading samples…"}</p>}
       </aside>

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import type { SampleRow } from "@/lib/api";
 
-const SPLITS = ["test", "faults", "val", "train", "all"];
+const SPLITS = ["test", "faults", "val", "train", "uploaded", "all"];
 
 export default function SampleList({ samples, selected, onSelect }: { samples: SampleRow[]; selected?: string; onSelect: (id: string) => void }) {
   const [split, setSplit] = useState("test");

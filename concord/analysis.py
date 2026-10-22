@@ -18,7 +18,7 @@ from concord.data_builder.fetch import load_structures, systems
 from concord.tools import pdf as pdft
 from concord.tools import virtual_xafs, xafs, xrd
 
-INPUT_KEYS = ("sample_id", "composition", "techniques", "instrument", "origin")
+INPUT_KEYS = ("sample_id", "composition", "techniques", "instrument", "origin", "assumed")
 B_BV = 0.37  # bond-valence softness b (Å), Brown & Altermatt (1985), doi:10.1107/S0108768185002063
 
 
@@ -169,7 +169,8 @@ def run_xanes(folder: Path, meta: dict, references: Path) -> dict:
     edge_e = xafs.edge_position(e, norm)
     refs = {float(f.stem.split("_v")[1]): tuple(np.loadtxt(f, unpack=True)) for f in sorted(Path(references).glob(f"{absorber}_v*.dat"))}
     if len(refs) < 2:
-        raise ValueError(f"need at least two {absorber} valence standards in {references}")
+        raise ValueError(f"the XANES valence needs μ(E) of at least two {absorber} standards of known valence, as "
+                         f"{absorber}_v<valence>.dat in a '{Path(references).name}' folder beside the sample folders")
     stds = [{"valence": v, "edge_eV": xafs.edge_position(*refs[v])} for v in refs]
     lcf = xafs.linear_combination_fit(e, norm, {f"{absorber}{v:+g}": refs[v] for v in refs}, e0=edge_e)
     return {"absorber": absorber, "edge_eV": edge_e, "valence_edge": xafs.oxidation_from_edge(edge_e, stds)["valence"],

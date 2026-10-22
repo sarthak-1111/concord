@@ -1,7 +1,8 @@
 """Concord web API. Extends CrystaLenz's run-and-stream server (POST /api/runs, then WS /api/runs/{id}/stream) with
 sample listing, per-sample result views and plot files. Run it with `make api` (binds to localhost).
 
-  GET  /api/samples                  samples in dataset/samples (metadata only, never ground truth)
+  GET  /api/samples                  samples in dataset/samples and uploads/ (metadata only, never ground truth)
+  POST /api/uploads                  multipart: composition + any of xrd, pdf, xafs files (+ edge, wavelength, qmax) → {sample}
   GET  /api/samples/{id}             result view: checks, evidence, plots, critic log, report (404 until analysed)
   GET  /api/samples/{id}/export      ?format=json (full analysis + agent run) or ?format=md (report)
   POST /api/samples/{id}/priors      search the open literature for the sample's material (cached afterwards)
@@ -11,8 +12,12 @@ sample listing, per-sample result views and plot files. Run it with `make api` (
 """
 import asyncio
 import json
+import re
+import shutil
 import uuid
 from pathlib import Path
+
+from pymatgen.core import Element
 
 from starlette.applications import Starlette
 from starlette.middleware.cors import CORSMiddleware
@@ -25,11 +30,13 @@ from starlette.websockets import WebSocket, WebSocketDisconnect
 from concord import literature
 from concord.agents.evidence import bundle
 from concord.agents.pipeline import report_markdown, run_sample_async
-from concord.analysis import analyze, load_inputs, to_json
+from concord.analysis import analyze, infer_inputs, load_inputs, to_json
 from concord.config import ROOT
 from concord.vision.check import plots
 
 SAMPLES = ROOT / "dataset" / "samples"
+UPLOADS = ROOT / "uploads"
+MAX_UPLOAD = 20 * 2**20  # bytes per request
 RUNS = ROOT / "results" / "runs"
 ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 RUN_REQUESTS: dict[str, dict] = {}
@@ -42,8 +49,11 @@ def _foreign(request: Request) -> bool:
 
 
 def _folder(sid: str) -> Path | None:
-    folder = (SAMPLES / sid).resolve()
-    return folder if folder.parent == SAMPLES.resolve() and folder.is_dir() else None
+    for root in (SAMPLES, UPLOADS):
+        folder = (root / sid).resolve()
+        if folder.parent == root.resolve() and folder.is_dir():
+            return folder
+    return None
 
 
 def _agents(sid: str) -> dict | None:
@@ -93,11 +103,67 @@ async def samples(request: Request) -> JSONResponse:
     splits = json.loads(split_file.read_text()) if split_file.exists() else {}
     split_of = {s: name for name, ids in splits.items() for s in ids}
     rows = []
-    for d in sorted(p for p in SAMPLES.iterdir() if p.is_dir()) if SAMPLES.exists() else []:
-        meta = load_inputs(d)
-        rows.append({"id": d.name, "composition": meta["composition"], "techniques": meta["techniques"], "split": split_of.get(d.name),
-                     "analysed": (RUNS / f"{d.name}.json").exists(), "agents": (RUNS / d.name / "agents.json").exists()})
+    for root in (SAMPLES, UPLOADS):
+        for d in sorted(p for p in root.iterdir() if p.is_dir()) if root.exists() else []:
+            meta = load_inputs(d)
+            rows.append({"id": d.name, "composition": meta["composition"], "techniques": meta["techniques"],
+                         "split": "uploaded" if root == UPLOADS else split_of.get(d.name),
+                         "analysed": (RUNS / f"{d.name}.json").exists(), "agents": (RUNS / d.name / "agents.json").exists()})
     return JSONResponse(rows)
+
+
+def _number(form, key: str, lo: float, hi: float) -> float | None:
+    raw = str(form.get(key) or "").strip()
+    if not raw:
+        return None
+    v = float(raw)  # ValueError for text: reported as a bad request
+    if not lo <= v <= hi:
+        raise ValueError(f"{key} {v} is outside {lo}-{hi}")
+    return v
+
+
+async def upload(request: Request) -> JSONResponse:
+    if _foreign(request):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    if int(request.headers.get("content-length") or 0) > MAX_UPLOAD:
+        return JSONResponse({"error": f"upload larger than {MAX_UPLOAD // 2**20} MB"}, status_code=413)
+    async with request.form(max_files=3, max_fields=10) as form:  # closes the spooled files
+        return await _save_upload(form)
+
+
+async def _save_upload(form) -> JSONResponse:
+    """A user's own data as a sample folder: each file saved under the name the analysis expects, the form's
+    instrument values added to its '# key=value' header (they override the file's own), metadata inferred."""
+    folder = None
+    try:
+        comp = str(form.get("composition") or "").strip()
+        if not re.fullmatch(r"(?:[A-Z][a-z]?(?:\d+(?:\.\d+)?)?){1,6}", comp):
+            raise ValueError("give the composition as a formula, e.g. Pt3Co or CeO2")
+        elements = set(re.findall(r"[A-Z][a-z]?", comp))
+        if not all(Element.is_valid_symbol(e) for e in elements):
+            raise ValueError(f"unknown element in {comp}")
+        files = {k: form[k] for k in ("xrd", "pdf", "xafs") if getattr(form.get(k), "filename", None)}
+        if not files:
+            raise ValueError("upload at least one of the XRD, PDF and XAFS files")
+        edge = str(form.get("edge") or "").strip().replace(" ", "_")
+        if "xafs" in files and not (re.fullmatch(r"([A-Z][a-z]?)_(K|L1|L2|L3)", edge) and edge.split("_")[0] in elements):
+            raise ValueError("XAFS needs the edge of an element in the composition, e.g. Pt L3 or Co K")
+        heads = {"xrd": {"wavelength_A": _number(form, "wavelength_A", 0.1, 3.0)}, "pdf": {"qmax": _number(form, "qmax", 5.0, 60.0)},
+                 "xafs": {"edge": edge}}
+        names = {"xrd": "xrd.xy", "pdf": "pdf.gr", "xafs": "xafs_chi.k" if form.get("xafs_kind") == "chi" else "xafs_mu.dat"}
+        folder = UPLOADS / f"u{uuid.uuid4().hex[:7]}"
+        folder.mkdir(parents=True)
+        for kind, f in files.items():
+            lines = (await f.read()).decode("utf-8", errors="replace").splitlines(keepends=True)
+            n = next((i for i, line in enumerate(lines) if not line.startswith("#")), len(lines))
+            head = " ".join(f"{k}={v}" for k, v in heads[kind].items() if v is not None)
+            (folder / names[kind]).write_text("".join(lines[:n]) + (f"# {head}\n" if head else "") + "".join(lines[n:]))
+        (folder / "sample.json").write_text(json.dumps(infer_inputs(folder, comp), indent=1))
+    except ValueError as exc:
+        if folder:
+            shutil.rmtree(folder, ignore_errors=True)
+        return JSONResponse({"error": str(exc)}, status_code=400)
+    return JSONResponse({"sample": folder.name})
 
 
 async def sample(request: Request) -> JSONResponse:
@@ -166,11 +232,11 @@ async def stream_run(ws: WebSocket) -> None:
         sid, cached = req["sample"], RUNS / f"{req['sample']}.json"
         if req["mode"] == "fast" or not cached.exists():
             await send("status", "running the tools and checks: XRD, PDF, EXAFS, XANES, virtual XAFS, C1–C7")
-            res = await asyncio.to_thread(analyze, SAMPLES / sid)
+            res = await asyncio.to_thread(analyze, _folder(sid))
             cached.write_text(json.dumps(to_json(res)))
         if req["mode"] == "full":
             await send("status", "visual inspection and generator–critic loop (gpt-oss)")
-            await run_sample_async(SAMPLES / sid, RUNS / sid, on_event=on_event, precomputed=cached)
+            await run_sample_async(_folder(sid), RUNS / sid, on_event=on_event, precomputed=cached)
         await send("result", await asyncio.to_thread(view, sid))
         await send("done")
     except WebSocketDisconnect:
@@ -186,6 +252,7 @@ app = Starlette(routes=[
     Route("/api/samples/{sid}", sample),
     Route("/api/samples/{sid}/export", export),
     Route("/api/samples/{sid}/priors", mine_priors, methods=["POST"]),
+    Route("/api/uploads", upload, methods=["POST"]),
     Route("/api/runs", create_run, methods=["POST"]),
     WebSocketRoute("/api/runs/{run_id}/stream", stream_run),
     Mount("/files", StaticFiles(directory=RUNS), name="files"),

@@ -21,3 +21,4 @@ dataset/
 dataset_big/
 results/runs/
 web/*.tsbuildinfo
+uploads/

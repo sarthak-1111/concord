@@ -34,6 +34,11 @@ make api    # http://127.0.0.1:8000
 make ui     # http://127.0.0.1:3000/console#s0031
 ```
 
+Your own data in the UI: open **Analyse your own data** in the sidebar, give the composition and any of the XRD, PDF
+and XAFS files (plus the edge for XAFS), and press *Upload and analyse*; the tools run at once and the critic is one
+click away. Values missing from the file headers are assumed and listed. For the XANES valence, put μ(E) of at least
+two standards of known valence as `<El>_v<valence>.dat` in a `references/` folder beside the sample folders.
+
 Other commands: `uv run concord priors Pt3Co` (literature values with DOIs), `make eval`, `make test`,
 `uv run concord health` (LLM endpoint).
 
