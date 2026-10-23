@@ -1,5 +1,7 @@
 # Concord
 
+**Live demo (public access): [https://coding-measures-colleagues-slot.trycloudflare.com/console](https://coding-measures-colleagues-slot.trycloudflare.com/console)**
+
 ![Concord: plain x, y data in, a structural model out](docs/brief/cover.png)
 
 **3 techniques 1 solution without human intervention.**

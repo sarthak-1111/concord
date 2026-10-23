@@ -29,6 +29,7 @@ sample listing, per-sample result views and plot files. Run it with `make api` (
   GET  /files/{id}/...               plot images
 """
 import asyncio
+import os
 import json
 import re
 import shutil
@@ -65,7 +66,7 @@ UPLOADS = ROOT / "uploads"
 MAX_UPLOAD = 20 * 2**20  # bytes per request
 NUMBERS = re.compile(r"[-+0-9.eE]+(?:[ \t]+[-+0-9.eE]+)+")  # a plain whitespace-separated row of numbers
 RUNS = ROOT / "results" / "runs"
-ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"] + [o for o in os.environ.get("CORS_ORIGINS", "").split(",") if o]  # public host
 RUN_REQUESTS: dict[str, dict] = {}
 RUNS.mkdir(parents=True, exist_ok=True)
 
