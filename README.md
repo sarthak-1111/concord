@@ -16,8 +16,7 @@ tested code and then checks them against each other (C1–C7). LLM agents choose
 result, but **numbers decide and the LLM explains**: every number comes from a tool or a cited source, and
 disagreements are settled by re-running tools, never by the model.
 
-Concord is a fork of [CrystaLenz](https://github.com/MJRaei/CrystaLenz) (MIT). What is new is listed exactly in
-[`docs/PRIOR_WORK.md`](docs/PRIOR_WORK.md). The realism GANs come from the companion repository
+Concord is a fork of [CrystaLenz](https://github.com/MJRaei/CrystaLenz) (MIT), an agentic XRD analysis tool. The realism GANs come from the companion repository
 [Concord Forge (GAN-Hackathon)](https://github.com/sarthak-1111/GAN-Hackathon).
 
 Contents: [What it does without a person](#what-it-does-without-a-person) ·
@@ -274,8 +273,7 @@ make eval-agents   # adds visual inspection and the generator-critic loop (LLM, 
 ## GAN models (Concord Forge)
 
 The realism GANs are trained in the companion repository
-**[Concord Forge: github.com/sarthak-1111/GAN-Hackathon](https://github.com/sarthak-1111/GAN-Hackathon)**, by the
-same author. The generator weights are bundled in this repository under `models/gan/`; the model code and the
+**[Concord Forge: github.com/sarthak-1111/GAN-Hackathon](https://github.com/sarthak-1111/GAN-Hackathon)**. The generator weights are bundled in this repository under `models/gan/`; the model code and the
 training live in GAN-Hackathon. Set `GAN_REPO_PATH` to a clone of it. The weights are loaded at run time with
 `torch.load(weights_only=True)`.
 
@@ -295,13 +293,9 @@ clean simulations.
 
 ## Prior work and credits
 
-- **CrystaLenz.** Concord is a fork of [CrystaLenz](https://github.com/MJRaei/CrystaLenz) (MIT, "Copyright (c) 2025
-  CrystaLens Contributors"); its licence and copyright notice are kept in `LICENSE`, the credit in `NOTICE`. Its ADK
-  agent graph and XRD and research sub-agents are kept; what was changed and what is new is listed file by file in
-  [`docs/PRIOR_WORK.md`](docs/PRIOR_WORK.md) §1 and §2.
-- **Eye module.** A private residual reviewer, loaded at run time from `EYE_MODULE_PATH` and never vendored.
-- **Concord Forge.** The realism GANs from
-  [GAN-Hackathon](https://github.com/sarthak-1111/GAN-Hackathon) (§3b).
+- **CrystaLenz.** Concord is a fork of [CrystaLenz](https://github.com/MJRaei/CrystaLenz), an agentic XRD analysis
+  tool (MIT, "Copyright (c) 2025 CrystaLens Contributors"); its licence and copyright notice are kept in `LICENSE`, the
+  credit in `NOTICE`. Its ADK agent graph and XRD and research sub-agents are kept.
 - **Libraries and data.** Listed in [`docs/PRIOR_WORK.md`](docs/PRIOR_WORK.md) §4. Structures come from open databases
   with their licences in `data/manifest.csv`; literature priors cite their DOI.
 
