@@ -1,0 +1,43 @@
+{
+  "dataset": "XASLIB spectrum 152: Pt metal foil, Pt L3, transmission, room temperature, APS 13-ID-C (2001)",
+  "source": "https://xaslib.xrayabsorption.org/rawfile/152/pt_metal_rt.xdi",
+  "source_record": "https://xaslib.xrayabsorption.org/spectrum/152/",
+  "licence": "CC0-1.0",
+  "measured": {
+    "edge": "Pt L3",
+    "mode": "transmission, mu = ln(I0/I1)",
+    "energy_eV": [
+      11364.0,
+      12798.43
+    ],
+    "points": 418,
+    "chi_source": "autobk(xafs_mu.dat)",
+    "s02_fixed": 0.9,
+    "window": {
+      "kmin": 3.0,
+      "kmax": 12.0,
+      "rmin": 1.0,
+      "rmax": 3.7731,
+      "kweight": 2.0
+    }
+  },
+  "concord": {
+    "N": 10.62,
+    "N_err": 0.57,
+    "R_A": 2.7631,
+    "R_err": 0.0024,
+    "sigma2": 0.00438,
+    "sigma2_err": 0.00034,
+    "dE0_eV": 7.55,
+    "dE0_err": 0.46,
+    "rfactor": 0.00409,
+    "model_reff_A": 2.7731,
+    "tool": "concord.analysis.run_exafs, fcc Pt from concord.analysis.candidates(\"Pt\")"
+  },
+  "reference": {
+    "N": 12,
+    "R_A": 2.775,
+    "basis": "fcc Pt, a = 3.924 Å"
+  },
+  "verdict": "On a measured Pt foil Concord recovers R = 2.763 ± 0.002 Å (0.012 Å short of 2.775 Å) and N = 10.6 ± 0.6 at fixed S0² = 0.9, about 1.4 below 12, which fits the known N–S0² correlation (S0² is fixed, not fitted) (N·S0² = 9.56), with R-factor 0.0041."
+}

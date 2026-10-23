@@ -191,6 +191,29 @@ With the critic (`make eval-agents`, 19 of 19 runs complete): faults flagged by 
 Per-sample details: [`results/eval.md`](results/eval.md).
 <!-- results:end -->
 
+## It works on measured data too
+
+The held-out evaluation above is simulated. The same tools, with no change and no LLM, were then run on openly
+licensed **measured** data downloaded from public repositories, given only the data and the composition: the PDF
+through `concord analyze <folder> --fast`, the EXAFS through `concord.analysis.run_exafs` with the fcc Pt model (the
+command line fits EXAFS only after a PDF model). Seconds each.
+
+| Technique | Measured sample (source, licence) | Concord found | Known answer |
+|---|---|---|---|
+| PDF | Colloidal Pt nanoparticles, DESY, Qmax 22 Å⁻¹ ([DeepStruc `JQ_S1.gr`](https://github.com/EmilSkaaning/DeepStruc), Apache-2.0) | Phase **Pt** (fcc) out of 4 candidates, Rw 0.116 (Pt3Co 0.125, PtNi 0.462, PtO2 0.955); a = **3.933 Å**; particle diameter **3.26 nm** | fcc Pt, a = 3.924 Å (+0.2 %); a few-nm particles |
+| EXAFS | Pt metal foil, Pt L3, transmission, APS 13-ID-C ([XASLIB spectrum 152](https://xaslib.xrayabsorption.org/spectrum/152/), CC0-1.0) | Pt-Pt **R = 2.763 ± 0.002 Å**, N = 10.6 ± 0.6 at S0² fixed at 0.9 (N·S0² = 9.56), σ² 0.0044 Å², R-factor **0.0041** | fcc Pt: R = 2.775 Å, N = 12 (the low N matches S0² being held at 0.9: 12 × 0.8 = 9.6) |
+<!-- xrd-row -->
+
+<p>
+<img src="docs/experimental/pdf_pt_nanoparticles.png" alt="Concord's PDF fit of measured colloidal Pt nanoparticles: data and fcc Pt model overlap from 1.5 to 25 Å, Rw 0.116, with a small difference curve below." width="49%">
+<img src="docs/experimental/exafs_pt_foil.png" alt="Concord's EXAFS fit of a measured Pt foil at the Pt L3 edge: k-squared chi(k) and the magnitude of chi(R), data and model overlapping, R-factor 0.0041." width="49%">
+</p>
+
+*Concord's own fit figures on the measured data. Left: PDF of Pt nanoparticles. Right: EXAFS of a Pt foil.*
+
+The numbers, sources and settings are in [`docs/experimental/`](docs/experimental/). One value was assumed: the PDF
+file gives no Qdamp, so the default 0.04 was used.
+
 ## Run it
 
 ### Setup
@@ -301,9 +324,10 @@ clean simulations.
 
 ## Limits
 
-- The evaluation data are simulated (open structures, FEFF, Debye-scattering and XRD simulation); beamline data are
-  the next test, and will expose effects the dataset lacks (preferred orientation, multiple scattering beyond FEFF's
-  paths, beam damage).
+- The held-out evaluation is simulated (open structures, FEFF, Debye-scattering and XRD simulation). Measured PDF and
+  EXAFS of Pt standards fit correctly ([It works on measured data too](#it-works-on-measured-data-too)); a measured
+  sample with all three techniques is the next test, and will expose effects the dataset lacks (preferred
+  orientation, multiple scattering beyond FEFF's paths, beam damage).
 - The held-out numbers predate the 2026-10-23 fitting-agent changes (see [How well it works](#how-well-it-works)).
 - Without reference standards the oxidation-state check (C4) is skipped, as in the s0019 run. XANES uses a simple
   edge model with valence standards; oxide valences carry systematic offsets up to about 0.5.

@@ -1,0 +1,60 @@
+{
+  "dataset": "DeepStruc experimental PDF JQ_S1: colloidal Pt nanoparticles (surfactant-free synthesis, J. Quinson samples), DESY Sep 2017; xPDFsuite G(r), Qmax 21.998 (qmaxinst 22), Qmin 1.0, wavelength 0.1 A",
+  "source": "https://raw.githubusercontent.com/EmilSkaaning/DeepStruc/main/data/PDFs_experimental/JQ_S1.gr",
+  "licence": "Apache-2.0 (DeepStruc repository licence covering included data); Kjaer E.T.S., Anker A.S. et al. (2023) DeepStruc, Digital Discovery",
+  "concord": {
+    "phase": "Pt",
+    "rw": 0.1158,
+    "a_A": 3.9329,
+    "a_err_A": 2e-05,
+    "psize_nm": 3.26,
+    "uiso_A2": 0.0108,
+    "r_range_A": [
+      1.5,
+      25.0
+    ],
+    "qdamp": 0.04,
+    "assumed": [
+      "pdf.qdamp=0.04 (not in the file header)"
+    ],
+    "stages_kept": [
+      "scale_lattice",
+      "adp",
+      "particle_size",
+      "delta",
+      "consolidate"
+    ],
+    "ranking": [
+      {
+        "candidate": "Pt",
+        "rw": 0.1158,
+        "a_A": 3.9329,
+        "psize_nm": 3.26
+      },
+      {
+        "candidate": "Pt3Co",
+        "rw": 0.125,
+        "a_A": 3.9328,
+        "psize_nm": 3.21
+      },
+      {
+        "candidate": "PtNi",
+        "rw": 0.4619,
+        "a_A": 3.8985,
+        "psize_nm": 2.54
+      },
+      {
+        "candidate": "PtO2",
+        "rw": 0.955,
+        "a_A": 4.3494,
+        "psize_nm": 1.78
+      }
+    ],
+    "command": "uv run python -W ignore -m concord.cli analyze <folder> --fast"
+  },
+  "reference": {
+    "phase": "Pt fcc",
+    "a_A": 3.924
+  },
+  "verdict": "Concord picks fcc Pt (Rw 0.116) with a = 3.9329 A (+0.23% vs 3.924 A) and a 3.3 nm spherical-envelope diameter, consistent with few-nm Pt nanoparticles. Caveats: Pt3Co (L1_2, an fcc superstructure) is a near-tie at Rw 0.125 since X-rays barely separate it from Pt for a Pt-only composition; qdamp was assumed (0.04), which affects the envelope/size and U_iso more than a."
+}
