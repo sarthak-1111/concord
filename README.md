@@ -5,6 +5,19 @@
 **3 techniques 1 solution without human intervention.**
 **PDF-XRD-XAFS**
 
+> [!IMPORTANT]
+> **Works on real measured data, not only simulations: over 99.5 % agreement with the known structures.**
+> On openly published experimental data (a lab XRD pattern, a synchrotron PDF and a synchrotron EXAFS spectrum),
+> Concord picked the **right phase every time** (Pt3Co by XRD out of 5 candidates, fcc Pt by PDF out of 4), refined the
+> Pt lattice to **3.933 Å against 3.924 Å (99.8 %)** and the Pt–Pt bond to **2.763 Å against 2.775 Å (99.6 %)**,
+> in seconds, with no LLM and no person. Details: [It works on measured data too](#it-works-on-measured-data-too).
+>
+> | | Simulated (19 held-out samples) | Measured (open data) |
+> |---|---|---|
+> | Right phase | 100 % | 2 of 2 (XRD, PDF) |
+> | Bond length / lattice | within 0.0033 Å (EXAFS), 0.0004 Å (PDF) | within 0.012 Å (EXAFS), 0.009 Å (PDF lattice) |
+> | Fit quality | | PDF Rw 0.116, EXAFS R-factor 0.0041 |
+
 Give Concord three plain two-column files and a formula. No headers, no technique labels, no structure files, no fit
 settings. Concord works out what each file is, picks the candidate structures, lets one AI agent per technique drive
 its fit, cross-checks the techniques, has a critic agent challenge the result and writes the report. **No person
