@@ -54,11 +54,10 @@ each refit and argue over the result; every challenge is settled by re-running a
 
 3. **Fit, by agents.** One LLM fitting agent per technique drives its own fit. It chooses what to try (the data
    window, the nanoparticle envelope, a light-neighbour probe shell, the peak thresholds); a tested tool does every
-   refit, and a change is kept only if the fit improves enough and every value stays physical. The PDF agent is the
-   Refinement specialist of the author's PDF platform (a fixed ladder of refinement stages, each kept only if Rw
-   improves by at least 1 %); the EXAFS agent keeps a shell the model lacks only when its N is above twice its
-   uncertainty and an F-test agrees, a rule from the author's XAFS platform; XRD and EXAFS refits need a 2 % gain. On
-   this run (made just before those platform rules were integrated, with a 2 % gain for every agent) the PDF agent cut
+   refit, and a change is kept only if the fit improves enough and every value stays physical. The PDF agent runs a
+   fixed ladder of refinement stages, each kept only if Rw improves by at least 1 %; the EXAFS agent keeps a shell the
+   model lacks only when its N is above twice its uncertainty and an F-test agrees; XRD and EXAFS refits need a 2 %
+   gain. On this run (made just before those rules were integrated, with a 2 % gain for every agent) the PDF agent cut
    the r-range to 20 Å, lowering Rw from 0.091 to 0.084. The EXAFS agent switched on a light-neighbour probe shell
    with kmax 10 Å⁻¹, lowering the R-factor from 0.0033 to 0.0028; its next request, which would have shrunk the
    k-window too far, was refused by the guard. The XRD agent tried three peak thresholds, none helped, so it kept the
@@ -120,13 +119,9 @@ sample folder ─► XRD   peaks, phase ranking, Scherrer/WH size (Voigt, instru
   deterministic refit computes every number. Guardrails in code: values clipped to their ranges, at most 3 refits per
   technique, no data window below 70 % of its default span, PDF lattice drift at most 3 %, Qdamp never fitted. XRD and
   EXAFS refits are kept only if their metric (XRD score, EXAFS R-factor) improves by at least 2 %.
-  - The **PDF fitting agent** is the Refinement specialist copied from the author's PDF platform
-    (fccubic/pdf_backend), by the author's decision: a staged ladder (scale and lattice, U_iso, particle size, δ2,
-    consolidate) with physical bounds, a stage kept only if Rw improves by at least 1 %, otherwise reverted
-    ([`docs/PRIOR_WORK.md` §3a](docs/PRIOR_WORK.md)).
-  - The **EXAFS minor-shell rules** (keep a light shell only when N > 2σ and an F-test gives p < 0.05) are copied from
-    the author's XAFS platform (fccubicsaxs/xafs_backend, branch `ai-agent`)
-    ([`docs/PRIOR_WORK.md` §3a-x](docs/PRIOR_WORK.md)).
+  - The **PDF fitting agent** refines in a staged ladder (scale and lattice, U_iso, particle size, δ2, consolidate)
+    with physical bounds; a stage is kept only if Rw improves by at least 1 %, otherwise reverted.
+  - The **EXAFS minor-shell rules** keep a light shell only when N > 2σ and an F-test gives p < 0.05.
 
   The kept settings re-run the whole analysis before visual inspection; the steps are shown under each fit plot.
 - **Generator–critic loop.** The critic has its own prompt, high thinking and only the evidence. Every objection
@@ -150,8 +145,7 @@ sample folder ─► XRD   peaks, phase ranking, Scherrer/WH size (Voigt, instru
 ### The eye module
 
 Set `EYE_MODULE_PATH` in `.env` to the eye module. It is loaded at run time through `concord/vision/eye_adapter.py`
-and never vendored into this repository. The eye is the reviewer of the PDF agent (`pdf_backend`,
-`app/modules/agent/residual.py`, private): it reads a PDF difference curve zone by zone and names the cause (lattice
+and never vendored into this repository. The eye is a separate, private residual reviewer: it reads a PDF difference curve zone by zone and names the cause (lattice
 drift, scale, envelope, correlated motion, wrong phase). On the development split it rejected 2 of 44 clean PDF fits
 and 20 of 37 faulty ones. An image-judging module with an `inspect(image, context)` entry point also works. Without
 the eye, the open fallback judges every fit; everything else is the same.
@@ -167,7 +161,7 @@ sizes within 9.9 % (XRD) and 3.9 % (PDF).
 
 *Figure 7. Held-out evaluation. Bars are Concord, ticks the thresholds fixed before the evaluation.*
 
-These held-out numbers predate the 2026-10-23 fitting-agent changes (the PDF Refinement specialist and the EXAFS
+These held-out numbers predate the 2026-10-23 fitting-agent changes (the PDF refinement ladder and the EXAFS
 minor-shell rules); the run used the earlier 2 % gate for every agent, PDF included. See
 [`docs/PROGRESS.md`](docs/PROGRESS.md).
 
@@ -215,7 +209,6 @@ Keys and paths go in `.env` (never commit it). The variables, from `.env.example
 | `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL` | the agents (an Ollama-compatible endpoint serving gpt-oss); not needed for `--fast` runs |
 | `MP_API_KEY` | optional: Materials Project structures as an extra data source |
 | `EYE_MODULE_PATH` | optional: absolute path to the eye module (see [The eye module](#the-eye-module)) |
-| `REF_GIT_USERNAME`, `REF_GIT_TOKEN` | optional: only if this machine has no SSH key with access to the reference repositories |
 | `OPENALEX_API_KEY` | optional: free OpenAlex key for the paper miner; without one, OpenAlex allows about 100 searches a day per IP address, which the cache makes plenty |
 | `GAN_REPO_PATH` | optional: absolute path to a clone of [GAN-Hackathon](https://github.com/sarthak-1111/GAN-Hackathon) (see [GAN models](#gan-models-concord-forge)) |
 
@@ -306,13 +299,7 @@ clean simulations.
   CrystaLens Contributors"); its licence and copyright notice are kept in `LICENSE`, the credit in `NOTICE`. Its ADK
   agent graph and XRD and research sub-agents are kept; what was changed and what is new is listed file by file in
   [`docs/PRIOR_WORK.md`](docs/PRIOR_WORK.md) §1 and §2.
-- **Copied from the author's own platforms**, by the author's decision on 2026-10-23:
-  - the PDF Refinement specialist (refinement ladder, bounds, keep-or-revert gate and prompt, in
-    `concord/agents/pdf_specialist/`) from fccubic/pdf_backend, commit `3bf4be1` (§3a). Its preprocessing and data
-    reduction code was not copied;
-  - the EXAFS minor-shell rules (F-test, 2σ rule for N, light-shell starts, in `concord/tools/xafs_fitflow.py`) from
-    fccubicsaxs/xafs_backend, branch `ai-agent`, commit `f637212` (§3a-x).
-- **Eye module.** The PDF platform's residual reviewer, loaded at run time from `EYE_MODULE_PATH` and never vendored.
+- **Eye module.** A private residual reviewer, loaded at run time from `EYE_MODULE_PATH` and never vendored.
 - **Concord Forge.** The realism GANs from
   [GAN-Hackathon](https://github.com/sarthak-1111/GAN-Hackathon) (§3b).
 - **Libraries and data.** Listed in [`docs/PRIOR_WORK.md`](docs/PRIOR_WORK.md) §4. Structures come from open databases
