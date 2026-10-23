@@ -1,0 +1,76 @@
+{
+  "dataset": "Zenodo 17131699, file VZ2_002_021_VSCHT_D_0309_v1.csv: pristine Pt-Co/reduced graphene oxide catalyst [sample Go-0], PANalytical X'Pert PRO, Co anode, no monochromator (Ka1 1.78901 / Ka2 1.79290 Å, Ka2/Ka1 0.5), 2640 points, 6.03-110.0 deg 2θ",
+  "source": "https://doi.org/10.5281/zenodo.17131699",
+  "source_file": "https://zenodo.org/api/records/17131699/files/VZ2_002_021_VSCHT_D_v1.zip/content (member VZ2_002_021_VSCHT_D_0309_v1.csv, range-extracted)",
+  "licence": "CC-BY-4.0",
+  "citation": "Buriánek J.D., Bouzek K., Paušová Š. (2025) Dataset for 'Activity and Degradation of Pt-Co and Pt-Ni Alloy Catalysts for Application in High-temperature PEM Fuel Cells', Zenodo, doi:10.5281/zenodo.17131699",
+  "measured": {
+    "wavelength_A": 1.79031,
+    "wavelength_note": "Ka1/Ka2 intensity-weighted mean (doublet unresolved for nanocrystalline peaks)",
+    "caglioti": null,
+    "composition_given": "Pt3Co"
+  },
+  "concord": {
+    "phase": "Pt3Co",
+    "score": 0.94,
+    "ranking": [
+      {
+        "phase": "Pt3Co",
+        "score": 0.94,
+        "profile_corr": 0.967,
+        "ref_fraction_matched": 0.5,
+        "obs_area_fraction_explained": 0.9
+      },
+      {
+        "phase": "PtNi",
+        "score": 0.665,
+        "profile_corr": 0.895,
+        "ref_fraction_matched": 0.5,
+        "obs_area_fraction_explained": 0.32
+      },
+      {
+        "phase": "Pt",
+        "score": 0.513,
+        "profile_corr": 0.854,
+        "ref_fraction_matched": 0.0,
+        "obs_area_fraction_explained": 0.0
+      },
+      {
+        "phase": "PtO2",
+        "score": 0.192,
+        "profile_corr": 0.107,
+        "ref_fraction_matched": 0.211,
+        "obs_area_fraction_explained": 0.32
+      },
+      {
+        "phase": "Co3O4",
+        "score": 0.116,
+        "profile_corr": 0.194,
+        "ref_fraction_matched": 0.0,
+        "obs_area_fraction_explained": 0.0
+      }
+    ],
+    "size_nm": {
+      "scherrer_median_nm": 2.68,
+      "sphere_diameter_nm": 3.43,
+      "williamson_hall_nm": 2.64,
+      "note": "no instrument function given: sizes are lower bounds"
+    },
+    "n_peaks": 5,
+    "n_indexed": 4,
+    "peaks_two_theta_deg": [
+      29.43,
+      47.61,
+      55.32,
+      82.67,
+      101.82
+    ],
+    "tool": "concord.cli analyze --fast (concord.analysis.run_xrd, candidates('Pt3Co'))"
+  },
+  "reference": {
+    "phase": "intermetallic Pt-Co alloy nanoparticles on reduced graphene oxide (record abstract); catalog match Pt3Co",
+    "size_nm": null,
+    "size_note": "the record states no crystallite size"
+  },
+  "verdict": "On a measured lab pattern Concord ranks Pt3Co first (score 0.94) ahead of PtNi (0.665) and pure Pt (0.513, 0 reflections matched), indexing 4 of 5 peaks; the unindexed broad peak at 29.4 deg is most likely the rGO (002) support band. Sphere diameter 3.4 nm (Scherrer median 2.7 nm): nanocrystalline, as expected. Caveat: the L1_2 model predicts (100)/(110) superlattice lines that the data barely show, so ordering is not confirmed, only the Pt-Co fcc alloy."
+}

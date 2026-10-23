@@ -194,7 +194,7 @@ Per-sample details: [`results/eval.md`](results/eval.md).
 ## It works on measured data too
 
 The held-out evaluation above is simulated. The same tools, with no change and no LLM, were then run on openly
-licensed **measured** data downloaded from public repositories, given only the data and the composition: the PDF
+licensed **measured** data downloaded from public repositories, given only the data and the composition: the XRD and PDF
 through `concord analyze <folder> --fast`, the EXAFS through `concord.analysis.run_exafs` with the fcc Pt model (the
 command line fits EXAFS only after a PDF model). Seconds each.
 
@@ -202,17 +202,18 @@ command line fits EXAFS only after a PDF model). Seconds each.
 |---|---|---|---|
 | PDF | Colloidal Pt nanoparticles, DESY, Qmax 22 Å⁻¹ ([DeepStruc `JQ_S1.gr`](https://github.com/EmilSkaaning/DeepStruc), Apache-2.0) | Phase **Pt** (fcc) out of 4 candidates, Rw 0.116 (Pt3Co 0.125, PtNi 0.462, PtO2 0.955); a = **3.933 Å**; particle diameter **3.26 nm** | fcc Pt, a = 3.924 Å (+0.2 %); a few-nm particles |
 | EXAFS | Pt metal foil, Pt L3, transmission, APS 13-ID-C ([XASLIB spectrum 152](https://xaslib.xrayabsorption.org/spectrum/152/), CC0-1.0) | Pt-Pt **R = 2.763 ± 0.002 Å**, N = 10.6 ± 0.6 at S0² fixed at 0.9 (N·S0² = 9.56), σ² 0.0044 Å², R-factor **0.0041** | fcc Pt: R = 2.775 Å, N = 12 (the low N matches S0² being held at 0.9: 12 × 0.8 = 9.6) |
-<!-- xrd-row -->
+| XRD | Pt-Co on reduced graphene oxide fuel-cell catalyst, lab diffractometer with a Co anode ([Zenodo 10.5281/zenodo.17131699](https://doi.org/10.5281/zenodo.17131699), CC-BY-4.0; Buriánek, Bouzek, Paušová 2025) | Phase **Pt3Co** out of 5 candidates, score 0.94 (PtNi 0.665, Pt 0.513 with no reflection matched); 4 of 5 peaks indexed, the fifth a broad hump at 29.4° (likely the carbon support); sphere diameter **3.4 nm** (Scherrer 2.7 nm) | Pt-Co alloy nanoparticles on rGO (the record); the Pt3Co superlattice lines are barely visible, so the alloy is confirmed, its ordering is not |
 
 <p>
-<img src="docs/experimental/pdf_pt_nanoparticles.png" alt="Concord's PDF fit of measured colloidal Pt nanoparticles: data and fcc Pt model overlap from 1.5 to 25 Å, Rw 0.116, with a small difference curve below." width="49%">
-<img src="docs/experimental/exafs_pt_foil.png" alt="Concord's EXAFS fit of a measured Pt foil at the Pt L3 edge: k-squared chi(k) and the magnitude of chi(R), data and model overlapping, R-factor 0.0041." width="49%">
+<img src="docs/experimental/xrd_ptco_rgo.png" alt="Concord's XRD fit of a measured Pt-Co on graphene oxide pattern: data and simulated Pt3Co model with reflection ticks, strong peaks near 48, 55, 83 and 102 degrees matched." width="32%">
+<img src="docs/experimental/pdf_pt_nanoparticles.png" alt="Concord's PDF fit of measured colloidal Pt nanoparticles: data and fcc Pt model overlap from 1.5 to 25 Å, Rw 0.116, with a small difference curve below." width="32%">
+<img src="docs/experimental/exafs_pt_foil.png" alt="Concord's EXAFS fit of a measured Pt foil at the Pt L3 edge: k-squared chi(k) and the magnitude of chi(R), data and model overlapping, R-factor 0.0041." width="32%">
 </p>
 
-*Concord's own fit figures on the measured data. Left: PDF of Pt nanoparticles. Right: EXAFS of a Pt foil.*
+*Concord's own fit figures on the measured data: XRD of Pt-Co/rGO, PDF of Pt nanoparticles, EXAFS of a Pt foil.*
 
-The numbers, sources and settings are in [`docs/experimental/`](docs/experimental/). One value was assumed: the PDF
-file gives no Qdamp, so the default 0.04 was used.
+The numbers, sources and settings are in [`docs/experimental/`](docs/experimental/). Assumed values: the PDF file gives
+no Qdamp, so the default 0.04 was used; the XRD has no instrument function, so its sizes are lower bounds.
 
 ## Run it
 
@@ -324,8 +325,8 @@ clean simulations.
 
 ## Limits
 
-- The held-out evaluation is simulated (open structures, FEFF, Debye-scattering and XRD simulation). Measured PDF and
-  EXAFS of Pt standards fit correctly ([It works on measured data too](#it-works-on-measured-data-too)); a measured
+- The held-out evaluation is simulated (open structures, FEFF, Debye-scattering and XRD simulation). Measured XRD, PDF and
+  EXAFS of Pt and Pt-Co samples fit correctly ([It works on measured data too](#it-works-on-measured-data-too)); a measured
   sample with all three techniques is the next test, and will expose effects the dataset lacks (preferred
   orientation, multiple scattering beyond FEFF's paths, beam damage).
 - The held-out numbers predate the 2026-10-23 fitting-agent changes (see [How well it works](#how-well-it-works)).
