@@ -27,3 +27,6 @@ results/runs/*/*
 web/*.tsbuildinfo
 uploads/
 .playwright-cli/
+
+# COD structures fetched at run time
+data/cod_cache/

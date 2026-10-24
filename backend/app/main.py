@@ -163,8 +163,27 @@ def _number(form, key: str, lo: float, hi: float) -> float | None:
     return v
 
 
+def _cased(comp: str) -> str:
+    """'pt3co' or 'PT3CO' -> 'Pt3Co': two-letter symbols first ('co' is cobalt, not C + O)."""
+    out, s = [], comp.lower()
+    while s:
+        m = re.match(r"\d+(?:\.\d+)?", s)
+        el = next((s[:n].capitalize() for n in (2, 1) if s[:n].isalpha() and Element.is_valid_symbol(s[:n].capitalize())), None)
+        if m:
+            out.append(m.group())
+        elif el:
+            out.append(el)
+        else:
+            return comp
+        s = s[len(out[-1]):]
+    return "".join(out)
+
+
 def _composition(raw) -> str:
-    comp = str(raw or "").strip()
+    comp = str(raw or "").strip().replace(" ", "")
+    valid = lambda c: re.fullmatch(r"(?:[A-Z][a-z]?(?:\d+(?:\.\d+)?)?){1,6}", c) and all(Element.is_valid_symbol(e) for e in re.findall(r"[A-Z][a-z]?", c))
+    if comp and not valid(comp):  # 'pt3co', 'CEO2'
+        comp = _cased(comp)
     if not re.fullmatch(r"(?:[A-Z][a-z]?(?:\d+(?:\.\d+)?)?){1,6}", comp):
         raise ValueError("give the composition as a formula, e.g. Pt3Co or CeO2")
     if not all(Element.is_valid_symbol(e) for e in re.findall(r"[A-Z][a-z]?", comp)):

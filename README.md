@@ -61,6 +61,10 @@ each refit and argue over the result; every challenge is settled by re-running a
 2. **Choose the structures.** From the formula Pt3Co, Concord took every library structure sharing a metal with it,
    5 in all (Pt3Co, PtNi, Pt, PtO2, Co3O4), and fitted each against the XRD and the PDF. Pt3Co won both: XRD score
    0.947 against 0.644 for the runner-up, PDF Rw 0.091 against 0.116 (Figure 3).
+   Any other composition works too: when the built-in library has no structure with exactly its elements, Concord
+   fetches candidate phases from the free [Crystallography Open Database](https://www.crystallography.net/cod/) (CC0)
+   on the fly (for Fe2O3: hematite, magnetite, FeO and Fe4O5) and caches them. Formulas may be typed in lower case
+   (`pt3co`).
 
    ![Figure 3: candidate structures](docs/brief/figure3-candidate-structures.png)
 

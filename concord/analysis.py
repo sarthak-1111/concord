@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 from pymatgen.core import Composition, Element, Structure
 
-from concord import checks
+from concord import checks, cod
 from concord.config import settings
 from concord.data_builder.fetch import load_structures, systems
 from concord.tools import pdf as pdft
@@ -78,10 +78,15 @@ def _cations(formula: str) -> set[str]:
 
 
 def candidates(composition: str) -> dict[str, Structure]:
-    """Library phases sharing a cation with the stated composition: its polymorphs, alloys and oxides."""
+    """Library phases sharing a cation with the stated composition: its polymorphs, alloys and oxides. When no library
+    phase has exactly the composition's elements, COD phases with those elements are added (concord.cod)."""
     want = _cations(composition)
     formulas = {s["name"]: s["formula"] for s in systems()}
-    return {name: entries[0][1] for name, entries in load_structures(library_only=True).items() if _cations(formulas[name]) & want}
+    lib = {name: entries[0][1] for name, entries in load_structures(library_only=True).items() if _cations(formulas[name]) & want}
+    els = set(Composition(composition).elements)
+    if not any(set(Composition(formulas[n]).elements) == els for n in lib):
+        lib.update({n: s for n, s in cod.candidates(composition).items() if n not in lib})
+    return lib
 
 
 def run_xrd(folder: Path, meta: dict, cands: dict, two_theta_min: float | None = None, two_theta_max: float | None = None,

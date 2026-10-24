@@ -69,11 +69,13 @@ def plan(composition: str, candidates: list[str] | None = None, size_nm: float =
     notes = [f"Showing {MAX_CANDIDATES} of {len(names)} candidates: {', '.join(names[MAX_CANDIDATES:])} left out."] if len(names) > MAX_CANDIDATES else []
     names = names[:MAX_CANDIDATES]
     if len(names) < 2:
-        raise ValueError(f"{composition} has {len(names) or 'no'} candidate phase{'' if len(names) == 1 else 's'} in the library"
+        raise ValueError(f"{composition} has {len(names) or 'no'} candidate phase{'' if len(names) == 1 else 's'} in the library or COD"
                          f"{' (' + ', '.join(names) + ')' if names else ''}, so there is nothing to tell apart")
     absorber = max(want, key=lambda e: Element(e).Z)
     edge = analysis.default_edge(absorber)
     thetas = instruments()["debye_temperature_K"]
+    if untab := [n for n in names if n not in thetas]:  # COD phases: as concord.generate does
+        notes.append(f"No Debye temperature is tabulated for {', '.join(untab)}; 300 K is assumed for the thermal motion.")
     conditions = {"xrd": {}, "pdf": {"qmax": QMAX, "qdamp": QDAMP}, "exafs": {"edge": f"{absorber} {edge}"}}
     out, timings = {}, {}
     for tech in techniques:
@@ -83,7 +85,7 @@ def plan(composition: str, candidates: list[str] | None = None, size_nm: float =
             if tech == "exafs" and absorber not in {e.symbol for e in lib[name].composition.elements}:
                 notes.append(f"{name} contains no {absorber}, so it has no {absorber} {edge} EXAFS curve.")
                 continue
-            curves[name] = simulate(tech, lib[name], thetas[name], size_nm, absorber, edge)
+            curves[name] = simulate(tech, lib[name], thetas.get(name, 300.0), size_nm, absorber, edge)
             if use:
                 try:
                     noisy[name] = np.asarray(use(tech, x, curves[name], composition=composition, seed=i, **conditions[tech]), float)
